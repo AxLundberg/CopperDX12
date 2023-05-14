@@ -15,10 +15,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Ioc.cpp">
+    <ClCompile Include="Ioc\Ioc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Log.cpp">
+    <ClCompile Include="Log\LogEntry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Log\LogChannel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

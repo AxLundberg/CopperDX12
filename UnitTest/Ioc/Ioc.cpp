@@ -1,4 +1,4 @@
-#include "CprCppUnitTests.h"
+#include "../CprCppUnitTests.h"
 #include "Core/src/ioc/Container.h"
 
 #include <memory>
@@ -18,7 +18,7 @@ struct Derived : public Base
 
 using namespace CPR;
 
-namespace Infrastructure
+namespace TST
 {
 	TEST_CLASS(IocTests)
 	{
