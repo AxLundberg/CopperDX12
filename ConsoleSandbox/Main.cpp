@@ -4,13 +4,13 @@
 
 struct Base
 {
-	virtual int Test() { return 420; }
+	virtual int Test() { return 0; }
 	virtual ~Base() = default;
 };
 
 struct Derived : public Base
 {
-	int Test() override { return 69; }
+	int Test() override { return 1; }
 };
 
 int main()
