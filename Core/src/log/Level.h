@@ -3,7 +3,7 @@
 
 namespace CPR::LOG
 {
-	enum class Level
+	enum class LogLevel
 	{
 		Trace,
 		Debug,
@@ -13,5 +13,5 @@ namespace CPR::LOG
 		Fatal,
 	};
 
-	std::wstring GetLevelName(Level);
+	std::wstring GetLevelName(LogLevel);
 }

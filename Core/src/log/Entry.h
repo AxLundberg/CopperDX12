@@ -7,8 +7,8 @@ namespace CPR::LOG
 {
 	struct Entry
 	{
-		Level lvl;
-		std::wstring str;
+		LogLevel level;
+		std::wstring text;
 		const wchar_t* srcFile;
 		const wchar_t* srcFunction;
 		int srcLine;
