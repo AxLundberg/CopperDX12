@@ -21,12 +21,21 @@
     <ClInclude Include="src\ioc\Singletons.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\log\Entry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\log\Level.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ioc\Container.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ioc\Singletons.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\log\Level.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
