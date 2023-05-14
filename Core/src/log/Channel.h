@@ -10,6 +10,6 @@ namespace CPR::LOG
 		virtual ~IChannel() = default;
 		virtual void Submit(Entry&) = 0;
 	private:
-
+		Entry mEntry;
 	};
 }
