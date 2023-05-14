@@ -92,6 +92,7 @@
     <ClCompile Include="Ioc\Ioc.cpp" />
     <ClCompile Include="Log\LogChannel.cpp" />
     <ClCompile Include="Log\LogEntry.cpp" />
+    <ClCompile Include="Log\LogTextFormatter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.vcxproj">

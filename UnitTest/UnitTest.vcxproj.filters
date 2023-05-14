@@ -24,6 +24,9 @@
     <ClCompile Include="Log\LogChannel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Log\LogTextFormatter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CprCppUnitTests.h">
