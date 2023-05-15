@@ -20,7 +20,7 @@ public:
 		mEntry = e;
 	}
 	void AttachDriver(std::shared_ptr<LOG::IDriver>) override {}
-	void AttachPolicy(std::unique_ptr<LOG::IPolicy>) override {}
+	void AttachPolicy(std::shared_ptr<LOG::IPolicy>) override {}
 	LOG::Entry mEntry;
 };
 

@@ -7,10 +7,10 @@ namespace CPR::LOG
 	class MsvcDebugDriver : public ITextDriver
 	{
 	public:
-		MsvcDebugDriver(std::unique_ptr<ITextFormatter> formatter = {});
+		MsvcDebugDriver(std::shared_ptr<ITextFormatter> formatter = {});
 		void Submit(const Entry&) override;
-		void SetFormatter(std::unique_ptr<ITextFormatter> formatter) override;
+		void SetFormatter(std::shared_ptr<ITextFormatter> formatter) override;
 	private:
-		std::unique_ptr<ITextFormatter> mFormatter;
+		std::shared_ptr<ITextFormatter> mFormatter;
 	};
 }

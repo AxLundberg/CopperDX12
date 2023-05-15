@@ -5,7 +5,7 @@
 
 namespace CPR::LOG
 {
-	MsvcDebugDriver::MsvcDebugDriver(std::unique_ptr<ITextFormatter> formatter)
+	MsvcDebugDriver::MsvcDebugDriver(std::shared_ptr<ITextFormatter> formatter)
 		:
 		mFormatter{ std::move(formatter) }
 	{}
@@ -19,7 +19,7 @@ namespace CPR::LOG
 		// How to log from LogSystem?
 	}
 
-	void MsvcDebugDriver::SetFormatter(std::unique_ptr<ITextFormatter> formatter)
+	void MsvcDebugDriver::SetFormatter(std::shared_ptr<ITextFormatter> formatter)
 	{
 		mFormatter = std::move(formatter);
 	}

@@ -30,7 +30,7 @@ namespace CPR::LOG
 		mDrivers.push_back(std::move(d));
 	}
 
-	void Channel::AttachPolicy(std::unique_ptr<IPolicy> p)
+	void Channel::AttachPolicy(std::shared_ptr<IPolicy> p)
 	{
 		mPolicies.push_back(std::move(p));
 	}

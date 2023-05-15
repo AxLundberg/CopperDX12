@@ -76,6 +76,8 @@ namespace CPR::LOG
 	{
 		if (mDest)
 		{
+			if ((int)level <= (int)LogLevel::Error)
+				trace.emplace();
 			mDest->Submit(*this);
 		}
 	}

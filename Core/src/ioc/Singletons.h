@@ -24,7 +24,7 @@ namespace CPR::IOC
 			mServiceMap[typeid(T)] = gen;
 		}
 		template<class T>
-		void RegisterPassthru()
+		void RegisterPassThrough()
 		{
 			Register<T>([] { return IOC::Get().Resolve<T>(); });
 		}
@@ -49,7 +49,7 @@ namespace CPR::IOC
 				{
 					throw std::logic_error{ std::format(
 						L"Could not resolve Singleton mapped type\nfrom: [{}]\n  to: [{}]\n",
-						entry.type().name(), typeid(Generator<T>).name())
+						entry.type().name(), typeid(T).name())
 					};
 				}
 			}
