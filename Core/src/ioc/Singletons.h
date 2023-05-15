@@ -48,8 +48,8 @@ namespace CPR::IOC
 				catch (const std::bad_any_cast&)
 				{
 					throw std::logic_error{ std::format(
-						L"Could not resolve Singleton mapped type\nfrom: [{}]\n  to: [{}]\n",
-						entry.type().name(), typeid(T).name())
+						"Could not resolve Singleton mapped type\nfrom: [{}]\n  to: [{}]\n",
+						entry.type().name(), typeid(Generator<T>).name())
 					};
 				}
 			}
