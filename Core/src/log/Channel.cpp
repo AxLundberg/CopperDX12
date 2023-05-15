@@ -1,5 +1,6 @@
 #include "Channel.h"
 #include "Driver.h"
+#include "Policy.h"
 
 namespace CPR::LOG
 {
@@ -8,8 +9,16 @@ namespace CPR::LOG
 		mDrivers{ std::move(drivers) }
 	{}
 
+	Channel::~Channel()
+	{}
+
 	void Channel::Submit(Entry& e)
 	{
+		for (auto& p : mPolicies)
+		{
+			if (!p->TransformFilter(e))
+				return;
+		}
 		for (auto& d : mDrivers)
 		{
 			d->Submit(e);
@@ -19,5 +28,10 @@ namespace CPR::LOG
 	void Channel::AttachDriver(std::shared_ptr<IDriver> d)
 	{
 		mDrivers.push_back(std::move(d));
+	}
+
+	void Channel::AttachPolicy(std::unique_ptr<IPolicy> p)
+	{
+		mPolicies.push_back(std::move(p));
 	}
 }

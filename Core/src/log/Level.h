@@ -5,12 +5,13 @@ namespace CPR::LOG
 {
 	enum class LogLevel
 	{
-		Trace,
-		Debug,
-		Info,
-		Warn,
-		Error,
+		None,
 		Fatal,
+		Error,
+		Warn,
+		Info,
+		Debug,
+		Trace,
 	};
 
 	std::wstring GetLevelName(LogLevel);

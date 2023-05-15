@@ -1,6 +1,7 @@
 #include "../CprCppUnitTests.h"
 #include "Core/src/log/EntryBuilder.h"
 #include "Core/src/log/Channel.h"
+#include "Core/src/log/Policy.h"
 
 #include <memory>
 
@@ -19,6 +20,7 @@ public:
 		mEntry = e;
 	}
 	void AttachDriver(std::shared_ptr<LOG::IDriver>) override {}
+	void AttachPolicy(std::unique_ptr<LOG::IPolicy>) override {}
 	LOG::Entry mEntry;
 };
 
@@ -39,7 +41,7 @@ namespace TST
 			cprlog.Info(L"Log TestFluent").Channel(&ch);
 			Assert::AreEqual(L"Log TestFluent"s, ch.mEntry.text);
 			Assert::IsTrue(LOG::LogLevel::Info == ch.mEntry.level);
-			Assert::AreEqual(39, ch.mEntry.srcLine);
+			Assert::AreEqual(41, ch.mEntry.srcLine);
 		}
 
 		TEST_METHOD(BasicLevelNote)

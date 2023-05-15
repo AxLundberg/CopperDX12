@@ -2,6 +2,7 @@
 #include "Core/src/log/EntryBuilder.h"
 #include "Core/src/log/Channel.h"
 #include "Core/src/log/Driver.h"
+#include "Core/src/log/SeverityLevelPolicy.h"
 
 #include <memory>
 
@@ -45,6 +46,19 @@ namespace TST
 			Assert::AreEqual(LOG::LogLevel::Info, driver1->mEntry.level);
 			Assert::AreEqual(L"Log TestForwarding"s, driver2->mEntry.text);
 			Assert::AreEqual(LOG::LogLevel::Info, driver2->mEntry.level);
+		}
+		TEST_METHOD(TestPolicyFiltering)
+		{
+			LOG::Channel ch;
+			auto driver = std::make_shared<TestDriver>();
+			ch.AttachDriver(driver);
+			ch.AttachPolicy(std::make_unique<LOG::SeverityLevelPolicy>(LOG::LogLevel::Info));
+			cprlog.Info(L"LogTest Forwarding").Channel(&ch);
+			Assert::AreEqual(L"LogTest Forwarding"s, driver->mEntry.text);
+			Assert::AreEqual(LOG::LogLevel::Info, driver->mEntry.level);
+			cprlog.Debug(L"LogTest PolicyFiltering").Channel(&ch);
+			Assert::AreEqual(L"LogTest Forwarding"s, driver->mEntry.text);
+			Assert::AreEqual(LOG::LogLevel::Info, driver->mEntry.level);
 		}
 	};
 }

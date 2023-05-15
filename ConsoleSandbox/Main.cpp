@@ -4,6 +4,7 @@
 #include "Core/src/log/Channel.h"
 #include "Core/src/log/MsvcDebugDriver.h"
 #include "Core/src/log/TextFormatter.h"
+#include "Core/src/log/SeverityLevelPolicy.h"
 
 using namespace CPR;
 using namespace std::string_literals;
@@ -18,6 +19,9 @@ int main()
 			std::make_shared<LOG::MsvcDebugDriver>(std::make_unique<LOG::TextFormatter>())
 		}
 	);
-	cprlog.Fatal(L"NOES!");
+	ch->AttachPolicy(std::make_unique<LOG::SeverityLevelPolicy>(LOG::LogLevel::Error));
+	cprlog.Fatal(L"FATAL!");
+	cprlog.Warn(L"WARN!");
+	cprlog.Error(L"ERROR!");
 	return 0;
 }
