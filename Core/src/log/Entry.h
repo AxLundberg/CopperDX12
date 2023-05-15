@@ -1,6 +1,5 @@
 #pragma once
 #include "Level.h"
-
 #include <chrono>
 
 namespace CPR::LOG
