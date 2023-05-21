@@ -4,7 +4,9 @@
 
 namespace CPR::LOG
 {
-	class SeverityLevelPolicy : public IPolicy
+	class ISeverityLevelPolicy : public IPolicy {};
+
+	class SeverityLevelPolicy : public ISeverityLevelPolicy
 	{
 	public:
 		SeverityLevelPolicy(LogLevel level);
