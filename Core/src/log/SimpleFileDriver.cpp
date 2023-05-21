@@ -13,6 +13,11 @@ namespace CPR::LOG
 		mFile.open(path, mFile.out | mFile.app);
 	}
 
+	void SimpleFileDriver::Flush()
+	{
+		mFile.flush();
+	}
+
 	void SimpleFileDriver::Submit(const Entry& e)
 	{
 		if (mFormatter)

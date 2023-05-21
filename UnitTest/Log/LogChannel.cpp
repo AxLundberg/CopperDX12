@@ -20,6 +20,7 @@ public:
 	{
 		mEntry = e;
 	}
+	void Flush() override {}
 	LOG::Entry mEntry;
 };
 

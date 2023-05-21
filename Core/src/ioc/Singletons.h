@@ -8,6 +8,9 @@
 #include <unordered_map>
 
 #include "Container.h"
+#include "Exception.h"
+#include <Core/src/utl/Assert.h>
+#include <Core/src/utl/String.h>
 
 namespace CPR::IOC
 {
@@ -47,15 +50,16 @@ namespace CPR::IOC
 				}
 				catch (const std::bad_any_cast&)
 				{
-					throw std::logic_error{ std::format(
-						"Could not resolve Singleton mapped type\nfrom: [{}]\n  to: [{}]\n",
-						entry.type().name(), typeid(Generator<T>).name())
-					};
+					cpr_check_fail.Msg(std::format(
+						L"Failed to resolve Singleton mapped type\nFrom: [{}]\n to: [{}]",
+						UTL::ToWide(entry.type().name()), UTL::ToWide(typeid(Generator<T>).name())
+					)).Ex();
 				}
+
 			}
 			else
 			{
-				throw std::runtime_error{ std::format(
+				throw ServiceNotFound{ std::format(
 					"Failed to find entry for type [{}] in singleton container",
 					typeid(T).name())
 				};

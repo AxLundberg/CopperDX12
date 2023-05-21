@@ -10,6 +10,7 @@ namespace CPR::LOG
 	{
 	public:
 		MsvcDebugDriver(std::shared_ptr<ITextFormatter> formatter = {});
+		void Flush() override;
 		void Submit(const Entry&) override;
 		void SetFormatter(std::shared_ptr<ITextFormatter> formatter) override;
 	private:

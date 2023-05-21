@@ -12,6 +12,14 @@ namespace CPR::LOG
 	Channel::~Channel()
 	{}
 
+	void Channel::Flush()
+	{
+		for (auto& d : mDrivers)
+		{
+			d->Flush();
+		}
+	}
+
 	void Channel::Submit(Entry& e)
 	{
 		for (auto& p : mPolicies)

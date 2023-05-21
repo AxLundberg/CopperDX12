@@ -8,6 +8,10 @@
 #include <functional>
 #include <unordered_map>
 
+#include "Exception.h"
+#include "Core/src/utl/Assert.h"
+#include "Core/src/utl/String.h"
+
 namespace CPR::IOC
 {
 	template<class T>
@@ -58,16 +62,16 @@ namespace CPR::IOC
 				}
 				catch (const std::bad_any_cast&)
 				{
-					throw std::logic_error{ std::format(
-						"Failed to resolve IoC mapped type\nFrom: [{}]\n to: [{}]",
-						entry.type().name(), typeid(G).name())
-					};
+					cpr_check_fail.Msg(std::format(
+						L"Failed to resolve IoC mapped type\nFrom: [{}]\n to: [{}]",
+						UTL::ToWide(entry.type().name()), UTL::ToWide(typeid(G).name())
+					)).Ex();
 				}
 			}
 			else
 			{
-				throw std::runtime_error{ std::format(
-					"Failed to find generator for type [{}] in IoC container",
+				throw ServiceNotFound{ std::format(
+					"Could not find generator for type [{}] in IoC container",
 					typeid(T).name())
 				};
 			}

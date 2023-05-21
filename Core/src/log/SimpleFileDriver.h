@@ -12,6 +12,7 @@ namespace CPR::LOG
 	{
 	public:
 		SimpleFileDriver(std::filesystem::path path, std::shared_ptr<ITextFormatter> formatter = {});
+		void Flush() override;
 		void Submit(const Entry&) override;
 		void SetFormatter(std::shared_ptr<ITextFormatter> formatter) override;
 	private:

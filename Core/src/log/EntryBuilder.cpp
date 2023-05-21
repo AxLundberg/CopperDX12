@@ -1,6 +1,11 @@
 #include "EntryBuilder.h"
 #include "Channel.h"
 
+#pragma warning(push) 
+#pragma warning(disable: 26815) 
+// there is a bug in the static analysis that causes a false positive
+// on some functions returning *this (not consistent or correct) 
+
 namespace CPR::LOG
 {
 	CPR::LOG::EntryBuilder::EntryBuilder(const wchar_t* srcFile, const wchar_t* srcFunction, int srcLine)
@@ -72,13 +77,39 @@ namespace CPR::LOG
 		mDest = ch;
 		return *this;
 	}
+	EntryBuilder& EntryBuilder::Trace_Skip(int depth)
+	{
+		mTraceSkipDepth = depth;
+		return *this;
+	}
+	EntryBuilder& EntryBuilder::No_Trace()
+	{
+		captureTrace = false;
+		return *this;
+	}
+	EntryBuilder& EntryBuilder::Trace()
+	{
+		captureTrace = true;
+		return *this;
+	}
+	EntryBuilder& EntryBuilder::No_Line()
+	{
+		showSourceLine = false;
+		return *this;
+	}
+	EntryBuilder& EntryBuilder::Line()
+	{
+		showSourceLine = true;
+		return *this;
+	}
 	EntryBuilder::~EntryBuilder()
 	{
 		if (mDest)
 		{
-			if ((int)level <= (int)LogLevel::Error)
-				trace.emplace();
+			if (captureTrace.value_or((int)level <= (int)LogLevel::Error))
+				trace.emplace(mTraceSkipDepth);
 			mDest->Submit(*this);
 		}
 	}
 }
+#pragma warning(pop)

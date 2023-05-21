@@ -15,5 +15,8 @@ namespace CPR::LOG
 		int srcLine = -1;
 		std::chrono::system_clock::time_point timeStamp;
 		std::optional<CPR::UTL::StackTrace> trace;
+		// behavior override flags 
+		std::optional<bool> captureTrace;
+		std::optional<bool> showSourceLine;
 	};
 }

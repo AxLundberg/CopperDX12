@@ -10,6 +10,7 @@ namespace CPR::LOG
 	{
 	public:
 		virtual ~IDriver() = default;
+		virtual void Flush() = 0;
 		virtual void Submit(const Entry&) = 0;
 	};
 

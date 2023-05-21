@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "Core/src/log/Log.h"
+#include "Core/src/utl/Assert.h"
 #include "Core/src/log/Channel.h"
 #include "Core/src/log/EntryBuilder.h"
 #include "Core/src/log/TextFormatter.h"
@@ -32,6 +33,19 @@ int main()
 	std::wcout << st2.Print() << std::endl;
 	std::wcout << st.Print() << std::endl;
 
-	StackTraceError();
+	int x = 0, y = 1;
+	cpr_assert(x > y).Msg(L"TEST ASSERT").assert_watch(x).assert_watch(y);
+
+	cpr_check(x > y);
+
+	try
+	{
+		cpr_check(x > y).assert_watch(x).Ex();
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what() << std::endl;
+	}
+
 	return 0;
 }

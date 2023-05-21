@@ -10,6 +10,10 @@ namespace CPR::LOG
 		mFormatter{ std::move(formatter) }
 	{}
 
+	void MsvcDebugDriver::Flush()
+	{
+	}
+
 	void MsvcDebugDriver::Submit(const Entry& e)
 	{
 		if (mFormatter)

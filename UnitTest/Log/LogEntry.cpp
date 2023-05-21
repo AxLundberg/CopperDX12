@@ -21,6 +21,7 @@ public:
 	}
 	void AttachDriver(std::shared_ptr<LOG::IDriver>) override {}
 	void AttachPolicy(std::shared_ptr<LOG::IPolicy>) override {}
+	void Flush() override {}
 	LOG::Entry mEntry;
 };
 
