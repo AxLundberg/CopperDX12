@@ -8,6 +8,8 @@
 #include "Core/src/log/MsvcDebugDriver.h"
 #include "Core/src/log/SeverityLevelPolicy.h"
 
+#include "Core/src/win/WindowClass.h"
+
 using namespace CPR;
 using namespace std::string_literals;
 
@@ -24,6 +26,7 @@ void StackTraceError()
 int main()
 {
 	Boot();
+	auto pWin = std::make_shared<WIN::WindowClass>();
 	cprlog.Fatal(L"FATAL!");
 	cprlog.Warn(L"WARN!");
 
@@ -31,21 +34,6 @@ int main()
 	auto st2 = std::move(st);
 
 	std::wcout << st2.Print() << std::endl;
-	std::wcout << st.Print() << std::endl;
-
-	int x = 0, y = 1;
-	cpr_assert(x > y).Msg(L"TEST ASSERT").assert_watch(x).assert_watch(y);
-
-	cpr_check(x > y);
-
-	try
-	{
-		cpr_check(x > y).assert_watch(x).Ex();
-	}
-	catch (const std::exception& e)
-	{
-		std::cout << e.what() << std::endl;
-	}
 
 	return 0;
 }
