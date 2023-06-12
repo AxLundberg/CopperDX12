@@ -1,5 +1,8 @@
 #include "WindowClass.h" 
 #include "IWindow.h"
+#include "Exception.h"
+#include "Core/src/log/Log.h"
+#include "Core/src/utl/Assert.h"
 
 namespace CPR::WIN
 {
@@ -27,6 +30,11 @@ namespace CPR::WIN
 			.hIconSm = nullptr,
 		};
 		m_atom = RegisterClassExW(&wc);
+		if (!m_atom)
+		{
+			cprlog.Error().Hr();
+			throw WindowException{};
+		}
 	}
 	ATOM WindowClass::GetAtom() const
 	{
@@ -38,7 +46,10 @@ namespace CPR::WIN
 	}
 	WindowClass::~WindowClass()
 	{
-		UnregisterClass(MAKEINTATOM(m_atom), m_hInstance);
+		if (!UnregisterClass(MAKEINTATOM(m_atom), m_hInstance))
+		{
+			cprlog.Warn().Hr();
+		}
 	}
 	LRESULT WindowClass::HandleMessageSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
 	{
@@ -48,10 +59,21 @@ namespace CPR::WIN
 			// extract ptr to window class from creation data 
 			const CREATESTRUCTW* const pCreate = reinterpret_cast<CREATESTRUCTW*>(lParam);
 			IWindow* const pWnd = static_cast<IWindow*>(pCreate->lpCreateParams);
+			cpr_check(pWnd);
 			// set WinAPI-managed user data to store ptr to window instance 
+			SetLastError(0);
 			SetWindowLongPtrW(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pWnd));
+			if (auto hr = GetLastError())
+			{
+				cprlog.Warn().Hr(hr);
+			}
 			// set message proc to normal (non-setup) handler now that setup is finished 
+			SetLastError(0);
 			SetWindowLongPtrW(hWnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(&WindowClass::HandleMessageThunk));
+			if (auto hr = GetLastError())
+			{
+				cprlog.Warn().Hr(hr);
+			}
 			// forward message to window instance handler 
 			return ForwardMessage(pWnd, hWnd, msg, wParam, lParam);
 		}
@@ -62,6 +84,7 @@ namespace CPR::WIN
 	{
 		// retrieve ptr to window instance 
 		IWindow* const pWnd = reinterpret_cast<IWindow*>(GetWindowLongPtrW(hWnd, GWLP_USERDATA));
+		cpr_assert(pWnd);
 		// forward message to window instance handler 
 		return ForwardMessage(pWnd, hWnd, msg, wParam, lParam);
 	}

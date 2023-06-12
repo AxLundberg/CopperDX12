@@ -23,6 +23,8 @@ namespace CPR::LOG
 		EntryBuilder& Trace();
 		EntryBuilder& No_Line();
 		EntryBuilder& Line();
+		EntryBuilder& Hr();
+		EntryBuilder& Hr(unsigned int);
 		~EntryBuilder();
 	private:
 		IChannel* mDest = nullptr;

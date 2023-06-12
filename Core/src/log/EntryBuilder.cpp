@@ -1,5 +1,6 @@
 #include "EntryBuilder.h"
 #include "Channel.h"
+#include "Core/src/win/CopperWin.h"
 
 #pragma warning(push) 
 #pragma warning(disable: 26815) 
@@ -100,6 +101,16 @@ namespace CPR::LOG
 	EntryBuilder& EntryBuilder::Line()
 	{
 		showSourceLine = true;
+		return *this;
+	}
+	EntryBuilder& EntryBuilder::Hr()
+	{
+		hResult = GetLastError();
+		return *this;
+	}
+	EntryBuilder& EntryBuilder::Hr(unsigned int hr)
+	{
+		hResult = hr;
 		return *this;
 	}
 	EntryBuilder::~EntryBuilder()

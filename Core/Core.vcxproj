@@ -105,7 +105,9 @@
     <ClInclude Include="src\utl\StackTrace.h" />
     <ClInclude Include="src\utl\String.h" />
     <ClInclude Include="src\win\CopperWin.h" />
+    <ClInclude Include="src\win\Exception.h" />
     <ClInclude Include="src\win\IWindow.h" />
+    <ClInclude Include="src\win\Util.h" />
     <ClInclude Include="src\win\WindowClass.h" />
     <ClInclude Include="thirdParty\backward.h" />
   </ItemGroup>
@@ -125,6 +127,7 @@
     <ClCompile Include="src\utl\NoReturn.cpp" />
     <ClCompile Include="src\utl\StackTrace.cpp" />
     <ClCompile Include="src\utl\String.cpp" />
+    <ClCompile Include="src\win\Util.cpp" />
     <ClCompile Include="src\win\WindowClass.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -27,13 +27,16 @@ int main()
 {
 	Boot();
 	auto pWin = std::make_shared<WIN::WindowClass>();
-	cprlog.Fatal(L"FATAL!");
-	cprlog.Warn(L"WARN!");
+	//cprlog.Error(L"==No trace==").No_Trace().No_Line();
+	cprlog.Error(L"==Trace==");
 
-	UTL::StackTrace st;
-	auto st2 = std::move(st);
-
-	std::wcout << st2.Print() << std::endl;
+	int x = 0, y = 1;
+	try{
+		cpr_check(x > y).assert_watch(x).Ex();
+	}
+	catch (const std::exception& e){
+		std::cout << e.what() << std::endl;
+	}
 
 	return 0;
 }

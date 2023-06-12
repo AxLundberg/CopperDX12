@@ -1,6 +1,6 @@
 #pragma once 
 #include "CopperWin.h"
-#include <string> 
+#include <string>
 
 namespace CPR::WIN
 {
@@ -18,7 +18,7 @@ namespace CPR::WIN
 	class WindowClass : public IWindowClass
 	{
 	public:
-		WindowClass(const std::wstring& className = L"$Chil-Default-Window-Class$");
+		WindowClass(const std::wstring& className = L"$Cpr-Default-Window-Class$");
 		ATOM GetAtom() const override;
 		HINSTANCE GetInstance() const override;
 		~WindowClass() override;
