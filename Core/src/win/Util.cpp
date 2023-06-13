@@ -1,4 +1,5 @@
 #include "Util.h"
+#include "Exception.h"
 #include "Core/src/log/log.h"
 
 namespace CPR::WIN
@@ -30,5 +31,34 @@ namespace CPR::WIN
 			}
 		}
 		return description;
+	}
+	RECT ToWinRect(const SPA::RectI& sRect)
+	{
+		return RECT {
+			.left = sRect.left,
+			.top = sRect.top,
+			.right = sRect.right,
+			.bottom = sRect.bottom,
+		};
+	}
+	SPA::RectI ToSpaRect(const RECT& wRect)
+	{
+		return SPA::RectI{
+			.left = wRect.left,
+			.top = wRect.top,
+			.right = wRect.right,
+			.bottom = wRect.bottom,
+		};
+	}
+	SPA::DimensionsI ClientToWindowDimensions(const SPA::DimensionsI& sDim, DWORD styles)
+	{
+		using namespace SPA;
+		auto rect = ToWinRect(RectI::FromTopLeftAndDimensions({ 0, 0 }, sDim));
+		if (AdjustWindowRect(&rect, styles, false) == false)
+		{
+			cprlog.Error(L"Failed to adjust window rect").Hr();
+			throw WindowException{};
+		}
+		return ToSpaRect(rect).GetDimensions();
 	}
 }
