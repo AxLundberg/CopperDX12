@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConsoleSandbox", "ConsoleSa
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest", "UnitTest\UnitTest.vcxproj", "{8AA5395F-A33E-4F0A-A578-D6FE142FA8DD}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WindowApp", "WindowApp\WindowApp.vcxproj", "{5EB3B52C-6492-4ECE-B976-8946BF280138}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -27,6 +29,10 @@ Global
 		{8AA5395F-A33E-4F0A-A578-D6FE142FA8DD}.Debug|x64.Build.0 = Debug|x64
 		{8AA5395F-A33E-4F0A-A578-D6FE142FA8DD}.Release|x64.ActiveCfg = Release|x64
 		{8AA5395F-A33E-4F0A-A578-D6FE142FA8DD}.Release|x64.Build.0 = Release|x64
+		{5EB3B52C-6492-4ECE-B976-8946BF280138}.Debug|x64.ActiveCfg = Debug|x64
+		{5EB3B52C-6492-4ECE-B976-8946BF280138}.Debug|x64.Build.0 = Debug|x64
+		{5EB3B52C-6492-4ECE-B976-8946BF280138}.Release|x64.ActiveCfg = Release|x64
+		{5EB3B52C-6492-4ECE-B976-8946BF280138}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

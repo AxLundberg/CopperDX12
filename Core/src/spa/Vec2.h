@@ -38,6 +38,11 @@ namespace CPR::SPA
 		{
 			return Vec2T{ *this } *= rhs;
 		}
+		bool operator==(const Vec2T& rhs) const
+		{
+			return x == rhs.x && y == rhs.y;
+		}
+
 	};
 	using Vec2F = Vec2T<float>;
 	using Vec2I = Vec2T<int>;
