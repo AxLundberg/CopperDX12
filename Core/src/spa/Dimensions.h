@@ -12,6 +12,11 @@ namespace CPR::SPA
 		{
 			return width * height;
 		}
+		// operators
+		bool operator==(const DimensionsT& rhs) const
+		{
+			return width == rhs.width && height == rhs.width;
+		}
 	};
 	using DimensionsF = DimensionsT<float>;
 	using DimensionsI = DimensionsT<int>;
