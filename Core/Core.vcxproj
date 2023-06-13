@@ -98,12 +98,16 @@
     <ClInclude Include="src\log\SeverityLevelPolicy.h" />
     <ClInclude Include="src\log\SimpleFileDriver.h" />
     <ClInclude Include="src\log\TextFormatter.h" />
+    <ClInclude Include="src\spa\Dimensions.h" />
+    <ClInclude Include="src\spa\Rect.h" />
+    <ClInclude Include="src\spa\Vec2.h" />
     <ClInclude Include="src\utl\Assert.h" />
     <ClInclude Include="src\utl\Exception.h" />
     <ClInclude Include="src\utl\Macro.h" />
     <ClInclude Include="src\utl\NoReturn.h" />
     <ClInclude Include="src\utl\StackTrace.h" />
     <ClInclude Include="src\utl\String.h" />
+    <ClInclude Include="src\win\Boot.h" />
     <ClInclude Include="src\win\CopperWin.h" />
     <ClInclude Include="src\win\Exception.h" />
     <ClInclude Include="src\win\IWindow.h" />
@@ -127,6 +131,7 @@
     <ClCompile Include="src\utl\NoReturn.cpp" />
     <ClCompile Include="src\utl\StackTrace.cpp" />
     <ClCompile Include="src\utl\String.cpp" />
+    <ClCompile Include="src\win\Boot.cpp" />
     <ClCompile Include="src\win\Util.cpp" />
     <ClCompile Include="src\win\WindowClass.cpp" />
   </ItemGroup>

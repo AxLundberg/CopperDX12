@@ -54,7 +54,7 @@ namespace CPR::WIN
 	{
 		using namespace SPA;
 		auto rect = ToWinRect(RectI::FromTopLeftAndDimensions({ 0, 0 }, sDim));
-		if (AdjustWindowRect(&rect, styles, false) == false)
+		if (AdjustWindowRect(&rect, styles, FALSE) == FALSE)
 		{
 			cprlog.Error(L"Failed to adjust window rect").Hr();
 			throw WindowException{};
