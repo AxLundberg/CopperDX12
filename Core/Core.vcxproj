@@ -58,6 +58,7 @@
       <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -74,6 +75,7 @@
       <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -113,6 +115,7 @@
     <ClInclude Include="src\win\Exception.h" />
     <ClInclude Include="src\win\IWindow.h" />
     <ClInclude Include="src\win\Util.h" />
+    <ClInclude Include="src\win\Window.h" />
     <ClInclude Include="src\win\WindowClass.h" />
     <ClInclude Include="thirdParty\backward.h" />
   </ItemGroup>
@@ -135,6 +138,7 @@
     <ClCompile Include="src\utl\String.cpp" />
     <ClCompile Include="src\win\Boot.cpp" />
     <ClCompile Include="src\win\Util.cpp" />
+    <ClCompile Include="src\win\Window.cpp" />
     <ClCompile Include="src\win\WindowClass.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -16,7 +16,7 @@ namespace CPR::IOC
 {
 	template<class T>
 	concept Parameterized = requires() {
-		{ typename T::IocParamsP{} };
+		{ typename T::IocParams{} };
 	};
 	template<class T>
 	concept NotParameterized = !Parameterized<T>;
@@ -24,11 +24,13 @@ namespace CPR::IOC
 	class Container
 	{
 	public:
+		// types
 		template<class T>
 		using Generator = std::function<std::shared_ptr<T>()>;
 		template<class T>
 		using ParameterizedGenerator = std::function<std::shared_ptr<T>(typename T::IocParams)>;
 	public:
+		// functions
 		template<Parameterized T>
 		void Register(ParameterizedGenerator<T> gen)
 		{
@@ -40,43 +42,41 @@ namespace CPR::IOC
 			mServiceMap[typeid(T)] = gen;
 		}
 		template<Parameterized T>
-		std::shared_ptr<T> Resolve(typename T::SvcParams&& params = {}) const
+		std::shared_ptr<T> Resolve(typename T::IocParams&& params = {}) const
 		{
-			return _Resolve<T, ParameterizedGenerator<T>>(std::forward<typename T::SvcParams>(params));
+			return Resolve_<T, ParameterizedGenerator<T>>(std::forward<typename T::IocParams>(params));
 		}
 		template<NotParameterized T>
 		std::shared_ptr<T> Resolve() const
 		{
-			return _Resolve<T, Generator<T>>();
+			return Resolve_<T, Generator<T>>();
 		}
 	private:
+		// functions
 		template<class T, class G, typename...Ps>
-		std::shared_ptr<T> _Resolve(Ps&&...arg) const
+		std::shared_ptr<T> Resolve_(Ps&&...arg) const
 		{
+			// TODO: pull this out of template/header
 			if (const auto i = mServiceMap.find(typeid(T)); i != mServiceMap.end())
 			{
 				const auto& entry = i->second;
-				try
-				{
+				try {
 					return std::any_cast<G>(entry)(std::forward<Ps>(arg)...);
 				}
-				catch (const std::bad_any_cast&)
-				{
+				catch (const std::bad_any_cast&) {
 					cpr_check_fail.Msg(std::format(
-						L"Failed to resolve IoC mapped type\nFrom: [{}]\n to: [{}]",
+						L"Could not resolve IoC mapped type\nfrom: [{}]\n  to: [{}]\n",
 						UTL::ToWide(entry.type().name()), UTL::ToWide(typeid(G).name())
 					)).Ex();
 				}
 			}
 			else
 			{
-				throw ServiceNotFound{ std::format(
-					"Could not find generator for type [{}] in IoC container",
-					typeid(T).name())
-				};
+				throw ServiceNotFound{ std::format("Could not find generator for type [{}] in IoC container", typeid(T).name()) };
 			}
 		}
 	private:
+		// data
 		std::unordered_map<std::type_index, std::any> mServiceMap;
 	};
 
