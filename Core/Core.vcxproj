@@ -88,6 +88,7 @@
   <ItemGroup>
     <ClInclude Include="src\ccr\GenericTaskQueue.h" />
     <ClInclude Include="src\ecs\Ecs.h" />
+    <ClInclude Include="src\ecs\EcsManager.h" />
     <ClInclude Include="src\ecs\EcsEntity.h" />
     <ClInclude Include="src\ecs\EcsSystem.h" />
     <ClInclude Include="src\ioc\Container.h" />
@@ -125,6 +126,7 @@
   <ItemGroup>
     <ClCompile Include="src\ccr\GenericTaskQueue.cpp" />
     <ClCompile Include="src\ecs\Ecs.cpp" />
+    <ClCompile Include="src\ecs\EcsManager.cpp" />
     <ClCompile Include="src\ecs\EcsEntity.cpp" />
     <ClCompile Include="src\ioc\Container.cpp" />
     <ClCompile Include="src\ioc\Singletons.cpp" />

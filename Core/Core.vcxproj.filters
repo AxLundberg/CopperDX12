@@ -111,13 +111,16 @@
     <ClInclude Include="src\win\Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ecs\Ecs.h">
+    <ClInclude Include="src\ecs\EcsManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ecs\EcsEntity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ecs\EcsSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ecs\Ecs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -182,10 +185,13 @@
     <ClCompile Include="src\win\Window.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ecs\Ecs.cpp">
+    <ClCompile Include="src\ecs\EcsManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ecs\EcsEntity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ecs\Ecs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

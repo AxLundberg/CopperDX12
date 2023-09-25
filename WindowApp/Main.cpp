@@ -3,9 +3,12 @@
 #include <Core/src/log/Log.h>
 #include <Core/src/win/IWindow.h>
 #include <Core/src/ioc/Container.h>
+#include <Core/src/ioc/Singletons.h>
 #include <Core/src/log/SeverityLevelPolicy.h>
 #include <format>
 #include <ranges>
+
+#include <Core/src/ecs/Ecs.h>
 
 using namespace CPR;
 using namespace std::string_literals;
@@ -22,6 +25,10 @@ void Boot()
 	WIN::Boot();
 }
 
+struct EcsTest {
+	int asd = 5;
+};
+
 int WINAPI wWinMain(
 	HINSTANCE hInstance,
 	HINSTANCE hPrevInstance,
@@ -35,6 +42,20 @@ int WINAPI wWinMain(
 		vi::transform([](auto i) {return IOC::Get().Resolve<WIN::IWindow>(); }) |
 		rn::to<std::vector>();
 
+	auto& ecsManager = ECS::Get();
+	auto& entity1 = ecsManager.createEntity();
+	ecsManager.addComponent<EcsTest>(entity1,
+		EcsTest{.asd = 3 }
+	);
+
+	ecsManager.Collect<EcsTest>().Do(
+		[&](ECS::Entity& entity, EcsTest& test)
+		{
+			auto res = std::format("\n--- Entity #{} ---\n    EcsTest: {}\n",
+			entity.getID(), test.asd);
+			cprlog.Info(UTL::ToWide(res));
+		}
+	);
 
 	auto x = 0;
 	while (!windowPtrs.empty())
