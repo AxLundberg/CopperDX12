@@ -9,6 +9,7 @@
 #include <ranges>
 
 #include <Core/src/ecs/Ecs.h>
+#include <Core/src/gfx/d12/Renderer.h>
 
 using namespace CPR;
 using namespace std::string_literals;
@@ -37,7 +38,7 @@ int WINAPI wWinMain(
 )
 {
 	Boot();
-
+	auto rdere = new GFX::D12::Renderer;
 	auto windowPtrs = vi::iota(0, 3) |
 		vi::transform([](auto i) {return IOC::Get().Resolve<WIN::IWindow>(); }) |
 		rn::to<std::vector>();

@@ -1,5 +1,13 @@
 #pragma once
+#include <dxgi1_6.h>
+#include <d3d12.h>
+#include <wrl.h>
+
+#pragma comment(lib, "dxgi.lib")
+#pragma comment(lib, "d3d12.lib")
+
 #include "RendererInterface.h"
+
 
 namespace CPR::GFX::D12
 {
@@ -15,17 +23,11 @@ namespace CPR::GFX::D12
 		void PreRender() override;
 		void Render() override;
 		void Present() override;
-		~Renderer();
+		~Renderer() override;
 
 	private:
-
+		Microsoft::WRL::ComPtr<ID3D12Device5> _device;
+		Microsoft::WRL::ComPtr<IDXGIFactory6> _factory;
+		Microsoft::WRL::ComPtr<IDXGIAdapter> _adapter;
 	};
-
-	Renderer::Renderer()
-	{
-	}
-
-	Renderer::~Renderer()
-	{
-	}
 }

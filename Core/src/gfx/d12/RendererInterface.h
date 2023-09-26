@@ -12,7 +12,7 @@ namespace CPR::GFX::D12
 	class IRenderer
 	{
 	public:
-		~IRenderer() = default;
+		virtual ~IRenderer() = default;
 
 		virtual ResourceIndex CreateSampler(SamplerType, AddressMode) = 0;
 		virtual void CreateRenderPass(RenderPassInfo&) = 0;
