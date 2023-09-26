@@ -1,8 +1,9 @@
-#include "Boot.h" 
-#include "Window.h"
-#include "WindowClass.h"
 #include <Core/src/ioc/Container.h>
 #include <Core/src/ioc/Singletons.h>
+
+#include "WindowClass.h"
+#include "Window.h"
+#include "Boot.h" 
 
 
 template<class T>

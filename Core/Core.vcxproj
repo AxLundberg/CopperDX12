@@ -91,6 +91,17 @@
     <ClInclude Include="src\ecs\EcsManager.h" />
     <ClInclude Include="src\ecs\EcsEntity.h" />
     <ClInclude Include="src\ecs\EcsSystem.h" />
+    <ClInclude Include="src\gfx\cmn\TypeDefs.h" />
+    <ClInclude Include="src\gfx\d12\BufferManager.h" />
+    <ClInclude Include="src\gfx\d12\Renderer.h" />
+    <ClInclude Include="src\gfx\d12\Mesh.h" />
+    <ClInclude Include="src\gfx\d12\RendererInterface.h" />
+    <ClInclude Include="src\gfx\d12\RenderObject.h" />
+    <ClInclude Include="src\gfx\d12\RenderPass.h" />
+    <ClInclude Include="src\gfx\d12\ResourceManager.h" />
+    <ClInclude Include="src\gfx\d12\SamplerManager.h" />
+    <ClInclude Include="src\gfx\d12\SurfaceProperty.h" />
+    <ClInclude Include="src\gfx\d12\TextureManager.h" />
     <ClInclude Include="src\ioc\Container.h" />
     <ClInclude Include="src\ioc\Exception.h" />
     <ClInclude Include="src\ioc\Singletons.h" />

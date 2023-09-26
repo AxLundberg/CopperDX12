@@ -42,13 +42,13 @@ int WINAPI wWinMain(
 		vi::transform([](auto i) {return IOC::Get().Resolve<WIN::IWindow>(); }) |
 		rn::to<std::vector>();
 
-	auto& ecsManager = ECS::Get();
-	auto& entity1 = ecsManager.createEntity();
-	ecsManager.addComponent<EcsTest>(entity1,
+	auto& ecs = ECS::Get();
+	auto& entity1 = ecs.createEntity();
+	ecs.addComponent<EcsTest>(entity1,
 		EcsTest{.asd = 3 }
 	);
 
-	ecsManager.Collect<EcsTest>().Do(
+	ecs.Collect<EcsTest>().Do(
 		[&](ECS::Entity& entity, EcsTest& test)
 		{
 			auto res = std::format("\n--- Entity #{} ---\n    EcsTest: {}\n",
