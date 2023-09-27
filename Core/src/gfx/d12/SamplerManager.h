@@ -1,5 +1,5 @@
 #pragma once
-
+#include "cmn/D12Headers.h"
 
 namespace CPR::GFX::D12
 {
@@ -19,16 +19,20 @@ namespace CPR::GFX::D12
 
 	class SamplerManager
 	{
-	protected:
+	private:
+		static constexpr u32 HEAP_SIZE = 10;
 
 	public:
-		SamplerManager() = default;
-		virtual ~SamplerManager() = default;
-		SamplerManager(const SamplerManager& other) = delete;
-		SamplerManager& operator=(const SamplerManager& other) = delete;
-		SamplerManager(SamplerManager&& other) = default;
-		SamplerManager& operator=(SamplerManager&& other) = default;
+		SamplerManager(ComPtr<ID3D12Device5> const& device);
+		~SamplerManager();
 
-		virtual int CreateSampler(SamplerType type, AddressMode adressMode) = 0;
+		ResourceIndex CreateSampler(SamplerType type, AddressMode adressMode);
+		D3D12_GPU_DESCRIPTOR_HANDLE GetDescriptorHandle(ResourceIndex idx);
+		void SetSamplerHeap(ID3D12GraphicsCommandList*& cmdList);
+	private:
+		ComPtr<ID3D12Device5> _device;
+		ID3D12DescriptorHeap* _samplerHeap;
+
+		u32 _currentSize = 0u;
 	};
 }

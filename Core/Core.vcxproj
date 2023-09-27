@@ -150,6 +150,9 @@
     <ClCompile Include="src\gfx\d12\BufferManager.cpp" />
     <ClCompile Include="src\gfx\d12\HeapManager.cpp" />
     <ClCompile Include="src\gfx\d12\Renderer.cpp" />
+    <ClCompile Include="src\gfx\d12\RenderPass.cpp" />
+    <ClCompile Include="src\gfx\d12\SamplerManager.cpp" />
+    <ClCompile Include="src\gfx\d12\TextureManager.cpp" />
     <ClCompile Include="src\ioc\Container.cpp" />
     <ClCompile Include="src\ioc\Singletons.cpp" />
     <ClCompile Include="src\log\Channel.cpp" />

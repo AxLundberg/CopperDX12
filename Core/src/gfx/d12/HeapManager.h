@@ -10,7 +10,7 @@ namespace CPR::GFX::D12
 
 	public:
 		HeapManager() = default;
-		HeapManager(ComPtr<ID3D12Device> const& device, ComPtr<ID3D12GraphicsCommandList> const& list);
+		HeapManager(ComPtr<ID3D12Device5> const& device, ComPtr<ID3D12GraphicsCommandList> const& list);
 		~HeapManager();
 
 		void InitHeap(D3D12_HEAP_TYPE heapType);
@@ -25,7 +25,7 @@ namespace CPR::GFX::D12
 
 	private:
 		u32 _heapOffset = 0;
-		ComPtr<ID3D12Device> _device;
+		ComPtr<ID3D12Device5> _device;
 		ComPtr<ID3D12Heap> _uploadHeap;
 		ComPtr<ID3D12Resource> _uploadBuffer;
 		ComPtr<ID3D12GraphicsCommandList> _cmdList;

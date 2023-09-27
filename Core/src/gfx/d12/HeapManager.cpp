@@ -4,7 +4,7 @@
 
 namespace CPR::GFX::D12
 {
-	CPR::GFX::D12::HeapManager::HeapManager(ComPtr<ID3D12Device> const& device, ComPtr<ID3D12GraphicsCommandList> const& list)
+	CPR::GFX::D12::HeapManager::HeapManager(ComPtr<ID3D12Device5> const& device, ComPtr<ID3D12GraphicsCommandList> const& list)
 		: _device(device), _cmdList(list)
 	{
 		InitHeap(D3D12_HEAP_TYPE_UPLOAD);

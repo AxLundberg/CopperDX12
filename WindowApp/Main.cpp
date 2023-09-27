@@ -42,7 +42,7 @@ int WINAPI wWinMain(
 		vi::transform([](auto i) {return IOC::Get().Resolve<WIN::IWindow>(); }) |
 		rn::to<std::vector>();
 
-	auto rdere = new GFX::D12::Renderer(windowPtrs[0].get()->GetHandle());
+	//auto rdere = new GFX::D12::Renderer(windowPtrs[0].get()->GetHandle());
 
 	auto& ecs = ECS::Get();
 	auto& entity1 = ecs.createEntity();

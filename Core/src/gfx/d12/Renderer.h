@@ -20,8 +20,11 @@ namespace CPR::GFX::D12
 		~Renderer() override;
 
 	private:
-		BufferManager* _bufferMan;
-		HeapManager* _heapMan;
+		TextureManager* _textureMan = nullptr;
+		SamplerManager* _samplerMan = nullptr;
+		BufferManager* _bufferMan = nullptr;
+		HeapManager* _heapMan = nullptr;
+		RenderPass* _currentPass = nullptr;
 
 		static constexpr u32 BUFFER_COUNT = 2;
 		// Microsoft::WRL::ComPtr

@@ -97,6 +97,11 @@ namespace CPR::GFX::D12
 			_cmdList->Close() >> hrVerify;
 		}
 
+		//_samplerMan = new SamplerManager(_device);
+		//_heapMan = new HeapManager(_device, _cmdList);
+		//_bufferMan = new BufferManager(_device, _heapMan);
+		//_textureMan = new TextureManager(_device, _heapMan);
+
 	}
 	ResourceIndex Renderer::CreateSampler(SamplerType, AddressMode)
 	{
