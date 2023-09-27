@@ -5,6 +5,7 @@
 #include "TextureManager.h"
 #include "SamplerManager.h"
 #include "BufferManager.h"
+#include "HeapManager.h"
 #include "RenderPass.h"
 
 namespace CPR::GFX::D12

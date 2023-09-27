@@ -92,8 +92,12 @@
     <ClInclude Include="src\ecs\EcsEntity.h" />
     <ClInclude Include="src\ecs\EcsSystem.h" />
     <ClInclude Include="src\gfx\cmn\GraphicsError.h" />
+    <ClInclude Include="src\gfx\cmn\Helpers.h" />
     <ClInclude Include="src\gfx\cmn\TypeDefs.h" />
     <ClInclude Include="src\gfx\d12\BufferManager.h" />
+    <ClInclude Include="src\gfx\d12\cmn\D12Headers.h" />
+    <ClInclude Include="src\gfx\d12\DescriptorHandle.h" />
+    <ClInclude Include="src\gfx\d12\HeapManager.h" />
     <ClInclude Include="src\gfx\d12\Renderer.h" />
     <ClInclude Include="src\gfx\d12\Mesh.h" />
     <ClInclude Include="src\gfx\d12\RendererInterface.h" />
@@ -103,6 +107,7 @@
     <ClInclude Include="src\gfx\d12\SamplerManager.h" />
     <ClInclude Include="src\gfx\d12\SurfaceProperty.h" />
     <ClInclude Include="src\gfx\d12\TextureManager.h" />
+    <ClInclude Include="src\gfx\d12\cmn\RunConfig.h" />
     <ClInclude Include="src\gfx\d12\utl\Helpers.h" />
     <ClInclude Include="src\ioc\Container.h" />
     <ClInclude Include="src\ioc\Exception.h" />
@@ -142,6 +147,8 @@
     <ClCompile Include="src\ecs\EcsManager.cpp" />
     <ClCompile Include="src\ecs\EcsEntity.cpp" />
     <ClCompile Include="src\gfx\cmn\GraphicsError.cpp" />
+    <ClCompile Include="src\gfx\d12\BufferManager.cpp" />
+    <ClCompile Include="src\gfx\d12\HeapManager.cpp" />
     <ClCompile Include="src\gfx\d12\Renderer.cpp" />
     <ClCompile Include="src\ioc\Container.cpp" />
     <ClCompile Include="src\ioc\Singletons.cpp" />

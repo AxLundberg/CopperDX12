@@ -1,5 +1,5 @@
 #include "Renderer.h"
-#include "utl/Helpers.h"
+#include "cmn/RunConfig.h"
 #include "../cmn/GraphicsError.h"
 
 namespace CPR::GFX::D12
@@ -124,5 +124,7 @@ namespace CPR::GFX::D12
 	}
 	Renderer::~Renderer()
 	{
+		delete _bufferMan;
+		delete _heapMan;
 	}
 }
