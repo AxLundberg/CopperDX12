@@ -31,7 +31,7 @@ namespace CPR::GFX::D12
 	public:
 		BufferManager(ComPtr<ID3D12Device5> const& device, HeapManager* heapManager);
 		~BufferManager();
-		ResourceIndex SubmitBuffer(void* data, u32 elemSize, u32 elemCount, PerFrameUsage, BufferBinding, u32 bindFlags);
+		ResourceIndex SubmitBuffer(void* data, u32 elemSize, u32 elemCount, PerFrameUsage, u32 bindFlags);
 		void UpdateBuffer(ResourceIndex, void* data);
 		u32 GetElemSize(ResourceIndex);
 		u32 GetElemCount(ResourceIndex);

@@ -41,9 +41,14 @@ int WINAPI wWinMain(
 	auto windowPtrs = vi::iota(0, 3) |
 		vi::transform([](auto i) {return IOC::Get().Resolve<WIN::IWindow>(); }) |
 		rn::to<std::vector>();
-
-	//auto rdere = new GFX::D12::Renderer(windowPtrs[0].get()->GetHandle());
-
+	try {
+		auto rdere = new GFX::D12::Renderer(windowPtrs[0].get()->GetHandle());
+	}
+	catch (const std::exception& e)
+	{
+		cprlog.Error(UTL::ToWide(e.what())).No_Line().No_Trace();
+		MessageBoxA(nullptr, e.what(), "Error", MB_ICONERROR | MB_SETFOREGROUND);
+	}
 	auto& ecs = ECS::Get();
 	auto& entity1 = ecs.createEntity();
 	ecs.addComponent<EcsTest>(entity1,

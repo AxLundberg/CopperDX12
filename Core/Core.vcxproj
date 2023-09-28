@@ -95,6 +95,7 @@
     <ClInclude Include="src\gfx\cmn\Helpers.h" />
     <ClInclude Include="src\gfx\cmn\TypeDefs.h" />
     <ClInclude Include="src\gfx\d12\BufferManager.h" />
+    <ClInclude Include="src\gfx\d12\Camera.h" />
     <ClInclude Include="src\gfx\d12\cmn\D12Headers.h" />
     <ClInclude Include="src\gfx\d12\DescriptorHandle.h" />
     <ClInclude Include="src\gfx\d12\HeapManager.h" />
@@ -148,6 +149,7 @@
     <ClCompile Include="src\ecs\EcsEntity.cpp" />
     <ClCompile Include="src\gfx\cmn\GraphicsError.cpp" />
     <ClCompile Include="src\gfx\d12\BufferManager.cpp" />
+    <ClCompile Include="src\gfx\d12\Camera.cpp" />
     <ClCompile Include="src\gfx\d12\HeapManager.cpp" />
     <ClCompile Include="src\gfx\d12\Renderer.cpp" />
     <ClCompile Include="src\gfx\d12\RenderPass.cpp" />

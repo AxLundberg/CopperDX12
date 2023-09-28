@@ -10,7 +10,7 @@ namespace CPR::GFX::D12
 	BufferManager::~BufferManager()
 	{
 	}
-	ResourceIndex BufferManager::SubmitBuffer(void* data, u32 elemSize, u32 elemCount, PerFrameUsage rwPattern, BufferBinding, u32 bindFlags)
+	ResourceIndex BufferManager::SubmitBuffer(void* data, u32 elemSize, u32 elemCount, PerFrameUsage rwPattern, u32 bindFlags)
 	{
 		auto idx = _committed.size();
 
@@ -94,6 +94,14 @@ namespace CPR::GFX::D12
 	u32 BufferManager::GetElemCount(ResourceIndex bufferIndex)
 	{
 		return _committed[bufferIndex].nrOfElements;
+	}
+	void BufferManager::ReserveHeapSpace(ID3D12DescriptorHeap* descHeap, D3D12_DESCRIPTOR_HEAP_TYPE type, u32 nrOfDescriptors, u32 prevReserved)
+	{
+		_descHandle.cpuHandle = descHeap->GetCPUDescriptorHandleForHeapStart();
+		_descHandle.gpuHandle = descHeap->GetGPUDescriptorHandleForHeapStart();
+		_descHandle.cpuHandle.ptr += static_cast<u64>(prevReserved) * _device->GetDescriptorHandleIncrementSize(type);
+		_descHandle.gpuHandle.ptr += static_cast<u64>(prevReserved) * _device->GetDescriptorHandleIncrementSize(type);
+		_descHandle.size = nrOfDescriptors;
 	}
 	D3D12_GPU_VIRTUAL_ADDRESS BufferManager::GetResourceHandle(ResourceIndex bufferIndex)
 	{

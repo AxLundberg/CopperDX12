@@ -7,26 +7,36 @@ namespace CPR::GFX::D12
 {
 	class Renderer : IRenderer
 	{
+	private:
+		static constexpr u32 BACKBUFFER_COUNT = 2;
+		static constexpr u32 DESCRIPTOR_HEAP_SIZE = 100;
+		static constexpr f32 CLEAR_COLOR[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	public:
 		Renderer(HWND);
 		ResourceIndex CreateSampler(SamplerType, AddressMode) override;
-		void CreateRenderPass(RenderPassInfo&) override;
+		RenderPass* CreateRenderPass(RenderPassInfo&) override;
 		ResourceIndex SubmitBuffer(void* data, u32 elemSize, u32 elemCount, PerFrameUsage, BufferBinding) override;
 		ResourceIndex SubmitTexture(void* data, TextureInfo&) override;
+		Camera* CreateCamera(float minDepth, float maxDepth, float aspectRatio) override;
 
 		void PreRender() override;
-		void Render() override;
+		void Render(const std::vector<RenderObject>& objectsToRender) override;
 		void Present() override;
 		~Renderer() override;
 
 	private:
+		void ExecuteCommandList();
+		void FlushCommandQueue();
+		void ResetCommandMemory();
+		void TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES currentState, D3D12_RESOURCE_STATES newState);
+	private:
+		Camera* _camera = nullptr;
 		TextureManager* _textureMan = nullptr;
 		SamplerManager* _samplerMan = nullptr;
 		BufferManager* _bufferMan = nullptr;
 		HeapManager* _heapMan = nullptr;
 		RenderPass* _currentPass = nullptr;
 
-		static constexpr u32 BUFFER_COUNT = 2;
 		// Microsoft::WRL::ComPtr
 		ComPtr<ID3D12Device5> _device;
 		ComPtr<IDXGIFactory6> _factory;
@@ -36,7 +46,13 @@ namespace CPR::GFX::D12
 		ComPtr<ID3D12GraphicsCommandList> _cmdList;
 		ComPtr<IDXGISwapChain4> _swapchain;
 		ComPtr<ID3D12DescriptorHeap> _rtvDescHeap;
-		ComPtr<ID3D12Resource> _backBuffers[BUFFER_COUNT];
+		ComPtr<ID3D12DescriptorHeap> _dsvDescHeap;
+		ComPtr<ID3D12DescriptorHeap> _bindableDescHeap;
+		ComPtr<ID3D12Resource> _depthStencil;
+		ComPtr<ID3D12Resource> _backbuffers[BACKBUFFER_COUNT];
 		ComPtr<ID3D12Fence> _fence;
+
+		u64 _currentFenceValue = 0u;
+		u64 _currentBackbuffer = BACKBUFFER_COUNT - 1;
 	};
 }
