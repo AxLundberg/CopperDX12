@@ -34,4 +34,27 @@
     <FxCompile Include="Shaders\StandardVS.hlsl" />
     <FxCompile Include="Shaders\StandardPS.hlsl" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\Textures\CrystalDiffuse.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Textures\CrystalSpecular.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Textures\GrassDiffuse.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Textures\GrassSpecular.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Textures\StoneDiffuse.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Textures\StoneSpecular.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\Textures\TemplateTexture.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
 </Project>

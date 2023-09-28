@@ -193,7 +193,7 @@ namespace CPR::GFX::D12
 		D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = _dsvDescHeap->GetCPUDescriptorHandleForHeapStart();
 
 		// Record commands
-		_cmdList->SetDescriptorHeaps(1, &_bindableDescHeap);
+		_cmdList->SetDescriptorHeaps(1, _bindableDescHeap.GetAddressOf());
 		_cmdList->SetGraphicsRootSignature(_currentPass->GetRootSignature());
 		_cmdList->SetPipelineState(_currentPass->GetPipelineState());
 

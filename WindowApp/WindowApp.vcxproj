@@ -108,6 +108,15 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>
     </FxCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\Textures\CrystalDiffuse.png" />
+    <Image Include="Assets\Textures\CrystalSpecular.png" />
+    <Image Include="Assets\Textures\GrassDiffuse.png" />
+    <Image Include="Assets\Textures\GrassSpecular.png" />
+    <Image Include="Assets\Textures\StoneDiffuse.png" />
+    <Image Include="Assets\Textures\StoneSpecular.png" />
+    <Image Include="Assets\Textures\TemplateTexture.png" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
