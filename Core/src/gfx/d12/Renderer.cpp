@@ -6,7 +6,10 @@
 
 namespace CPR::GFX::D12
 {
-	Renderer::Renderer(HWND window)
+	Renderer::Renderer()
+	{}
+
+	void Renderer::Initialize(HWND window)
 	{
 		using Microsoft::WRL::ComPtr;
 
@@ -28,38 +31,30 @@ namespace CPR::GFX::D12
 			D3D12CreateDevice(_adapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&_device)) >> hrVerify;
 		}
 
-		// command queue
+		// command queue, allocator, list and fence
 		{
 			const D3D12_COMMAND_QUEUE_DESC desc =
 			{
 				.Type = D3D12_COMMAND_LIST_TYPE_DIRECT,
-				.Priority = D3D12_COMMAND_QUEUE_PRIORITY_NORMAL,
+				.Priority = 0,
 				.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE,
 				.NodeMask = 0,
 			};
 			_device->CreateCommandQueue(&desc, IID_PPV_ARGS(&_cmdQ)) >> hrVerify;
-		}
-
-		// command allocator and list
-		{
+		
 			_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&_cmdAllo)) >> hrVerify;
 
 			_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,
 				_cmdAllo.Get(), nullptr, IID_PPV_ARGS(&_cmdList)) >> hrVerify;
-			_cmdList->Close() >> hrVerify;
+			
+			_device->CreateFence(_currentFenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence)) >> hrVerify;
 		}
-
-		// managers
-		_samplerMan = new SamplerManager(_device);
-		_heapMan = new HeapManager(_device, _cmdList);
-		_bufferMan = new BufferManager(_device, _heapMan);
-		_textureMan = new TextureManager(_device, _heapMan);
-
+		
 		// swap chain
 		{
 			const DXGI_SWAP_CHAIN_DESC1 desc = {
-				.Width = 900,
-				.Height = 600,
+				.Width = 0,
+				.Height = 0,
 				.Format = DXGI_FORMAT_R8G8B8A8_UNORM,
 				.Stereo = FALSE,
 				.SampleDesc = {
@@ -83,6 +78,26 @@ namespace CPR::GFX::D12
 				&swapChain1) >> hrVerify;
 			swapChain1.As(&_swapchain) >> hrVerify;
 		}
+
+		// Bindable Descriptor Heap
+		{
+			const D3D12_DESCRIPTOR_HEAP_DESC desc = {
+				.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
+				.NumDescriptors = DESCRIPTOR_HEAP_SIZE,
+				.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
+			};
+			_device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_bindableDescHeap)) >> hrVerify;
+		}
+
+		// managers
+		_samplerMan = new SamplerManager(_device);
+		_heapMan = new HeapManager(_device, _cmdList);
+		_bufferMan = new BufferManager(_device, _heapMan);
+		_textureMan = new TextureManager(_device, _heapMan);
+
+		constexpr u32 srvCount = 100;
+		_textureMan->ReserveHeapSpace(_bindableDescHeap.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, srvCount, 0u);
+		_bufferMan->ReserveHeapSpace(_bindableDescHeap.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, DESCRIPTOR_HEAP_SIZE - srvCount, srvCount);
 
 		// rtv descriptor heap
 		{
@@ -134,37 +149,27 @@ namespace CPR::GFX::D12
 			D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = _dsvDescHeap->GetCPUDescriptorHandleForHeapStart();
 			_device->CreateDepthStencilView(_depthStencil.Get(), nullptr, dsvHandle);
 		}
-		// Bindable Descriptor Heap
-		{
-			const D3D12_DESCRIPTOR_HEAP_DESC desc = {
-				.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-				.NumDescriptors = DESCRIPTOR_HEAP_SIZE,
-				.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
-			};
-			_device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_bindableDescHeap)) >> hrVerify;
-
-			constexpr u32 srvCount = 100;
-			_textureMan->ReserveHeapSpace(_bindableDescHeap.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, srvCount, 0u);
-			_bufferMan->ReserveHeapSpace(_bindableDescHeap.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, DESCRIPTOR_HEAP_SIZE - srvCount, srvCount);
-		}
-		
 	}
-	ResourceIndex Renderer::CreateSampler(SamplerType, AddressMode)
+	ResourceIndex Renderer::CreateSampler(SamplerType samplerType, AddressMode addressMode)
 	{
-		return ResourceIndex();
+		return _samplerMan->CreateSampler(samplerType, addressMode);
 	}
 	RenderPass* Renderer::CreateRenderPass(RenderPassInfo& initInfo)
 	{
 		_currentPass = new RenderPass(_device, initInfo);
 		return _currentPass;
 	}
-	ResourceIndex Renderer::SubmitBuffer(void* data, u32 elemSize, u32 elemCount, PerFrameUsage, BufferBinding)
+	void Renderer::SetRenderPass(RenderPass* toSet)
 	{
-		return ResourceIndex();
+		_currentPass = static_cast<RenderPass*>(toSet);
 	}
-	ResourceIndex Renderer::SubmitTexture(void* data, TextureInfo&)
+	ResourceIndex Renderer::SubmitBuffer(void* data, u32 elemSize, u32 elemCount, PerFrameUsage rwPattern, BufferBinding bufferBinding)
 	{
-		return ResourceIndex();
+		return _bufferMan->SubmitBuffer(data, elemSize, elemCount, rwPattern, bufferBinding);
+	}
+	ResourceIndex Renderer::SubmitTexture(void* data, TextureInfo& textureInfo)
+	{
+		return _textureMan->AddTexture(data, textureInfo);
 	}
 	Camera* Renderer::CreateCamera(float minDepth, float maxDepth, float aspectRatio)
 	{
@@ -284,6 +289,15 @@ namespace CPR::GFX::D12
 	}
 	void Renderer::Present()
 	{
+		TransitionResource(
+			_backbuffers[_currentBackbuffer].Get(),
+			D3D12_RESOURCE_STATE_RENDER_TARGET,
+			D3D12_RESOURCE_STATE_PRESENT
+		);
+
+		ExecuteCommandList();
+		_swapchain->Present(0, 0);
+		FlushCommandQueue();
 	}
 	void Renderer::ExecuteCommandList()
 	{

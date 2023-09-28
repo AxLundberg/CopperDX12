@@ -1,10 +1,14 @@
 #pragma once 
-#define _WIN32_WINNT 0x0602 
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0602
+#endif
 #include <sdkddkver.h> 
 
 #define WIN32_LEAN_AND_MEAN 
 #define NOMINMAX 
-#define STRICT 
+#ifndef STRICT
+#define STRICT
+#endif
 
 #ifndef ZC_FULL_WINTARD 
 #define NOGDICAPMASKS 

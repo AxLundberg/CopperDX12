@@ -5,24 +5,27 @@
 
 namespace CPR::GFX::D12
 {
-	class Renderer : IRenderer
+	class Renderer : public IRenderer
 	{
 	private:
 		static constexpr u32 BACKBUFFER_COUNT = 2;
-		static constexpr u32 DESCRIPTOR_HEAP_SIZE = 100;
+		static constexpr u32 DESCRIPTOR_HEAP_SIZE = 1000;
 		static constexpr f32 CLEAR_COLOR[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	public:
-		Renderer(HWND);
+		Renderer();
+		~Renderer();
+
 		ResourceIndex CreateSampler(SamplerType, AddressMode) override;
 		RenderPass* CreateRenderPass(RenderPassInfo&) override;
 		ResourceIndex SubmitBuffer(void* data, u32 elemSize, u32 elemCount, PerFrameUsage, BufferBinding) override;
 		ResourceIndex SubmitTexture(void* data, TextureInfo&) override;
 		Camera* CreateCamera(float minDepth, float maxDepth, float aspectRatio) override;
 
+		void Initialize(HWND) override;
+		void SetRenderPass(RenderPass* toSet) override;
 		void PreRender() override;
 		void Render(const std::vector<RenderObject>& objectsToRender) override;
 		void Present() override;
-		~Renderer() override;
 
 	private:
 		void ExecuteCommandList();

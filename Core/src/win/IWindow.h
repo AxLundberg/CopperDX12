@@ -1,10 +1,12 @@
 #pragma once 
-#include "CopperWin.h"
 #include <string>
 #include <future>
 #include <optional>
 #include <Core/src/spa/Vec2.h>
 #include <Core/src/spa/Dimensions.h>
+
+#include "CopperWin.h"
+
 
 namespace CPR::WIN
 {

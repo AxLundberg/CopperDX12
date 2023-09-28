@@ -8,11 +8,10 @@ namespace CPR::GFX::D12
 		: _device(device), _cmdList(list)
 	{
 		InitHeap(D3D12_HEAP_TYPE_UPLOAD);
+		PlaceResource();
 	}
 	HeapManager::~HeapManager()
 	{
-		_uploadBuffer->Release();
-		_uploadHeap->Release();
 	}
 	void HeapManager::InitHeap(D3D12_HEAP_TYPE heapType)
 	{

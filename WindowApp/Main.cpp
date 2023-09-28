@@ -8,8 +8,11 @@
 #include <format>
 #include <ranges>
 
+#include <Core/src/gfx/d12/D12.h>
 #include <Core/src/ecs/Ecs.h>
 #include <Core/src/gfx/d12/Renderer.h>
+
+#include "App/App.h"
 
 using namespace CPR;
 using namespace std::string_literals;
@@ -24,6 +27,7 @@ void Boot()
 		return std::make_shared<LOG::SeverityLevelPolicy>(LOG::LogLevel::Info);
 	});
 	WIN::Boot();
+	GFX::D12::Boot();
 }
 
 struct EcsTest {
@@ -37,46 +41,19 @@ int WINAPI wWinMain(
 	int nCmdShow
 )
 {
-	Boot();
-	auto windowPtrs = vi::iota(0, 3) |
-		vi::transform([](auto i) {return IOC::Get().Resolve<WIN::IWindow>(); }) |
-		rn::to<std::vector>();
-	try {
-		auto rdere = new GFX::D12::Renderer(windowPtrs[0].get()->GetHandle());
+	try
+	{
+		Boot();
+		auto pWindow = IOC::Get().Resolve<WIN::IWindow>();
+		auto pRenderer = IOC::Get().Resolve<GFX::D12::IRenderer>();
+		pRenderer->Initialize(pWindow->GetHandle());
+		return APP::Run(pWindow.get(), pRenderer.get());
 	}
 	catch (const std::exception& e)
 	{
 		cprlog.Error(UTL::ToWide(e.what())).No_Line().No_Trace();
 		MessageBoxA(nullptr, e.what(), "Error", MB_ICONERROR | MB_SETFOREGROUND);
 	}
-	auto& ecs = ECS::Get();
-	auto& entity1 = ecs.createEntity();
-	ecs.addComponent<EcsTest>(entity1,
-		EcsTest{.asd = 3 }
-	);
 
-	ecs.Collect<EcsTest>().Do(
-		[&](ECS::Entity& entity, EcsTest& test)
-		{
-			auto res = std::format("\n--- Entity #{} ---\n    EcsTest: {}\n",
-			entity.getID(), test.asd);
-			cprlog.Info(UTL::ToWide(res));
-		}
-	);
-
-	auto x = 0;
-	while (!windowPtrs.empty())
-	{
-		std::erase_if(windowPtrs, [](auto& p) {return p->IsClosing(); });
-		for (auto& p : windowPtrs)
-		{
-			p->SetTitle(std::format(L"Animated Window Title [{:*<{}}]", L'*', x+1));
-		}
-		x = (x+1) % 20;
-		std::this_thread::sleep_for(50ms);
-	}
-	//cprlog.Info(L"Hello Window");
-	//MessageBoxA(nullptr, "", "Heyo", MB_APPLMODAL | MB_ICONEXCLAMATION);
-
-	return 0;
+	return -1;
 }
