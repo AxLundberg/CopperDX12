@@ -30,6 +30,7 @@ namespace CPR::GFX::D12
 		virtual void PreRender() = 0;
 		virtual void Render(const std::vector<RenderObject>& objectsToRender) = 0;
 		virtual void Present() = 0;
+		virtual void SetLightBuffer(ResourceIndex lightBufferIndexToUse) = 0;
 	private:
 	};
 }

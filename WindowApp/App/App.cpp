@@ -63,8 +63,8 @@ namespace CPR::APP
     RenderPass* CreateStandardRenderPass(IRenderer* renderer)
     {
         RenderPassInfo info;
-        info.vsPath = "../x64/debug/StandardVS.cso";
-        info.psPath = "../x64/debug/StandardPS.cso";
+        info.vsPath = "StandardVS.cso";
+        info.psPath = "StandardPS.cso";
 
         PipelineBinding vertexBinding;
         vertexBinding.dataType = PipelineDataType::VERTEX;
@@ -485,7 +485,7 @@ namespace CPR::APP
         if (!CreateCubeMesh(cubeMesh, renderer))
             return false;
 
-        const std::string path = "Assets/Textures/";
+        const std::string path = "../../WindowApp/Assets/Textures/";
 
         SurfaceProperty stoneProperties;
         if (!LoadSurfacePropertyFiles(stoneProperties, renderer, path + "Stone"))
@@ -551,10 +551,12 @@ namespace CPR::APP
     }
 
 
-    int Run(WIN::IWindow* window, GFX::D12::IRenderer* renderer)
+    int Run(WIN::IWindow* window, GFX::D12::IRenderer* renderer, HINSTANCE hInstance)
     {
+        const unsigned int WINDOW_WIDTH = 1280;
+        const unsigned int WINDOW_HEIGHT = 642;
         HWND windowHandle = window->GetHandle();
-
+        renderer->Initialize(windowHandle);
         //Renderer* renderer = new D12::RendererD3D12(windowHandle);
         RenderPass* standardPass = CreateStandardRenderPass(renderer);
 
@@ -566,7 +568,7 @@ namespace CPR::APP
             return -1;
 
         Camera* camera = renderer->CreateCamera(0.1f, 20.0f,
-            static_cast<float>(900) / 600);
+            static_cast<float>(WINDOW_WIDTH) / WINDOW_HEIGHT);
         camera->MoveZ(-DIMENSION);
         camera->MoveY(1);
 
@@ -574,7 +576,7 @@ namespace CPR::APP
         if (!CreateLights(lightBufferIndex, renderer, DIMENSION * 2.5f))
             return -1;
 
-        //renderer.SetLightBuffer(lightBufferIndex);
+        renderer->SetLightBuffer(lightBufferIndex);
 
         MSG msg = { };
 

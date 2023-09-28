@@ -10,7 +10,7 @@ namespace CPR::GFX::D12
 	private:
 		static constexpr u32 BACKBUFFER_COUNT = 2;
 		static constexpr u32 DESCRIPTOR_HEAP_SIZE = 1000;
-		static constexpr f32 CLEAR_COLOR[4] = { 0.0f, 0.80f, 0.0f, 0.0f };
+		static constexpr f32 CLEAR_COLOR[4] = { 0.1f, 0.1f, 0.1f, 0.0f };
 	public:
 		Renderer();
 		~Renderer();
@@ -26,7 +26,7 @@ namespace CPR::GFX::D12
 		void PreRender() override;
 		void Render(const std::vector<RenderObject>& objectsToRender) override;
 		void Present() override;
-
+		void SetLightBuffer(ResourceIndex lightBufferIndexToUse) override;
 	private:
 		void ExecuteCommandList();
 		void FlushCommandQueue();
@@ -57,5 +57,6 @@ namespace CPR::GFX::D12
 
 		u64 _currentFenceValue = 0u;
 		u64 _currentBackbuffer = BACKBUFFER_COUNT - 1;
+		ResourceIndex _lightBufferIndex = ResourceIndex(-1);
 	};
 }

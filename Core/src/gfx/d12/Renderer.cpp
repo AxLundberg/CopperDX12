@@ -53,8 +53,8 @@ namespace CPR::GFX::D12
 		// swap chain
 		{
 			const DXGI_SWAP_CHAIN_DESC1 desc = {
-				.Width = 0,
-				.Height = 0,
+				.Width = 0u,
+				.Height = 0u,
 				.Format = DXGI_FORMAT_R8G8B8A8_UNORM,
 				.Stereo = FALSE,
 				.SampleDesc = {
@@ -176,6 +176,10 @@ namespace CPR::GFX::D12
 		_camera = new Camera(*_bufferMan, minDepth, maxDepth, aspectRatio);
 		return _camera;
 	}
+	void Renderer::SetLightBuffer(ResourceIndex lightBufferIndexToUse)
+	{
+		_lightBufferIndex = lightBufferIndexToUse;
+	}
 	void Renderer::PreRender()
 	{
 		static bool firstFrame = true;
@@ -244,7 +248,7 @@ namespace CPR::GFX::D12
 			}
 			else if (binding.dataType == PipelineDataType::LIGHT)
 			{
-			//	_cmdList->SetGraphicsRootDescriptorTable(RootParamIndex::light, _bufferMan->GetDescriptorHandle(_lightBufferIndex));
+				_cmdList->SetGraphicsRootDescriptorTable(RootParamIndex::light, _bufferMan->GetDescriptorHandle(_lightBufferIndex));
 			}
 			else if (binding.dataType == PipelineDataType::SAMPLER)
 			{

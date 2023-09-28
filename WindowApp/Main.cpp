@@ -46,8 +46,7 @@ int WINAPI wWinMain(
 		Boot();
 		auto pWindow = IOC::Get().Resolve<WIN::IWindow>();
 		auto pRenderer = IOC::Get().Resolve<GFX::D12::IRenderer>();
-		pRenderer->Initialize(pWindow->GetHandle());
-		return APP::Run(pWindow.get(), pRenderer.get());
+		return APP::Run(pWindow.get(), pRenderer.get(), hInstance);
 	}
 	catch (const std::exception& e)
 	{
