@@ -56,6 +56,11 @@ namespace CPR::GFX::D12
 	}
 	void HeapManager::Upload(void* data, ID3D12Resource* targetResource, u32 alignment, u32 subresource)
 	{
+		if (subresource == 0)
+		{
+			u8* datat = reinterpret_cast<u8*>(data);
+			return UploadData(targetResource, datat, alignment, subresource);
+		}
 		D3D12_RESOURCE_DESC resourceDesc = targetResource->GetDesc();
 		u8* tex = reinterpret_cast<u8*>(data);
 		u32 currentTextureOffset = 0;

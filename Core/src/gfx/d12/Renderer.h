@@ -20,13 +20,14 @@ namespace CPR::GFX::D12
 		ResourceIndex SubmitBuffer(void* data, u32 elemSize, u32 elemCount, PerFrameUsage, BufferBinding) override;
 		ResourceIndex SubmitTexture(void* data, TextureInfo&) override;
 		Camera* CreateCamera(float minDepth, float maxDepth, float aspectRatio) override;
+		void SetLightBuffer(ResourceIndex lightBufferIndexToUse) override;
+		void UpdateBuffer(ResourceIndex bufferIndex, void* data) override;
 
 		void Initialize(HWND) override;
 		void SetRenderPass(RenderPass* toSet) override;
 		void PreRender() override;
 		void Render(const std::vector<RenderObject>& objectsToRender) override;
 		void Present() override;
-		void SetLightBuffer(ResourceIndex lightBufferIndexToUse) override;
 	private:
 		void ExecuteCommandList();
 		void FlushCommandQueue();

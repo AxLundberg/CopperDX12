@@ -180,6 +180,10 @@ namespace CPR::GFX::D12
 	{
 		_lightBufferIndex = lightBufferIndexToUse;
 	}
+	void Renderer::UpdateBuffer(ResourceIndex bufferIndex, void* data)
+	{
+		_bufferMan->UpdateBuffer(bufferIndex, data);
+	}
 	void Renderer::PreRender()
 	{
 		static bool firstFrame = true;

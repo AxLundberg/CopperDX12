@@ -505,7 +505,7 @@ namespace CPR::APP
     }
 
     void RotateCrystal(RenderObject& crystal, float deltaTime, int height,
-        BufferManager* bufferManager)
+        IRenderer* renderer)
     {
         static float rotationAmount = 0.0f;
         static float heightOffset = 0.0f;
@@ -517,7 +517,7 @@ namespace CPR::APP
         DirectX::XMFLOAT4X4 toUpload;
         DirectX::XMStoreFloat4x4(&toUpload,
             DirectX::XMMatrixMultiplyTranspose(rotMatrix, translationMatrix));
-        bufferManager->UpdateBuffer(crystal.transformBuffer, &toUpload);
+        renderer->UpdateBuffer(crystal.transformBuffer, &toUpload);
 
         rotationAmount += deltaTime * DirectX::XM_PI;
         if (rotationAmount >= DirectX::XM_2PI)
@@ -596,8 +596,8 @@ namespace CPR::APP
             {
                 //InterpretKeyboardInput(window.GetKeyboardInputs());
                 TransformCamera(camera, moveSpeed, turnSpeed, deltaTime);
-                /*RotateCrystal(renderObjects.back(), deltaTime,
-                    DIMENSION, renderer->GetBufferManager());*/
+                RotateCrystal(renderObjects.back(), deltaTime,
+                    DIMENSION, renderer);
 
                 renderer->PreRender();
 

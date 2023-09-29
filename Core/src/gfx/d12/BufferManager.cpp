@@ -13,7 +13,7 @@ namespace CPR::GFX::D12
 	ResourceIndex BufferManager::SubmitBuffer(void* data, u32 elemSize, u32 elemCount, PerFrameUsage rwPattern, u32 bindFlags)
 	{
 		auto idx = _committed.size();
-
+		
 		D3D12_RESOURCE_STATES state = rwPattern == PerFrameUsage::STATIC ?
 			D3D12_RESOURCE_STATE_COMMON :
 			D3D12_RESOURCE_STATE_GENERIC_READ;
