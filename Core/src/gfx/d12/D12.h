@@ -2,5 +2,5 @@
 
 namespace CPR::GFX::D12
 {
-	void Boot();
+	void Boot(HWND);
 }

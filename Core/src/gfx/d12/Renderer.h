@@ -1,6 +1,6 @@
 #pragma once
 #include "cmn/D12Headers.h"
-#include "RendererInterface.h"
+#include "IRenderer.h"
 
 
 namespace CPR::GFX::D12
@@ -12,7 +12,7 @@ namespace CPR::GFX::D12
 		static constexpr u32 DESCRIPTOR_HEAP_SIZE = 1000;
 		static constexpr f32 CLEAR_COLOR[4] = { 0.1f, 0.1f, 0.1f, 0.0f };
 	public:
-		Renderer();
+		Renderer(std::shared_ptr<CPR::GFX::IDevice> device, std::shared_ptr<CPR::GFX::ISwapChain> swapChain);
 		~Renderer();
 
 		ResourceIndex CreateSampler(SamplerType, AddressMode) override;
@@ -29,11 +29,15 @@ namespace CPR::GFX::D12
 		void Render(const std::vector<RenderObject>& objectsToRender) override;
 		void Present() override;
 	private:
+		std::shared_ptr<CPR::GFX::IDevice> GetDevice() override;
+
 		void ExecuteCommandList();
 		void FlushCommandQueue();
 		void ResetCommandMemory();
 		void TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES currentState, D3D12_RESOURCE_STATES newState);
 	private:
+		std::shared_ptr<CPR::GFX::IDevice> _device;
+		std::shared_ptr<CPR::GFX::ISwapChain> _swapChain;
 		Camera* _camera = nullptr;
 		TextureManager* _textureMan = nullptr;
 		SamplerManager* _samplerMan = nullptr;
@@ -42,7 +46,7 @@ namespace CPR::GFX::D12
 		RenderPass* _currentPass = nullptr;
 
 		// Microsoft::WRL::ComPtr
-		ComPtr<ID3D12Device5> _device;
+		//ComPtr<ID3D12Device5> _device;
 		ComPtr<IDXGIFactory6> _factory;
 		ComPtr<IDXGIAdapter> _adapter;
 		ComPtr<ID3D12CommandQueue> _cmdQ;

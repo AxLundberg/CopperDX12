@@ -1,6 +1,6 @@
 #include <Core/src/log/SeverityLevelPolicy.h>
 #include <Core/src/gfx/d12/Renderer.h>
-#include <Core/src/gfx/d12/RendererInterface.h>
+#include <Core/src/gfx/d12/IRenderer.h>
 #include <Core/src/win/CopperWin.h>
 #include <Core/src/win/boot.h>
 #include <Core/src/log/Log.h>

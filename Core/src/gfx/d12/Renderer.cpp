@@ -6,7 +6,10 @@
 
 namespace CPR::GFX::D12
 {
-	Renderer::Renderer()
+	Renderer::Renderer(std::shared_ptr<CPR::GFX::IDevice> device, std::shared_ptr<CPR::GFX::ISwapChain> swapChain)
+		: 
+		_device(std::move(device)),
+		_swapChain(std::move(swapChain))
 	{}
 
 	void Renderer::Initialize(HWND window)
@@ -20,6 +23,7 @@ namespace CPR::GFX::D12
 			debugController->EnableDebugLayer();
 		}
 
+		auto device = _device->AsD3D12Device();
 		// Initialize factory, adapter and device
 		{
 			u32 factoryFlags = _DEBUG_ ? DXGI_CREATE_FACTORY_DEBUG : 0;
@@ -28,7 +32,7 @@ namespace CPR::GFX::D12
 			_factory->EnumAdapterByGpuPreference(0, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&_adapter)) >> hrVerify;
 
 			// POCO::NotFoundException is a nvidia driver issue
-			D3D12CreateDevice(_adapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&_device)) >> hrVerify;
+			D3D12CreateDevice(_adapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&device)) >> hrVerify;
 		}
 
 		// command queue, allocator, list and fence
@@ -40,14 +44,14 @@ namespace CPR::GFX::D12
 				.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE,
 				.NodeMask = 0,
 			};
-			_device->CreateCommandQueue(&desc, IID_PPV_ARGS(&_cmdQ)) >> hrVerify;
+			device->CreateCommandQueue(&desc, IID_PPV_ARGS(&_cmdQ)) >> hrVerify;
 		
-			_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&_cmdAllo)) >> hrVerify;
+			device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&_cmdAllo)) >> hrVerify;
 
-			_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,
+			device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,
 				_cmdAllo.Get(), nullptr, IID_PPV_ARGS(&_cmdList)) >> hrVerify;
 			
-			_device->CreateFence(_currentFenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence)) >> hrVerify;
+			device->CreateFence(_currentFenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence)) >> hrVerify;
 		}
 		
 		// swap chain
@@ -86,14 +90,14 @@ namespace CPR::GFX::D12
 				.NumDescriptors = DESCRIPTOR_HEAP_SIZE,
 				.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
 			};
-			_device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_bindableDescHeap)) >> hrVerify;
+			device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_bindableDescHeap)) >> hrVerify;
 		}
 
 		// managers
-		_samplerMan = new SamplerManager(_device);
-		_heapMan = new HeapManager(_device, _cmdList);
-		_bufferMan = new BufferManager(_device, _heapMan);
-		_textureMan = new TextureManager(_device, _heapMan);
+		_samplerMan = new SamplerManager(device);
+		_heapMan = new HeapManager(device, _cmdList);
+		_bufferMan = new BufferManager(device, _heapMan);
+		_textureMan = new TextureManager(device, _heapMan);
 
 		constexpr u32 srvCount = 100;
 		_textureMan->ReserveHeapSpace(_bindableDescHeap.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, srvCount, 0u);
@@ -105,14 +109,14 @@ namespace CPR::GFX::D12
 				.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
 				.NumDescriptors = BACKBUFFER_COUNT,
 			};
-			_device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_rtvDescHeap)) >> hrVerify;
+			device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_rtvDescHeap)) >> hrVerify;
 		
 			D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = _rtvDescHeap->GetCPUDescriptorHandleForHeapStart();
 			for (u32 i = 0; i < BACKBUFFER_COUNT; ++i)
 			{
 				_swapchain->GetBuffer(i, IID_PPV_ARGS(&_backbuffers[i])) >> hrVerify;
-				_device->CreateRenderTargetView(_backbuffers[i].Get(), nullptr, rtvHandle);
-				rtvHandle.ptr += _device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+				device->CreateRenderTargetView(_backbuffers[i].Get(), nullptr, rtvHandle);
+				rtvHandle.ptr += device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 			}
 		}
 		// dsv descriptor heap
@@ -121,7 +125,7 @@ namespace CPR::GFX::D12
 				.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV,
 				.NumDescriptors = 1u,
 			};
-			_device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_dsvDescHeap)) >> hrVerify;
+			device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_dsvDescHeap)) >> hrVerify;
 
 			D3D12_CLEAR_VALUE depthClearValue = {};
 			depthClearValue.Format = DXGI_FORMAT_D32_FLOAT;
@@ -147,7 +151,7 @@ namespace CPR::GFX::D12
 			_cmdList->ResourceBarrier(1, &barrier);
 
 			D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = _dsvDescHeap->GetCPUDescriptorHandleForHeapStart();
-			_device->CreateDepthStencilView(_depthStencil.Get(), nullptr, dsvHandle);
+			device->CreateDepthStencilView(_depthStencil.Get(), nullptr, dsvHandle);
 		}
 	}
 	ResourceIndex Renderer::CreateSampler(SamplerType samplerType, AddressMode addressMode)
@@ -156,7 +160,7 @@ namespace CPR::GFX::D12
 	}
 	RenderPass* Renderer::CreateRenderPass(RenderPassInfo& initInfo)
 	{
-		_currentPass = new RenderPass(_device, initInfo);
+		_currentPass = new RenderPass(_device->AsD3D12Device(), initInfo);
 		return _currentPass;
 	}
 	void Renderer::SetRenderPass(RenderPass* toSet)
@@ -197,7 +201,7 @@ namespace CPR::GFX::D12
 
 		_currentBackbuffer = (_currentBackbuffer + 1u) % BACKBUFFER_COUNT;
 		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = _rtvDescHeap->GetCPUDescriptorHandleForHeapStart();
-		rtvHandle.ptr += static_cast<size_t>(_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV)) * _currentBackbuffer;
+		rtvHandle.ptr += static_cast<size_t>(_device->AsD3D12Device()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV)) * _currentBackbuffer;
 		D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = _dsvDescHeap->GetCPUDescriptorHandleForHeapStart();
 
 		// Record commands
@@ -306,6 +310,10 @@ namespace CPR::GFX::D12
 		ExecuteCommandList();
 		_swapchain->Present(0, 0);
 		FlushCommandQueue();
+	}
+	std::shared_ptr<CPR::GFX::IDevice> Renderer::GetDevice()
+	{
+		return _device;
 	}
 	void Renderer::ExecuteCommandList()
 	{

@@ -27,7 +27,6 @@ void Boot()
 		return std::make_shared<LOG::SeverityLevelPolicy>(LOG::LogLevel::Info);
 	});
 	WIN::Boot();
-	GFX::D12::Boot();
 }
 
 struct EcsTest {
@@ -45,6 +44,7 @@ int WINAPI wWinMain(
 	{
 		Boot();
 		auto pWindow = IOC::Get().Resolve<WIN::IWindow>();
+		GFX::D12::Boot(pWindow->GetHandle());
 		auto pRenderer = IOC::Get().Resolve<GFX::D12::IRenderer>();
 		return APP::Run(pWindow.get(), pRenderer.get(), hInstance);
 	}
