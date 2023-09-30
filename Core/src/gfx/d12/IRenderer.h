@@ -19,11 +19,11 @@ namespace CPR::GFX::D12
 	class IRenderer
 	{
 	public:
-		struct IocParams
+		/*struct IocParams
 		{
 			std::shared_ptr<CPR::GFX::IDevice> pDevice;
 			std::shared_ptr<CPR::GFX::ISwapChain> pSwapChain;
-		};
+		};*/
 	public:
 		virtual ~IRenderer() = default;
 		

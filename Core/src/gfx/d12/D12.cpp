@@ -12,7 +12,7 @@ namespace CPR::GFX::D12
 {
 	void Boot(HWND window)
 	{
-		IOC::Get().Register<IRenderer>([](IRenderer::IocParams args) {
+		IOC::Get().Register<IRenderer>([]() {
 			auto device = IOC::Sing().Resolve<IDevice>();
 			auto swapChain = IOC::Get().Resolve<ISwapChain>();
 			return std::make_shared<Renderer>(device, swapChain);

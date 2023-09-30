@@ -99,6 +99,9 @@
     <ClInclude Include="src\gfx\d12\Camera.h" />
     <ClInclude Include="src\gfx\d12\cmn\D12Headers.h" />
     <ClInclude Include="src\gfx\d12\DescriptorHandle.h" />
+    <ClInclude Include="src\gfx\d12\experiment\Queue.h" />
+    <ClInclude Include="src\gfx\d12\experiment\IRenderDevice.h" />
+    <ClInclude Include="src\gfx\d12\experiment\Fence.h" />
     <ClInclude Include="src\gfx\d12\Types\DeviceD12.h" />
     <ClInclude Include="src\gfx\d12\HeapManager.h" />
     <ClInclude Include="src\gfx\Exception.h" />
@@ -156,6 +159,8 @@
     <ClCompile Include="src\gfx\d12\D12.cpp" />
     <ClCompile Include="src\gfx\d12\BufferManager.cpp" />
     <ClCompile Include="src\gfx\d12\Camera.cpp" />
+    <ClCompile Include="src\gfx\d12\experiment\Fence.cpp" />
+    <ClCompile Include="src\gfx\d12\experiment\Queue.cpp" />
     <ClCompile Include="src\gfx\d12\HeapManager.cpp" />
     <ClCompile Include="src\gfx\d12\Renderer.cpp" />
     <ClCompile Include="src\gfx\d12\RenderPass.cpp" />

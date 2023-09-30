@@ -195,6 +195,15 @@
     <ClInclude Include="src\gfx\Exception.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\gfx\d12\experiment\IRenderDevice.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gfx\d12\experiment\Fence.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gfx\d12\experiment\Queue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ioc\Container.cpp">
@@ -297,6 +306,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\gfx\d12\Types\SwapChainD12.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gfx\d12\experiment\Queue.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gfx\d12\experiment\Fence.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
