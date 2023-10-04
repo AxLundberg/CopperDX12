@@ -6,11 +6,17 @@
 
 namespace CPR::GFX::D12
 {
-	Renderer::Renderer(std::shared_ptr<CPR::GFX::IDevice> device, std::shared_ptr<CPR::GFX::ISwapChain> swapChain)
+	Renderer::Renderer(std::shared_ptr<CPR::GFX::IDevice> device, std::shared_ptr<CPR::GFX::ISwapChain> swapChain, std::shared_ptr<CPR::GFX::D12::ISyncCommander> syncCommander)
 		: 
 		_device(std::move(device)),
-		_swapChain(std::move(swapChain))
-	{}
+		_swapChain(std::move(swapChain)),
+		_syncMan(std::move(syncCommander)),
+		_dsvDescHeap(DescriptorHeap{ _device.get(), D3D12_DESCRIPTOR_HEAP_TYPE_DSV }),
+		_rtvDescHeap(DescriptorHeap{ _device.get(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, BACKBUFFER_COUNT }),
+		_bindableDescHeap(DescriptorHeap{_device.get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 100, true })
+	{
+		
+	}
 
 	void Renderer::Initialize(HWND window)
 	{
@@ -24,19 +30,16 @@ namespace CPR::GFX::D12
 		}
 
 		auto device = _device->AsD3D12Device();
-		// Initialize factory, adapter and device
+		// Initialize factory and adapter
 		{
 			u32 factoryFlags = _DEBUG_ ? DXGI_CREATE_FACTORY_DEBUG : 0;
 			CreateDXGIFactory2(factoryFlags, IID_PPV_ARGS(&_factory)) >> hrVerify;
 
 			_factory->EnumAdapterByGpuPreference(0, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&_adapter)) >> hrVerify;
-
-			// POCO::NotFoundException is a nvidia driver issue
-			D3D12CreateDevice(_adapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&device)) >> hrVerify;
 		}
 
 		// command queue, allocator, list and fence
-		{
+		/*{
 			const D3D12_COMMAND_QUEUE_DESC desc =
 			{
 				.Type = D3D12_COMMAND_LIST_TYPE_DIRECT,
@@ -45,14 +48,10 @@ namespace CPR::GFX::D12
 				.NodeMask = 0,
 			};
 			device->CreateCommandQueue(&desc, IID_PPV_ARGS(&_cmdQ)) >> hrVerify;
-		
 			device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&_cmdAllo)) >> hrVerify;
-
-			device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,
-				_cmdAllo.Get(), nullptr, IID_PPV_ARGS(&_cmdList)) >> hrVerify;
-			
+			device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,_cmdAllo.Get(), nullptr, IID_PPV_ARGS(&_cmdList)) >> hrVerify;
 			device->CreateFence(_currentFenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_fence)) >> hrVerify;
-		}
+		}*/
 		
 		// swap chain
 		{
@@ -74,7 +73,7 @@ namespace CPR::GFX::D12
 			};
 			ComPtr<IDXGISwapChain1> swapChain1;
 			_factory->CreateSwapChainForHwnd(
-				_cmdQ.Get(),
+				_syncMan->GetQueue()->GetD12_Queue().Get(),
 				window,
 				&desc,
 				nullptr,
@@ -84,14 +83,7 @@ namespace CPR::GFX::D12
 		}
 
 		// Bindable Descriptor Heap
-		{
-			const D3D12_DESCRIPTOR_HEAP_DESC desc = {
-				.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-				.NumDescriptors = DESCRIPTOR_HEAP_SIZE,
-				.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE,
-			};
-			device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_bindableDescHeap)) >> hrVerify;
-		}
+		_cmdList = _syncMan->GetList();
 
 		// managers
 		_samplerMan = new SamplerManager(device);
@@ -100,18 +92,12 @@ namespace CPR::GFX::D12
 		_textureMan = new TextureManager(device, _heapMan);
 
 		constexpr u32 srvCount = 100;
-		_textureMan->ReserveHeapSpace(_bindableDescHeap.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, srvCount, 0u);
-		_bufferMan->ReserveHeapSpace(_bindableDescHeap.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, DESCRIPTOR_HEAP_SIZE - srvCount, srvCount);
+		_textureMan->ReserveHeapSpace(_bindableDescHeap, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, srvCount, 0u);
+		_bufferMan->ReserveHeapSpace(_bindableDescHeap, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, DESCRIPTOR_HEAP_SIZE - srvCount, srvCount);
 
 		// rtv descriptor heap
 		{
-			const D3D12_DESCRIPTOR_HEAP_DESC desc = {
-				.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
-				.NumDescriptors = BACKBUFFER_COUNT,
-			};
-			device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_rtvDescHeap)) >> hrVerify;
-		
-			D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = _rtvDescHeap->GetCPUDescriptorHandleForHeapStart();
+			D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = _rtvDescHeap.GetRange()._cpuHandle;
 			for (u32 i = 0; i < BACKBUFFER_COUNT; ++i)
 			{
 				_swapchain->GetBuffer(i, IID_PPV_ARGS(&_backbuffers[i])) >> hrVerify;
@@ -125,7 +111,7 @@ namespace CPR::GFX::D12
 				.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV,
 				.NumDescriptors = 1u,
 			};
-			device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_dsvDescHeap)) >> hrVerify;
+			//device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_dsvDescHeap)) >> hrVerify;
 
 			D3D12_CLEAR_VALUE depthClearValue = {};
 			depthClearValue.Format = DXGI_FORMAT_D32_FLOAT;
@@ -148,9 +134,10 @@ namespace CPR::GFX::D12
 			barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_DEPTH_WRITE;
 			barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 
-			_cmdList->ResourceBarrier(1, &barrier);
+			auto cmdList = _syncMan->GetList();
+			cmdList->ResourceBarrier(1, &barrier);
 
-			D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = _dsvDescHeap->GetCPUDescriptorHandleForHeapStart();
+			D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = _dsvDescHeap.GetRange()._cpuHandle;
 			device->CreateDepthStencilView(_depthStencil.Get(), nullptr, dsvHandle);
 		}
 	}
@@ -158,14 +145,14 @@ namespace CPR::GFX::D12
 	{
 		return _samplerMan->CreateSampler(samplerType, addressMode);
 	}
-	RenderPass* Renderer::CreateRenderPass(RenderPassInfo& initInfo)
+	GfxRenderPass* Renderer::CreateRenderPass(RenderPassInfo& initInfo)
 	{
-		_currentPass = new RenderPass(_device->AsD3D12Device(), initInfo);
+		_currentPass = new GfxRenderPass(_device.get(), initInfo);
 		return _currentPass;
 	}
-	void Renderer::SetRenderPass(RenderPass* toSet)
+	void Renderer::SetRenderPass(GfxRenderPass* toSet)
 	{
-		_currentPass = static_cast<RenderPass*>(toSet);
+		_currentPass = static_cast<GfxRenderPass*>(toSet);
 	}
 	ResourceIndex Renderer::SubmitBuffer(void* data, u32 elemSize, u32 elemCount, PerFrameUsage rwPattern, BufferBinding bufferBinding)
 	{
@@ -200,37 +187,40 @@ namespace CPR::GFX::D12
 		ResetCommandMemory();
 
 		_currentBackbuffer = (_currentBackbuffer + 1u) % BACKBUFFER_COUNT;
-		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = _rtvDescHeap->GetCPUDescriptorHandleForHeapStart();
+		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = _rtvDescHeap.GetRange()._cpuHandle;
 		rtvHandle.ptr += static_cast<size_t>(_device->AsD3D12Device()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV)) * _currentBackbuffer;
-		D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = _dsvDescHeap->GetCPUDescriptorHandleForHeapStart();
-
+		D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = _dsvDescHeap.GetRange()._cpuHandle;
+		auto cmdList = _syncMan->GetList();
 		// Record commands
-		_cmdList->SetDescriptorHeaps(1, _bindableDescHeap.GetAddressOf());
-		_cmdList->SetGraphicsRootSignature(_currentPass->GetRootSignature());
-		_cmdList->SetPipelineState(_currentPass->GetPipelineState());
+		ID3D12DescriptorHeap* pHeap = _bindableDescHeap;
+
+		cmdList->SetDescriptorHeaps(1, &pHeap);
+		cmdList->SetGraphicsRootSignature(_currentPass->GetRootSignature());
+		cmdList->SetPipelineState(_currentPass->GetPipelineState());
 
 		TransitionResource(_backbuffers[_currentBackbuffer].Get(),
 			D3D12_RESOURCE_STATE_PRESENT,
 			D3D12_RESOURCE_STATE_RENDER_TARGET
 		);
 
-		_cmdList->ClearRenderTargetView(rtvHandle, CLEAR_COLOR, 0, nullptr);
-		_cmdList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+		cmdList->ClearRenderTargetView(rtvHandle, CLEAR_COLOR, 0, nullptr);
+		cmdList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
-		_cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		_cmdList->OMSetRenderTargets(1, &rtvHandle, true, &dsvHandle);
+		cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		cmdList->OMSetRenderTargets(1, &rtvHandle, true, &dsvHandle);
 
 		auto backBufferDesc = _backbuffers[_currentBackbuffer]->GetDesc();
 		D3D12_VIEWPORT viewport = { 0, 0, static_cast<f32>(backBufferDesc.Width), static_cast<f32>(backBufferDesc.Height), 0.0f, 1.0f };
 		D3D12_RECT scissorRect = { 0, 0, static_cast<long>(backBufferDesc.Width), static_cast<long>(backBufferDesc.Height) };
-		_cmdList->RSSetScissorRects(1, &scissorRect);
-		_cmdList->RSSetViewports(1, &viewport);
+		cmdList->RSSetScissorRects(1, &scissorRect);
+		cmdList->RSSetViewports(1, &viewport);
 	}
 
 	void Renderer::Render(const std::vector<RenderObject>& objectsToRender)
 	{
 		const std::vector<PipelineBinding>& objectBindings = _currentPass->GetObjectBindings();
 		const std::vector<PipelineBinding>& globalBindings = _currentPass->GetGlobalBindings();
+		auto cmdList = _syncMan->GetList();
 
 		enum RootParamIndex : u32
 		{
@@ -248,15 +238,15 @@ namespace CPR::GFX::D12
 		{
 			if (binding.dataType == PipelineDataType::VIEW_PROJECTION)
 			{
-				_cmdList->SetGraphicsRootConstantBufferView(RootParamIndex::viewProj, _bufferMan->GetResourceHandle(_camera->GetVP(*_bufferMan)));
+				cmdList->SetGraphicsRootConstantBufferView(RootParamIndex::viewProj, _bufferMan->GetResourceHandle(_camera->GetVP(*_bufferMan)));
 			}
 			else if (binding.dataType == PipelineDataType::CAMERA_POS)
 			{
-				_cmdList->SetGraphicsRootConstantBufferView(RootParamIndex::camPos, _bufferMan->GetResourceHandle(_camera->GetPosition(*_bufferMan)));
+				cmdList->SetGraphicsRootConstantBufferView(RootParamIndex::camPos, _bufferMan->GetResourceHandle(_camera->GetPosition(*_bufferMan)));
 			}
 			else if (binding.dataType == PipelineDataType::LIGHT)
 			{
-				_cmdList->SetGraphicsRootDescriptorTable(RootParamIndex::light, _bufferMan->GetDescriptorHandle(_lightBufferIndex));
+				cmdList->SetGraphicsRootDescriptorTable(RootParamIndex::light, _bufferMan->GetDescriptorHandle(_lightBufferIndex));
 			}
 			else if (binding.dataType == PipelineDataType::SAMPLER)
 			{
@@ -270,23 +260,23 @@ namespace CPR::GFX::D12
 			{
 				if (binding.dataType == PipelineDataType::TRANSFORM)
 				{
-					_cmdList->SetGraphicsRootConstantBufferView(RootParamIndex::transform, _bufferMan->GetResourceHandle(object.transformBuffer));
+					cmdList->SetGraphicsRootConstantBufferView(RootParamIndex::transform, _bufferMan->GetResourceHandle(object.transformBuffer));
 				}
 				else if (binding.dataType == PipelineDataType::VERTEX)
 				{
-					_cmdList->SetGraphicsRootShaderResourceView(RootParamIndex::vertices, _bufferMan->GetResourceHandle(object.mesh.vertexBuffer));
+					cmdList->SetGraphicsRootShaderResourceView(RootParamIndex::vertices, _bufferMan->GetResourceHandle(object.mesh.vertexBuffer));
 				}
 				else if (binding.dataType == PipelineDataType::INDEX)
 				{
-					_cmdList->SetGraphicsRootShaderResourceView(RootParamIndex::indices, _bufferMan->GetResourceHandle(object.mesh.indexBuffer));
+					cmdList->SetGraphicsRootShaderResourceView(RootParamIndex::indices, _bufferMan->GetResourceHandle(object.mesh.indexBuffer));
 				}
 				else if (binding.dataType == PipelineDataType::DIFFUSE)
 				{
-					_cmdList->SetGraphicsRootDescriptorTable(RootParamIndex::diffuse, _textureMan->GetDescriptorHandle(object.surfaceProperty.diffuseTexture));
+					cmdList->SetGraphicsRootDescriptorTable(RootParamIndex::diffuse, _textureMan->GetDescriptorHandle(object.surfaceProperty.diffuseTexture));
 				}
 				else if (binding.dataType == PipelineDataType::SPECULAR)
 				{
-					_cmdList->SetGraphicsRootDescriptorTable(RootParamIndex::specular, _textureMan->GetDescriptorHandle(object.surfaceProperty.specularTexture));
+					cmdList->SetGraphicsRootDescriptorTable(RootParamIndex::specular, _textureMan->GetDescriptorHandle(object.surfaceProperty.specularTexture));
 				}
 				else if (binding.dataType == PipelineDataType::SAMPLER)
 				{
@@ -296,7 +286,7 @@ namespace CPR::GFX::D12
 
 			const u32 elementCount = _bufferMan->GetElemCount(object.mesh.indexBuffer);
 
-			_cmdList->DrawInstanced(elementCount, 1, 0, 0);
+			cmdList->DrawInstanced(elementCount, 1, 0, 0);
 		}
 	}
 	void Renderer::Present()
@@ -317,14 +307,15 @@ namespace CPR::GFX::D12
 	}
 	void Renderer::ExecuteCommandList()
 	{
-		_cmdList->Close() >> hrVerify;
+		/*_cmdList->Close() >> hrVerify;
 		ID3D12CommandList* tmp = _cmdList.Get();
-		_cmdQ->ExecuteCommandLists(1, &tmp);
+		_cmdQ->ExecuteCommandLists(1, &tmp);*/
+		_syncMan->ExecuteList();
 	}
 
 	void Renderer::FlushCommandQueue()
 	{
-		++_currentFenceValue;
+		/*++_currentFenceValue;
 		_cmdQ->Signal(_fence.Get(), _currentFenceValue) >> hrVerify;
 
 		if (_fence->GetCompletedValue() < _currentFenceValue)
@@ -336,14 +327,15 @@ namespace CPR::GFX::D12
 				WaitForSingleObject(eventHandle, INFINITE);
 				CloseHandle(eventHandle);
 			}
-		}
-
+		}*/
+		_syncMan->GetQueue()->Flush();
 		_heapMan->ResetOffset();
 	}
 	void Renderer::ResetCommandMemory()
 	{
-		_cmdAllo->Reset() >> hrVerify;
-		_cmdList->Reset(_cmdAllo.Get(), nullptr) >> hrVerify; // nullptr is initial state, no initial state
+		_syncMan->GetAllocatorAndList()->Reset();
+		//_cmdAllo->Reset() >> hrVerify;
+		//_cmdList->Reset(_cmdAllo.Get(), nullptr) >> hrVerify; // nullptr is initial state, no initial state
 	}
 	void Renderer::TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES currentState, D3D12_RESOURCE_STATES newState)
 	{

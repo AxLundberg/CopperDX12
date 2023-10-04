@@ -60,7 +60,7 @@ namespace CPR::APP
         float colour[3] = { 1.0f, 1.0f, 1.0f };
     };
 
-    RenderPass* CreateStandardRenderPass(IRenderer* renderer)
+    GfxRenderPass* CreateStandardRenderPass(IRenderer* renderer)
     {
         RenderPassInfo info;
         info.vsPath = "StandardVS.cso";
@@ -135,7 +135,7 @@ namespace CPR::APP
         clampSamplerBinding.slotToBindTo = 0;
         info.globalBindings.push_back(clampSamplerBinding);
 
-        RenderPass* toReturn = renderer->CreateRenderPass(info);
+        GfxRenderPass* toReturn = renderer->CreateRenderPass(info);
         toReturn->SetGlobalSampler(PipelineShaderStage::PS, 0, samplerIndex);
 
         return toReturn;
@@ -558,7 +558,7 @@ namespace CPR::APP
         HWND windowHandle = window->GetHandle();
         renderer->Initialize(windowHandle);
         //Renderer* renderer = new D12::RendererD3D12(windowHandle);
-        RenderPass* standardPass = CreateStandardRenderPass(renderer);
+        GfxRenderPass* standardPass = CreateStandardRenderPass(renderer);
 
         //globalInputs = reinterpret_cast<Inputs*>(&window.GetInputs());
 

@@ -8,6 +8,8 @@
 #include "Renderer.h"
 #include "D12.h"
 
+#include "experiment/SyncCommander.h"
+
 namespace CPR::GFX::D12
 {
 	void Boot(HWND window)
@@ -15,8 +17,36 @@ namespace CPR::GFX::D12
 		IOC::Get().Register<IRenderer>([]() {
 			auto device = IOC::Sing().Resolve<IDevice>();
 			auto swapChain = IOC::Get().Resolve<ISwapChain>();
-			return std::make_shared<Renderer>(device, swapChain);
+			auto syncCommander = IOC::Get().Resolve<ISyncCommander>();
+			return std::make_shared<Renderer>(device, swapChain, syncCommander);
 			});
+
+		IOC::Get().Register<ISyncCommander>([] {
+			auto fence = IOC::Get().Resolve<IFence>();
+			auto queue = IOC::Get().Resolve<IQueue>();
+			auto atorAndList = IOC::Get().Resolve<IAllocatorAndList>();
+			auto sc = std::make_shared<SyncCommander>();
+			sc->AttachFence(fence);
+			sc->AttachQueue(queue);
+			sc->AttachAllocatorAndList(atorAndList);
+			return sc;
+			});
+
+		IOC::Get().Register<IFence>([] {
+			auto device = IOC::Sing().Resolve<IDevice>();
+			return std::make_shared<Fence>(device);
+		});
+
+		IOC::Get().Register<IQueue>([] {
+			auto device = IOC::Sing().Resolve<IDevice>();
+			auto flushFence = IOC::Get().Resolve<IFence>();
+			return std::make_shared<QueueD12>(device, flushFence, D3D12_COMMAND_LIST_TYPE_DIRECT);
+			});
+
+		IOC::Get().Register<IAllocatorAndList>([] {
+			auto device = IOC::Sing().Resolve<IDevice>();
+			return std::make_shared<AllocatorAndList>(device);
+		});
 
 		IOC::Get().Register<GFX::IDevice>([]() {
 			return std::make_shared<DeviceD12>();

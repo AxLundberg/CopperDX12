@@ -43,14 +43,19 @@ int WINAPI wWinMain(
 	try
 	{
 		Boot();
-		auto pWindow = IOC::Get().Resolve<WIN::IWindow>();
+		auto pWindow = IOC::Get().Resolve<WIN::IWindow>(
+			WIN::IWindow::IocParams{
+				.name = L"test",
+				.size = SPA::DimensionsI{ 1280, 720 },
+				.position = {} 
+		});
 		GFX::D12::Boot(pWindow->GetHandle());
 		auto pRenderer = IOC::Get().Resolve<GFX::D12::IRenderer>();
 		return APP::Run(pWindow.get(), pRenderer.get(), hInstance);
 	}
 	catch (const std::exception& e)
 	{
-		cprlog.Error(UTL::ToWide(e.what())).No_Line().No_Trace();
+		cprlog.Error(UTL::ToWide(e.what()));
 		MessageBoxA(nullptr, e.what(), "Error", MB_ICONERROR | MB_SETFOREGROUND);
 	}
 

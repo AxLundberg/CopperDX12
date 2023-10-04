@@ -4,9 +4,9 @@
 
 namespace CPR::GFX::D12
 {
-	Fence::Fence(IDevice& device, u32 value, D3D12_FENCE_FLAGS flags)
+	Fence::Fence(std::shared_ptr<IDevice> device, u32 value, D3D12_FENCE_FLAGS flags)
 	{
-		auto d = device.AsD3D12Device();
+		auto d = device->AsD3D12Device();
 		d->CreateFence(value, flags, IID_PPV_ARGS(&_fence)) >> hrVerify;
 
 		_event = CreateEvent(nullptr, FALSE, FALSE, nullptr);

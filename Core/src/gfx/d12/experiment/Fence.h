@@ -1,4 +1,6 @@
 #pragma once
+#include <memory>
+
 #include "../../cmn/TypeDefs.h"
 #include "../cmn/D12Headers.h"
 #include "../../IDevice.h"
@@ -21,7 +23,7 @@ namespace CPR::GFX::D12
 	class Fence : public IFence
 	{
 	public:
-		Fence(IDevice&, u32 value, D3D12_FENCE_FLAGS);
+		Fence(std::shared_ptr<IDevice>, u32 value = 0, D3D12_FENCE_FLAGS = D3D12_FENCE_FLAG_NONE);
 
 		bool Signal(IQueue&, u32 value) override;
 		bool GpuWait(IQueue&) override;
