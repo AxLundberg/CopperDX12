@@ -3,6 +3,7 @@
 #include "IRenderer.h"
 #include "experiment/SyncCommander.h"
 #include "experiment/DescriptorHeap.h"
+#include "experiment/ImguiD12.h"
 
 namespace CPR::GFX::D12
 {
@@ -43,6 +44,7 @@ namespace CPR::GFX::D12
 		std::shared_ptr<CPR::GFX::D12::ISyncCommander> _syncMan;
 		std::shared_ptr<CPR::GFX::IDevice> _device;
 		std::shared_ptr<CPR::GFX::ISwapChain> _swapChain;
+
 		GfxRenderPass* _currentPass = nullptr;
 		Camera* _camera = nullptr;
 		TextureManager* _textureMan = nullptr;
@@ -53,7 +55,7 @@ namespace CPR::GFX::D12
 		DescriptorHeap _bindableDescHeap;
 		DescriptorHeap _rtvDescHeap;
 		DescriptorHeap _dsvDescHeap;
-
+		ImguiD12 _imgui;
 		// Microsoft::WRL::ComPtr
 		//ComPtr<ID3D12Device5> _device;
 		ComPtr<IDXGIFactory6> _factory;

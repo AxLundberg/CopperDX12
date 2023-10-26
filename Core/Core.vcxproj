@@ -101,12 +101,17 @@
     <ClInclude Include="src\gfx\d12\DescriptorHandle.h" />
     <ClInclude Include="src\gfx\d12\experiment\AllocatorAndList.h" />
     <ClInclude Include="src\gfx\d12\experiment\DescriptorHeap.h" />
+    <ClInclude Include="src\gfx\d12\experiment\ImguiD12.h" />
     <ClInclude Include="src\gfx\d12\experiment\JobManager.h" />
+    <ClInclude Include="src\gfx\d12\experiment\ResourceDesc.h" />
     <ClInclude Include="src\gfx\d12\experiment\ResourceJobs.h" />
+    <ClInclude Include="src\gfx\d12\experiment\ResourcePool.h" />
     <ClInclude Include="src\gfx\d12\experiment\SyncCommander.h" />
     <ClInclude Include="src\gfx\d12\experiment\Queue.h" />
     <ClInclude Include="src\gfx\d12\experiment\IRenderDevice.h" />
     <ClInclude Include="src\gfx\d12\experiment\Fence.h" />
+    <ClInclude Include="src\gfx\d12\PipelineState.h" />
+    <ClInclude Include="src\gfx\d12\RootSignature.h" />
     <ClInclude Include="src\gfx\d12\Types\DeviceD12.h" />
     <ClInclude Include="src\gfx\d12\HeapManager.h" />
     <ClInclude Include="src\gfx\d12\Types\QueueTypes.h" />
@@ -155,6 +160,14 @@
     <ClInclude Include="src\win\Window.h" />
     <ClInclude Include="src\win\WindowClass.h" />
     <ClInclude Include="thirdParty\backward.h" />
+    <ClInclude Include="thirdParty\ImGUI\backends\imgui_impl_dx12.h" />
+    <ClInclude Include="thirdParty\ImGUI\backends\imgui_impl_win32.h" />
+    <ClInclude Include="thirdParty\ImGUI\imconfig.h" />
+    <ClInclude Include="thirdParty\ImGUI\imgui.h" />
+    <ClInclude Include="thirdParty\ImGUI\imgui_internal.h" />
+    <ClInclude Include="thirdParty\ImGUI\imstb_rectpack.h" />
+    <ClInclude Include="thirdParty\ImGUI\imstb_textedit.h" />
+    <ClInclude Include="thirdParty\ImGUI\imstb_truetype.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ccr\GenericTaskQueue.cpp" />
@@ -168,12 +181,16 @@
     <ClCompile Include="src\gfx\d12\experiment\AllocatorAndList.cpp" />
     <ClCompile Include="src\gfx\d12\experiment\DescriptorHeap.cpp" />
     <ClCompile Include="src\gfx\d12\experiment\Fence.cpp" />
+    <ClCompile Include="src\gfx\d12\experiment\ImguiD12.cpp" />
     <ClCompile Include="src\gfx\d12\experiment\Queue.cpp" />
+    <ClCompile Include="src\gfx\d12\experiment\ResourcePool.cpp" />
     <ClCompile Include="src\gfx\d12\experiment\SyncCommander.cpp" />
     <ClCompile Include="src\gfx\d12\HeapManager.cpp" />
+    <ClCompile Include="src\gfx\d12\PipelineState.cpp" />
     <ClCompile Include="src\gfx\d12\Renderer.cpp" />
     <ClCompile Include="src\gfx\d12\RenderPass.cpp" />
     <ClCompile Include="src\gfx\d12\ResourceManager.cpp" />
+    <ClCompile Include="src\gfx\d12\RootSignature.cpp" />
     <ClCompile Include="src\gfx\d12\SamplerManager.cpp" />
     <ClCompile Include="src\gfx\d12\TextureManager.cpp" />
     <ClCompile Include="src\gfx\d12\Types\SwapChainD12.cpp" />
@@ -197,6 +214,12 @@
     <ClCompile Include="src\win\Util.cpp" />
     <ClCompile Include="src\win\Window.cpp" />
     <ClCompile Include="src\win\WindowClass.cpp" />
+    <ClCompile Include="thirdParty\ImGUI\backends\imgui_impl_dx12.cpp" />
+    <ClCompile Include="thirdParty\ImGUI\imgui.cpp" />
+    <ClCompile Include="thirdParty\ImGUI\imgui_demo.cpp" />
+    <ClCompile Include="thirdParty\ImGUI\imgui_draw.cpp" />
+    <ClCompile Include="thirdParty\ImGUI\imgui_tables.cpp" />
+    <ClCompile Include="thirdParty\ImGUI\imgui_widgets.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

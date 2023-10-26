@@ -13,7 +13,8 @@ namespace CPR::GFX::D12
 		_syncMan(std::move(syncCommander)),
 		_dsvDescHeap(DescriptorHeap{ _device.get(), D3D12_DESCRIPTOR_HEAP_TYPE_DSV }),
 		_rtvDescHeap(DescriptorHeap{ _device.get(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, BACKBUFFER_COUNT }),
-		_bindableDescHeap(DescriptorHeap{_device.get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 100, true })
+		_bindableDescHeap(DescriptorHeap{_device.get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 100, true }),
+		_imgui()
 	{
 		
 	}
@@ -82,7 +83,6 @@ namespace CPR::GFX::D12
 			swapChain1.As(&_swapchain) >> hrVerify;
 		}
 
-		// Bindable Descriptor Heap
 		_cmdList = _syncMan->GetList();
 
 		// managers
@@ -190,6 +190,8 @@ namespace CPR::GFX::D12
 		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = _rtvDescHeap.GetRange()._cpuHandle;
 		rtvHandle.ptr += static_cast<size_t>(_device->AsD3D12Device()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV)) * _currentBackbuffer;
 		D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = _dsvDescHeap.GetRange()._cpuHandle;
+		
+		
 		auto cmdList = _syncMan->GetList();
 		// Record commands
 		ID3D12DescriptorHeap* pHeap = _bindableDescHeap;

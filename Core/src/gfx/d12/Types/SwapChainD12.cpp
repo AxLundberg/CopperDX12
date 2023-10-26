@@ -59,4 +59,8 @@ namespace CPR::GFX::D12
 			&swapChain1) >> hrVerify;
 		swapChain1.As(&_swapChain) >> hrVerify;
 	}
+	HWND SwapChainD12::GetHWND()
+	{
+		return _window;
+	}
 }

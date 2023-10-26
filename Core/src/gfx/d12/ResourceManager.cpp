@@ -18,6 +18,10 @@ namespace CPR::GFX::D12
 			SubmitResource(r);
 		}
 	}
+	void ResourceManager::CreateTextureResource(void* textureData, TextureDesc td)
+	{
+
+	}
 	void ResourceManager::TransitionResource(u32 idx)
 	{
 	}

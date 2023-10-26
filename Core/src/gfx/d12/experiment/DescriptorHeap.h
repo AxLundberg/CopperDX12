@@ -22,8 +22,8 @@ namespace CPR::GFX::D12
 
 		// Get a ranged chunk
 		DescriptorRange GetRange(std::optional<u64> index_start = std::nullopt, std::optional<u32> num_descriptors = std::nullopt) const;
-
-		u32 maxSize() const { return _maxSize; }
+		void ReserveHeapSpace(u32 nrOfDescriptors, u32 prevReserved);
+		u32 MaxSize() const { return _maxSize; }
 		bool ShaderVisible() const { return _shaderVisible; }
 
 		operator ID3D12DescriptorHeap*() const { return _descHeap.Get(); }

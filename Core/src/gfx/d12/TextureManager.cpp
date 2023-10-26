@@ -60,12 +60,12 @@ namespace CPR::GFX::D12
 
 		ResourceIndex idx = _committed.size();
 		_committed.push_back(texture);
+		_heapMan->Upload(textureData, texture, D3D12_TEXTURE_DATA_PLACEMENT_ALIGNMENT, textureInfo.mipLevels);
 
 		D3D12_CPU_DESCRIPTOR_HANDLE handle = _textureDescHandle.cpuHandle;
 		handle.ptr += idx * _device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		_device->CreateShaderResourceView(texture, nullptr, handle);
 
-		_heapMan->Upload(textureData, texture, D3D12_TEXTURE_DATA_PLACEMENT_ALIGNMENT, textureInfo.mipLevels);
 
 		return idx;
 	}

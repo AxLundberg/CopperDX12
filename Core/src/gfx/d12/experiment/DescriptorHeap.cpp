@@ -18,6 +18,7 @@ namespace CPR::GFX::D12
 		auto d = device->AsD3D12Device();
 		d->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&_descHeap)) >> hrVerify;
 	}
+	
 	DescriptorRange DescriptorHeap::GetRange(std::optional<u64> start, std::optional<u32> rangeSize) const
 	{
 		auto startIndex = start.value_or(0);
@@ -35,5 +36,10 @@ namespace CPR::GFX::D12
 			._indexFromStart = startIndex,
 			._nrOfDescriptors = range
 		};
+	}
+
+	void DescriptorHeap::ReserveHeapSpace(u32 nrOfDescriptors, u32 prevReserved)
+	{
+
 	}
 }

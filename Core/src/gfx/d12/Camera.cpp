@@ -7,8 +7,8 @@ namespace CPR::GFX::D12
 	void Camera::CreateProjectionMatrix(float minDepth,
 		float maxDepth, float aspectRatio)
 	{
-		XMMATRIX projection = XMMatrixPerspectiveFovLH(XM_PIDIV2,
-			aspectRatio, minDepth, maxDepth);
+		//XMMATRIX projection = XMMatrixPerspectiveFovLH(XM_PIDIV2, aspectRatio, minDepth, maxDepth);
+		XMMATRIX projection = DirectX::XMMatrixOrthographicOffCenterLH(-5.0f, 5.f, -1.f, 4.f, 0.1f, 1000.0f);
 		XMStoreFloat4x4(&projectionMatrix, projection);
 	}
 
@@ -17,7 +17,7 @@ namespace CPR::GFX::D12
 	{
 		CreateProjectionMatrix(minDepth, maxDepth, aspectRatio);
 
-		position = { 0.0f, 0.0f, -4.0f };
+		position = { 0.0f, 0.0f, -4.0f }; // AXEL
 		forward = { 0.0f, 0.0f, 1.0f };
 		up = { 0.0f, 1.0f, 0.0f };
 		right = { 1.0f, 0.0f, 0.0f };

@@ -1,7 +1,8 @@
 #pragma once
 #include <vector>
-#include "cmn/D12Headers.h"
 
+#include "cmn/D12Headers.h"
+#include "experiment/ResourceDesc.h"
 
 namespace CPR::GFX::D12
 {
@@ -18,6 +19,7 @@ namespace CPR::GFX::D12
 		~ResourceManager();
 		void SubmitResource(ComPtr<ID3D12Resource>);
 		void SubmitResources(std::vector<ComPtr<ID3D12Resource>>);
+		void CreateTextureResource(void* textureData, TextureDesc);
 		void TransitionResource(u32 idx);
 	private:
 		u32 _frameGap;
