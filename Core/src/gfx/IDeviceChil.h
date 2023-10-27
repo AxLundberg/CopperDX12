@@ -2,9 +2,9 @@
 
 namespace CPR::GFX
 {
-	class IDevice
+	class IDeviceChil
 	{
 	public:
-		virtual ~IDevice() = default;
+		virtual ~IDeviceChil() = default;
 	};
 }

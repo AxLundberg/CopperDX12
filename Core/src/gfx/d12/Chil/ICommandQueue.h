@@ -5,15 +5,15 @@
 #include <cstdint>
 #include "AllocatorListPair.h"
 
-namespace chil::gfx::d12
+namespace CPR::GFX::D12
 {
 	class ICommandQueue
 	{
 	public:
 		virtual ~ICommandQueue() = default;
-		virtual CommandListPair GetCommandListPair() = 0;
-		virtual void ExecuteCommandList(CommandListPair commandListPair) = 0;
-		virtual uint64_t ExecuteCommandListWithFence(CommandListPair commandListPair) = 0;
+		virtual AllocatorListPair GetAllocatorListPair() = 0;
+		virtual void ExecuteCommandList(AllocatorListPair commandListPair) = 0;
+		virtual uint64_t ExecuteCommandListWithFence(AllocatorListPair commandListPair) = 0;
 		virtual uint64_t SignalFence() = 0;
 		virtual uint64_t SignalFrameFence() = 0;
 		virtual bool FenceHasReached(uint64_t fenceValue) const = 0;

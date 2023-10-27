@@ -120,6 +120,8 @@ namespace CPR::GFX::D12
 				{ "ATLASINDEX",		0, DXGI_FORMAT_R16_UINT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 			};
 
+			pipelineStateStream.InputLayout.NumElements = ARRAYSIZE(inputLayout);
+			pipelineStateStream.InputLayout.pInputElementDescs = inputLayout;
 			// Load the vertex shader. 
 			ComPtr<ID3DBlob> pVertexShaderBlob;
 			D3DReadFileToBlob(L"VertexShader.cso", &pVertexShaderBlob) >> hrVerify;
@@ -128,10 +130,24 @@ namespace CPR::GFX::D12
 			ComPtr<ID3DBlob> pPixelShaderBlob;
 			D3DReadFileToBlob(L"PixelShader.cso", &pPixelShaderBlob) >> hrVerify;
 
+			pipelineStateStream.RootSignature = pRootSignature_.Get();
+			pipelineStateStream.VS.pShaderBytecode = pVertexShaderBlob->GetBufferPointer();
+			pipelineStateStream.VS.BytecodeLength = pVertexShaderBlob->GetBufferSize();
+			pipelineStateStream.PS.pShaderBytecode = pPixelShaderBlob->GetBufferPointer();
+			pipelineStateStream.PS.BytecodeLength = pPixelShaderBlob->GetBufferSize();
+			pipelineStateStream.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+			pipelineStateStream.RTVFormats.NumRenderTargets = 1;
 			const DXGI_FORMAT rtvFormats[] = { DXGI_FORMAT_R8G8B8A8_UNORM };
+			pipelineStateStream.RTVFormats.RTFormats[0] = rtvFormats[0];
+			pipelineStateStream.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 
+			// building the pipeline state object 
+			const D3D12_PIPELINE_STATE_STREAM_DESC pipelineStateStreamDesc = {
+				sizeof(PipelineStateStream), &pipelineStateStream
+			};
+			pDeviceInterface->CreatePipelineState(&pipelineStateStreamDesc, IID_PPV_ARGS(&pPipelineState_)) >> hrVerify;
 			// filling pso structure
-			D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
+			/*D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc;
 			ZeroMemory(&psoDesc, sizeof(D3D12_GRAPHICS_PIPELINE_STATE_DESC));
 			psoDesc.pRootSignature = pRootSignature_.Get();
 			psoDesc.VS.pShaderBytecode = pVertexShaderBlob->GetBufferPointer();
@@ -194,19 +210,32 @@ namespace CPR::GFX::D12
 			}
 
 			psoDesc.DepthStencilState = depthDesc;
-			psoDesc.StreamOutput = streamOutDesc;
-			// building the pipeline state object 
-			const D3D12_PIPELINE_STATE_STREAM_DESC pipelineStateStreamDesc = {
-				sizeof(PipelineStateStream), &pipelineStateStream
-			};
-			pDeviceInterface->CreatePipelineState(&pipelineStateStreamDesc, IID_PPV_ARGS(&pPipelineState_)) >> hrVerify;
-
+			psoDesc.StreamOutput = streamOutDesc;*/
+			
 			// create index buffer resource
 			{
-				const CD3DX12_HEAP_PROPERTIES heapProps{ D3D12_HEAP_TYPE_DEFAULT };
-				const auto resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(sizeof(UINT) * maxIndices_);
+				D3D12_HEAP_PROPERTIES heapProperties = {};
+				heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
+				heapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+				heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+				heapProperties.CreationNodeMask = 0;
+				heapProperties.VisibleNodeMask = 0;
+
+				D3D12_RESOURCE_DESC resourceDesc = {};
+				resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+				resourceDesc.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
+				resourceDesc.Width = sizeof(UINT) * maxIndices_;
+				resourceDesc.Height = 1;
+				resourceDesc.DepthOrArraySize = 1;
+				resourceDesc.MipLevels = 1;
+				resourceDesc.Format = DXGI_FORMAT_UNKNOWN;
+				resourceDesc.SampleDesc.Count = 1;
+				resourceDesc.SampleDesc.Quality = 0;
+				resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+				resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+
 				pDeviceInterface->CreateCommittedResource(
-					&heapProps,
+					&heapProperties,
 					D3D12_HEAP_FLAG_NONE,
 					&resourceDesc,
 					D3D12_RESOURCE_STATE_COPY_DEST,
@@ -232,9 +261,9 @@ namespace CPR::GFX::D12
 		signaledFenceValue_ = signaledFenceValue;
 		// frame resource stuff
 		currentFrameResource_ = GetFrameResource_(signaledFenceValue);
-		const auto mapReadRangeNone = CD3DX12_RANGE{ 0, 0 };
+		//const auto mapReadRangeNone = CD3DX12_RANGE{ 0, 0 };
 		// vertex buffer
-		currentFrameResource_->pVertexBuffer->Map(0, &mapReadRangeNone,
+		currentFrameResource_->pVertexBuffer->Map(0, nullptr,
 			reinterpret_cast<void**>(&pVertexUpload_)) >> hrVerify;
 		// write indices reset
 		nVertices_ = 0;
@@ -318,7 +347,7 @@ namespace CPR::GFX::D12
 		}
 		// unmap upload vertex
 		{
-			const auto mapWrittenRange = CD3DX12_RANGE{ 0, nVertices_ * sizeof(Vertex_) };
+			const auto mapWrittenRange = D3D12_RANGE{ 0, nVertices_ * sizeof(Vertex_) };
 			currentFrameResource_->pVertexBuffer->Unmap(0, &mapWrittenRange);
 			pVertexUpload_ = nullptr;
 		}
@@ -366,8 +395,26 @@ namespace CPR::GFX::D12
 		FrameResource_ fr;
 		// vertex buffer
 		{
-			const CD3DX12_HEAP_PROPERTIES heapProps{ D3D12_HEAP_TYPE_UPLOAD };
-			const auto resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(sizeof(Vertex_) * maxVertices_);
+			D3D12_HEAP_PROPERTIES heapProps = {};
+			heapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
+			heapProps.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+			heapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+			heapProps.CreationNodeMask = 1;
+			heapProps.VisibleNodeMask = 1;
+
+			D3D12_RESOURCE_DESC resourceDesc = {};
+			resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+			resourceDesc.Alignment = 0;
+			resourceDesc.Width = sizeof(Vertex_) * maxVertices_;
+			resourceDesc.Height = 1;
+			resourceDesc.DepthOrArraySize = 1;
+			resourceDesc.MipLevels = 1;
+			resourceDesc.Format = DXGI_FORMAT_UNKNOWN;
+			resourceDesc.SampleDesc.Count = 1;
+			resourceDesc.SampleDesc.Quality = 0;
+			resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+			resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+
 			pDeviceInterface->CreateCommittedResource(
 				&heapProps,
 				D3D12_HEAP_FLAG_NONE,
@@ -404,8 +451,26 @@ namespace CPR::GFX::D12
 		}
 		// create committed resource for cpu upload of index data
 		{
-			const CD3DX12_HEAP_PROPERTIES heapProps{ D3D12_HEAP_TYPE_UPLOAD };
-			const auto resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(indexData.size() * sizeof(UINT));
+			D3D12_HEAP_PROPERTIES heapProps = {};
+			heapProps.Type = D3D12_HEAP_TYPE_UPLOAD;
+			heapProps.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+			heapProps.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
+			heapProps.CreationNodeMask = 1;
+			heapProps.VisibleNodeMask = 1;
+
+			D3D12_RESOURCE_DESC resourceDesc = {};
+			resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+			resourceDesc.Alignment = 0;
+			resourceDesc.Width = indexData.size() * sizeof(UINT);
+			resourceDesc.Height = 1;
+			resourceDesc.DepthOrArraySize = 1;
+			resourceDesc.MipLevels = 1;
+			resourceDesc.Format = DXGI_FORMAT_UNKNOWN;
+			resourceDesc.SampleDesc.Count = 1;
+			resourceDesc.SampleDesc.Quality = 0;
+			resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+			resourceDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+
 			pDevice_->GetD3D12DeviceInterface()->CreateCommittedResource(
 				&heapProps,
 				D3D12_HEAP_FLAG_NONE,
@@ -425,9 +490,14 @@ namespace CPR::GFX::D12
 		cmd.pCommandList->CopyResource(pIndexBuffer_.Get(), pIndexUploadBuffer_.Get());
 		// transition index buffer to index buffer state 
 		{
-			const auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-				pIndexBuffer_.Get(),
-				D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_INDEX_BUFFER);
+			D3D12_RESOURCE_BARRIER barrier = {};
+			barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+			barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+			barrier.Transition.pResource = pIndexBuffer_.Get();
+			barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+			barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_COPY_DEST;
+			barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_INDEX_BUFFER;
+
 			cmd.pCommandList->ResourceBarrier(1, &barrier);
 		}
 

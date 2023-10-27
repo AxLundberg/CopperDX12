@@ -135,19 +135,17 @@ namespace CPR::GFX::D12
 		auto commandListPair = pCommandQueue_->GetAllocatorListPair();
 		// transition buffer resource to render target state 
 		auto& backBuffer = backBuffers_[curBackBufferIndex_];
-		const auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-			backBuffer.Get(),
-			D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-		commandListPair.pCommandList->ResourceBarrier(1, &barrier);
+		TransitionResource(backBuffer.Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 		// clear back buffer
+		const auto rtvDescSize = pDevice_->GetD3D12DeviceInterface()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 		if (clearColor_) {
-			const CD3DX12_CPU_DESCRIPTOR_HANDLE rtv{
-				pRtvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart(),
-				(INT)curBackBufferIndex_, rtvDescriptorSize_ };
+			D3D12_CPU_DESCRIPTOR_HANDLE rtv{
+				pRtvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart() };
+			rtv.ptr += rtvDescriptorSize_ * curBackBufferIndex_;
 			commandListPair.pCommandList->ClearRenderTargetView(rtv, &clearColor_->x, 0, nullptr);
 		}
 		// clear the depth buffer 
-		const CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle{
+		const D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle{
 			pDsvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart() };
 		commandListPair.pCommandList->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.f, 0, 0, nullptr);
 		// execute begin frame commands
@@ -162,12 +160,12 @@ namespace CPR::GFX::D12
 		commandListPair.pCommandList->RSSetViewports(1, &viewport_);
 		commandListPair.pCommandList->RSSetScissorRects(1, &scissorRect_);
 		// bind render target and depth buffer
-		const CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle{
+		const D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle{
 			pDsvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart() };
-		const CD3DX12_CPU_DESCRIPTOR_HANDLE rtv{
-			pRtvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart(),
-			(INT)curBackBufferIndex_, rtvDescriptorSize_ };
-		commandListPair.pCommandList->OMSetRenderTargets(1, &rtv, TRUE, &dsvHandle);
+		D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle{
+				pRtvDescriptorHeap_->GetCPUDescriptorHandleForHeapStart() };
+		rtvHandle.ptr += rtvDescriptorSize_ * curBackBufferIndex_;
+		commandListPair.pCommandList->OMSetRenderTargets(1, &rtvHandle, TRUE, &dsvHandle);
 
 		return commandListPair;
 	}
@@ -194,12 +192,7 @@ namespace CPR::GFX::D12
 		// get a command list for end frame commands
 		auto commandListPair = pCommandQueue_->GetAllocatorListPair();
 		// prepare buffer for presentation by transitioning to present state
-		{
-			const auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-				backBuffer.Get(),
-				D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-			commandListPair.pCommandList->ResourceBarrier(1, &barrier);
-		}
+		TransitionResource(backBuffer.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 		// submit command list 
 		pCommandQueue_->ExecuteCommandList(std::move(commandListPair));
 		// present frame 
