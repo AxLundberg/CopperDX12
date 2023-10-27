@@ -43,8 +43,10 @@ int WINAPI wWinMain(
 	try
 	{
 		Boot();
+		auto keyboard = std::make_shared<WIN::Keyboard>();
 		auto pWindow = IOC::Get().Resolve<WIN::IWindow>(
 			WIN::IWindow::IocParams{
+				.pKeySink = keyboard,
 				.name = L"test",
 				.size = SPA::DimensionsI{ 1280, 720 },
 				.position = {} 

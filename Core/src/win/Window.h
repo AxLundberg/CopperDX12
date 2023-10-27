@@ -15,8 +15,8 @@ namespace CPR::WIN
 	class Window : public IWindow
 	{
 	public:
-		Window(std::shared_ptr<IWindowClass> pWindowClass, std::wstring title,
-			SPA::DimensionsI clientAreaSize, std::optional<SPA::Vec2I> position = {});
+		Window(std::shared_ptr<IWindowClass> pWindowClass, std::shared_ptr<IKeyboardSink> pKeySink, 
+			std::wstring title, SPA::DimensionsI clientAreaSize, std::optional<SPA::Vec2I> position = {});
 		HWND GetHandle() const override;
 		bool IsClosing() const override;
 		std::future<void> SetTitle(std::wstring title) override;
@@ -38,6 +38,7 @@ namespace CPR::WIN
 		// constants & data
 		static constexpr UINT CUSTOM_TASK_MESSAGE_ID = WM_USER + 0;
 		std::shared_ptr<IWindowClass> m_pWindowClass;
+		std::shared_ptr<IKeyboardSink> m_keySink;
 		std::binary_semaphore m_startSignal{ 0 };
 		mutable CCR::GenericTaskQueue m_tasks;
 		std::atomic<bool> m_closing = false;

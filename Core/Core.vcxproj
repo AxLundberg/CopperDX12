@@ -166,11 +166,13 @@
     <ClInclude Include="src\win\Boot.h" />
     <ClInclude Include="src\win\CopperWin.h" />
     <ClInclude Include="src\win\Exception.h" />
+    <ClInclude Include="src\win\Input.h" />
     <ClInclude Include="src\win\IWindow.h" />
     <ClInclude Include="src\win\Util.h" />
     <ClInclude Include="src\win\Window.h" />
     <ClInclude Include="src\win\WindowClass.h" />
     <ClInclude Include="thirdParty\backward.h" />
+    <ClInclude Include="thirdParty\concurrentqueue.h" />
     <ClInclude Include="thirdParty\ImGUI\backends\imgui_impl_dx12.h" />
     <ClInclude Include="thirdParty\ImGUI\backends\imgui_impl_win32.h" />
     <ClInclude Include="thirdParty\ImGUI\imconfig.h" />

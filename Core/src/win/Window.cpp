@@ -8,10 +8,11 @@
 
 namespace CPR::WIN
 {
-	Window::Window(std::shared_ptr<IWindowClass> pWindowClass, std::wstring title,
-		SPA::DimensionsI clientAreaSize, std::optional<SPA::Vec2I> position)
+	Window::Window(std::shared_ptr<IWindowClass> pWindowClass, std::shared_ptr<IKeyboardSink> pKeySink,
+		std::wstring title, SPA::DimensionsI clientAreaSize, std::optional<SPA::Vec2I> position)
 		:
 		m_pWindowClass{ std::move(pWindowClass) },
+		m_keySink{ std::move(pKeySink) },
 		m_kernelThread{ &Window::MessageKernel, this }
 	{
 		auto future = m_tasks.Push([=, this] {
@@ -92,6 +93,12 @@ namespace CPR::WIN
 			case CUSTOM_TASK_MESSAGE_ID:
 				m_tasks.PopExecute();
 				return 0;
+			case WM_KEYDOWN:
+				m_keySink->PutEvent(KeyEvent{ .type = KeyEvent::Type::Press, .code = (uint8_t)wParam });
+				break;
+			case WM_KEYUP:
+				m_keySink->PutEvent(KeyEvent{ .type = KeyEvent::Type::Release, .code = (uint8_t)wParam });
+				break;
 			default:
 				break;
 			}

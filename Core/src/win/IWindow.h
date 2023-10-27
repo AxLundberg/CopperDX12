@@ -6,7 +6,7 @@
 #include <Core/src/spa/Dimensions.h>
 
 #include "CopperWin.h"
-
+#include "Input.h"
 
 namespace CPR::WIN
 {
@@ -19,6 +19,7 @@ namespace CPR::WIN
 		struct IocParams
 		{
 			std::shared_ptr<IWindowClass> pClass;
+			std::shared_ptr<IKeyboardSink> pKeySink;
 			std::optional<std::wstring> name;
 			std::optional<SPA::DimensionsI> size;
 			std::optional<SPA::Vec2I> position;

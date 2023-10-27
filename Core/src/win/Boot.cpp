@@ -3,8 +3,8 @@
 
 #include "WindowClass.h"
 #include "Window.h"
+#include "Input.h"
 #include "Boot.h" 
-
 
 template<class T>
 auto operator|(std::shared_ptr<T> lhs, std::shared_ptr<T> rhs)
@@ -24,7 +24,8 @@ namespace CPR::WIN
 		// container 
 		IOC::Get().Register<IWindow>([](IWindow::IocParams args) {
 			return std::make_shared<Window>(
-				(args.pClass | IOC::Sing().Resolve<IWindowClass>()),
+				args.pClass ? args.pClass : IOC::Sing().Resolve<IWindowClass>(),
+				args.pKeySink ? args.pKeySink : IOC::Sing().Resolve<IKeyboardSink>(),
 				args.name.value_or(L"Main Window"),
 				args.size.value_or(SPA::DimensionsI{ 1280, 720 }),
 				args.position
