@@ -197,7 +197,13 @@
     <ClCompile Include="src\ecs\EcsManager.cpp" />
     <ClCompile Include="src\ecs\EcsEntity.cpp" />
     <ClCompile Include="src\gfx\cmn\GraphicsError.cpp" />
+    <ClCompile Include="src\gfx\d11\BufferManagerD11.cpp" />
+    <ClCompile Include="src\gfx\d11\CameraD11.cpp" />
     <ClCompile Include="src\gfx\d11\DeviceD11.cpp" />
+    <ClCompile Include="src\gfx\d11\RendererD11.cpp" />
+    <ClCompile Include="src\gfx\d11\RenderPassD11.cpp" />
+    <ClCompile Include="src\gfx\d11\SamplerManagerD11.cpp" />
+    <ClCompile Include="src\gfx\d11\TextureManagerD11.cpp" />
     <ClCompile Include="src\gfx\d12\Chil\CommandQueue.cpp" />
     <ClCompile Include="src\gfx\d12\Chil\Device.cpp" />
     <ClCompile Include="src\gfx\d12\Chil\RenderPane.cpp" />

@@ -72,16 +72,15 @@ namespace CPR::GFX::D11
 		ID3D11Device* device = nullptr;
 		std::vector<StoredTexture> textures;
 
-		bool TranslateFormatInfo(const FormatInfo& formatInfo,
-			DXGI_FORMAT& toSet);
+		bool TranslateFormatInfo(const FormatInfo& formatInfo, DXGI_FORMAT& toSet);
 		D3D11_USAGE DetermineUsage(unsigned int bindingFlags);
 		UINT TranslateBindFlags(unsigned int bindingFlags);
-		bool CreateDescription(const TextureInfo& textureInfo,
-			D3D11_TEXTURE2D_DESC& toSet);
-		bool CreateResourceViews(ID3D11Texture2D* texture, unsigned int bindingFlags,
-			TextureViews& toSet);
+		bool CreateDescription(const TextureInfo& textureInfo, D3D11_TEXTURE2D_DESC& toSet);
+		bool CreateResourceViews(ID3D11Texture2D* texture, unsigned int bindingFlags, TextureViews& toSet);
 
 	public:
+		TextureManagerD11();
+		~TextureManagerD11();
 		void Initialise(ID3D11Device* deviceToUse);
 
 		ResourceIndex AddTexture(void* textureData,

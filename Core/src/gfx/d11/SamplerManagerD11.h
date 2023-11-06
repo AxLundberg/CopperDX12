@@ -22,7 +22,7 @@ namespace CPR::GFX::D11
 	class SamplerManagerD11
 	{
 	public:
-		SamplerManagerD11(ID3D11Device* device);
+		SamplerManagerD11();
 		~SamplerManagerD11();
 		void Initialise(ID3D11Device* deviceToUse);
 

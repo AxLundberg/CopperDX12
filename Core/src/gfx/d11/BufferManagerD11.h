@@ -21,10 +21,9 @@ namespace CPR::GFX::D11
 	class BufferManagerD11
 	{
 	public:
-		BufferManagerD11(ComPtr<ID3D11Device> const& device);
+		BufferManagerD11();
 		~BufferManagerD11();
-		void Initialise(ID3D11Device* deviceToUse,
-			ID3D11DeviceContext* contextToUse);
+		void Initialise(ID3D11Device* deviceToUse, ID3D11DeviceContext* contextToUse);
 
 		ResourceIndex AddBuffer(void* data, unsigned int elementSize,
 			unsigned int nrOfElements, PerFrameUsage rwPattern, unsigned int bindingFlags);
