@@ -1,7 +1,6 @@
 #pragma once
 #include <DirectXMath.h>
 
-#include "Camera.h"
 #include "BufferManager.h"
 
 namespace CPR::GFX::D12
