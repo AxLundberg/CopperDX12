@@ -3,6 +3,7 @@
 #include <d3d11_4.h>
 #include <dxgi1_6.h>
 
+#include "../RenderObject.h"
 #include "RenderPassD11.h"
 #include "BufferManagerD11.h"
 #include "TextureManagerD11.h"
@@ -26,7 +27,7 @@ namespace CPR::GFX::D11
 		virtual GfxRenderPassD11* CreateRenderPass(RenderPassInfo&) = 0;
 		virtual ResourceIndex SubmitBuffer(void* data, u32 elemSize, u32 elemCount, PerFrameUsage, BufferBinding) = 0;
 		virtual ResourceIndex SubmitTexture(void* data, TextureInfo&) = 0;
-		virtual Camera* CreateCamera(f32 minDepth, f32 maxDepth, f32 aspectRatio) = 0;
+		virtual CameraD11* CreateCamera(f32 minDepth, f32 maxDepth, f32 aspectRatio) = 0;
 		virtual void UpdateBuffer(ResourceIndex bufferIndex, void* data) = 0;
 		virtual void SetLightBuffer(ResourceIndex lightBufferIndexToUse) = 0;
 

@@ -2,7 +2,7 @@
 
 #include "Mesh.h"
 
-namespace CPR::GFX::D12
+namespace CPR::GFX
 {
 	struct SurfaceProperty
 	{

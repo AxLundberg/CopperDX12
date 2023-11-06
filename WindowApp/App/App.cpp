@@ -24,6 +24,7 @@
 #include "App.h"
 
 using namespace CPR;
+using namespace CPR::GFX;
 using namespace CPR::GFX::D12;
 using namespace std::string_literals;
 using namespace std::chrono_literals;
