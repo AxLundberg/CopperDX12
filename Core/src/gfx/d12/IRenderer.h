@@ -9,7 +9,7 @@
 #include "TextureManager.h"
 #include "SamplerManager.h"
 #include "BufferManager.h"
-#include "RenderObject.h"
+#include "../RenderObject.h"
 #include "HeapManager.h"
 #include "RenderPass.h"
 #include "Camera.h"

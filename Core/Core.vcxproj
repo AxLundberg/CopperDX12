@@ -139,13 +139,13 @@
     <ClInclude Include="src\gfx\ISwapChain.h" />
     <ClInclude Include="src\gfx\IDevice.h" />
     <ClInclude Include="src\gfx\d12\Renderer.h" />
-    <ClInclude Include="src\gfx\d12\Mesh.h" />
+    <ClInclude Include="src\gfx\Mesh.h" />
     <ClInclude Include="src\gfx\d12\IRenderer.h" />
-    <ClInclude Include="src\gfx\d12\RenderObject.h" />
+    <ClInclude Include="src\gfx\RenderObject.h" />
     <ClInclude Include="src\gfx\d12\RenderPass.h" />
     <ClInclude Include="src\gfx\d12\ResourceManager.h" />
     <ClInclude Include="src\gfx\d12\SamplerManager.h" />
-    <ClInclude Include="src\gfx\d12\SurfaceProperty.h" />
+    <ClInclude Include="src\gfx\SurfaceProperty.h" />
     <ClInclude Include="src\gfx\d12\TextureManager.h" />
     <ClInclude Include="src\gfx\d12\cmn\RunConfig.h" />
     <ClInclude Include="src\gfx\d12\utl\Helpers.h" />

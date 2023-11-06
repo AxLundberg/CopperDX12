@@ -147,13 +147,13 @@
     <ClInclude Include="src\gfx\d12\BufferManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\gfx\d12\Mesh.h">
+    <ClInclude Include="src\gfx\Mesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\gfx\d12\RenderObject.h">
+    <ClInclude Include="src\gfx\RenderObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\gfx\d12\SurfaceProperty.h">
+    <ClInclude Include="src\gfx\SurfaceProperty.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\gfx\cmn\GraphicsError.h">

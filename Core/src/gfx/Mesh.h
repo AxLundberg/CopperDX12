@@ -1,5 +1,5 @@
 #pragma once
-#include "../cmn/TypeDefs.h"
+#include "cmn/TypeDefs.h"
 
 namespace CPR::GFX::D12
 {
