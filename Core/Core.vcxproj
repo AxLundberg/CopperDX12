@@ -94,6 +94,14 @@
     <ClInclude Include="src\gfx\cmn\GraphicsError.h" />
     <ClInclude Include="src\gfx\cmn\Helpers.h" />
     <ClInclude Include="src\gfx\cmn\TypeDefs.h" />
+    <ClInclude Include="src\gfx\d11\base\IDev.h" />
+    <ClInclude Include="src\gfx\d11\BufferManagerD11.h" />
+    <ClInclude Include="src\gfx\d11\CameraD11.h" />
+    <ClInclude Include="src\gfx\d11\DeviceD11.h" />
+    <ClInclude Include="src\gfx\d11\RendererD11.h" />
+    <ClInclude Include="src\gfx\d11\RenderPassD11.h" />
+    <ClInclude Include="src\gfx\d11\SamplerManagerD11.h" />
+    <ClInclude Include="src\gfx\d11\TextureManagerD11.h" />
     <ClInclude Include="src\gfx\d12\Chil\AllocatorListPair.h" />
     <ClInclude Include="src\gfx\d12\Chil\CommandQueue.h" />
     <ClInclude Include="src\gfx\d12\Chil\d3dx12.h" />
@@ -103,6 +111,7 @@
     <ClInclude Include="src\gfx\d12\Chil\ResourceLoader.h" />
     <ClInclude Include="src\gfx\d12\Chil\SpriteBatcher.h" />
     <ClInclude Include="src\gfx\d12\Chil\Texture.h" />
+    <ClInclude Include="src\gfx\d11\cmn\D11Headers.h" />
     <ClInclude Include="src\gfx\d12\D12.h" />
     <ClInclude Include="src\gfx\d12\BufferManager.h" />
     <ClInclude Include="src\gfx\d12\Camera.h" />
@@ -188,6 +197,7 @@
     <ClCompile Include="src\ecs\EcsManager.cpp" />
     <ClCompile Include="src\ecs\EcsEntity.cpp" />
     <ClCompile Include="src\gfx\cmn\GraphicsError.cpp" />
+    <ClCompile Include="src\gfx\d11\DeviceD11.cpp" />
     <ClCompile Include="src\gfx\d12\Chil\CommandQueue.cpp" />
     <ClCompile Include="src\gfx\d12\Chil\Device.cpp" />
     <ClCompile Include="src\gfx\d12\Chil\RenderPane.cpp" />
