@@ -27,8 +27,7 @@ namespace CPR::GFX::D11
 			ID3D11DeviceContext* contextToUse);
 
 		ResourceIndex AddBuffer(void* data, unsigned int elementSize,
-			unsigned int nrOfElements, PerFrameUsage cpuWrite,
-			PerFrameUsage gpuWrite, unsigned int bindingFlags);
+			unsigned int nrOfElements, PerFrameUsage rwPattern, unsigned int bindingFlags);
 
 		void UpdateBuffer(ResourceIndex index, void* data);
 		unsigned int GetElementSize(ResourceIndex index);
@@ -37,12 +36,10 @@ namespace CPR::GFX::D11
 		ID3D11Buffer* GetBufferInterface(ResourceIndex index);
 		ID3D11ShaderResourceView* GetSRV(ResourceIndex index);
 	private:
-		bool DetermineUsage(PerFrameUsage cpuWrite,
-			PerFrameUsage gpuWrite, D3D11_USAGE& usage);
+		bool DetermineUsage(PerFrameUsage, D3D11_USAGE& usage);
 		UINT TranslateBindFlags(unsigned int bindingFlags);
 		bool CreateDescription(unsigned int elementSize,
-			unsigned int nrOfElements, PerFrameUsage cpuWrite,
-			PerFrameUsage gpuWrite, unsigned int bindingFlags,
+			unsigned int nrOfElements, PerFrameUsage rwPattern, unsigned int bindingFlags,
 			D3D11_BUFFER_DESC& toSet);
 
 		ID3D11ShaderResourceView* CreateSRV(ID3D11Buffer* buffer, unsigned int stride);

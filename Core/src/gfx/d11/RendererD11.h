@@ -15,12 +15,6 @@ namespace CPR::GFX::D11
 	class IRendererD11
 	{
 	public:
-		/*struct IocParams
-		{
-			std::shared_ptr<CPR::GFX::IDevice> pDevice;
-			std::shared_ptr<CPR::GFX::ISwapChain> pSwapChain;
-		};*/
-	public:
 		virtual ~IRendererD11() = default;
 
 		virtual ResourceIndex CreateSampler(SamplerType, AddressMode) = 0;
@@ -86,14 +80,11 @@ namespace CPR::GFX::D11
 		RendererD11(HWND windowHandle);
 		virtual ~RendererD11();
 
-		GraphicsRenderPass* CreateGraphicsRenderPass(const GraphicsRenderPassInfo& intialisationInfo) override;
-		void DestroyGraphicsRenderPass(GraphicsRenderPass* pass) override;
+		GfxRenderPassD11* CreateRenderPass(RenderPassInfo& intialisationInfo) override;
 
-		Camera* CreateCamera(float minDepth, float maxDepth, float aspectRatio) override;
-		void DestroyCamera(Camera* camera) override;
+		CameraD11* CreateCamera(float minDepth, float maxDepth, float aspectRatio) override;
 
-		void SetRenderPass(GraphicsRenderPass* toSet) override;
-		void SetCamera(Camera* toSet) override;
+		void SetRenderPass(GfxRenderPassD11* toSet) override;
 		void SetLightBuffer(ResourceIndex lightBufferIndexToUse) override;
 
 		void PreRender() override;
