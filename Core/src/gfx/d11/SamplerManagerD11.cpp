@@ -4,6 +4,9 @@
 
 namespace CPR::GFX::D11
 {
+	SamplerManagerD11::SamplerManagerD11()
+	{}
+
 	void SamplerManagerD11::SetFilter(D3D11_SAMPLER_DESC& toSetIn,
 		SamplerType type)
 	{

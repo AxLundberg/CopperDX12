@@ -2,6 +2,9 @@
 
 namespace CPR::GFX::D11
 {
+	TextureManagerD11::TextureManagerD11()
+	{}
+
 	bool TextureManagerD11::TranslateFormatInfo(const FormatInfo& formatInfo,
 		DXGI_FORMAT& toSet)
 	{
@@ -145,12 +148,6 @@ namespace CPR::GFX::D11
 		}
 	}
 
-	TextureManagerD11::TextureManagerD11(ID3D11Device* deviceToUse)
-		:
-		device(deviceToUse)
-	{
-	}
-
 	void TextureManagerD11::Initialise(ID3D11Device* deviceToUse)
 	{
 		device = deviceToUse;
@@ -194,5 +191,4 @@ namespace CPR::GFX::D11
 	{
 		return textures[index].views.srv;
 	}
-
 }

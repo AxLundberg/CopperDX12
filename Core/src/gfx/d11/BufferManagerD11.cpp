@@ -62,10 +62,7 @@ namespace CPR::GFX::D11
 		return toReturn;
 	}
 
-	BufferManagerD11::BufferManagerD11(ID3D11Device* deviceToUse, ID3D11DeviceContext* contextToUse)
-		:
-		device(deviceToUse),
-		context(contextToUse)
+	BufferManagerD11::BufferManagerD11()
 	{
 	}
 

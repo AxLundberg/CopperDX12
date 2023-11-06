@@ -78,15 +78,18 @@ namespace CPR::GFX::D11
 
 	public:
 		RendererD11(HWND windowHandle);
-		virtual ~RendererD11();
+		~RendererD11();
 
-		GfxRenderPassD11* CreateRenderPass(RenderPassInfo& intialisationInfo) override;
-
-		CameraD11* CreateCamera(float minDepth, float maxDepth, float aspectRatio) override;
-
-		void SetRenderPass(GfxRenderPassD11* toSet) override;
+		ResourceIndex CreateSampler(SamplerType, AddressMode) override;
+		GfxRenderPassD11* CreateRenderPass(RenderPassInfo&) override;
+		ResourceIndex SubmitBuffer(void* data, u32 elemSize, u32 elemCount, PerFrameUsage, BufferBinding) override;
+		ResourceIndex SubmitTexture(void* data, TextureInfo&) override;
+		CameraD11* CreateCamera(f32 minDepth, f32 maxDepth, f32 aspectRatio) override;
+		void UpdateBuffer(ResourceIndex bufferIndex, void* data) override;
 		void SetLightBuffer(ResourceIndex lightBufferIndexToUse) override;
 
+		void Initialize(HWND) override;
+		void SetRenderPass(GfxRenderPassD11* toSet) override;
 		void PreRender() override;
 		void Render(const std::vector<RenderObject>& objectsToRender) override;
 		void Present() override;
