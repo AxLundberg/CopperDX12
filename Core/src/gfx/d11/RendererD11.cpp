@@ -320,15 +320,20 @@ namespace CPR::GFX::D11
 		ImGui::NewFrame();
 		ImGui::Begin("Hello, world!");
 		ImGui::Text("This is some useful text.");
+		static i32 counter = 0;
+		if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+			counter++;
+		ImGui::SameLine();
+		ImGui::Text("counter = %d", counter);
 		ImGui::End();
 		ImGui::Render();
 		float clearColour[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+		immediateContext->OMSetRenderTargets(1, backBufferRTV.GetAddressOf(), depthBufferDSV.Get());
 		immediateContext->ClearRenderTargetView(backBufferRTV.Get(), clearColour);
+		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 		immediateContext->ClearDepthStencilView(depthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 		immediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		immediateContext->RSSetViewports(1, &viewport);
-		immediateContext->OMSetRenderTargets(1, backBufferRTV.GetAddressOf(), depthBufferDSV.Get());
-		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	}
 
 	void RendererD11::Render(const std::vector<RenderObject>& objectsToRender)

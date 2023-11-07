@@ -4,6 +4,11 @@
 #include "Core/src/log/Log.h"
 #include "Core/src/utl/Assert.h"
 
+#include <Core/thirdParty/ImGUI/imgui.h>
+#include <Core/thirdParty/ImGUI/backends/imgui_impl_win32.h>
+#include <Core/thirdParty/ImGUI/backends/imgui_impl_dx11.h>
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 namespace CPR::WIN
 {
 	LRESULT IWindowClass::ForwardMessage(IWindow* pWnd, HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
@@ -51,6 +56,7 @@ namespace CPR::WIN
 			cprlog.Warn().Hr();
 		}
 	}
+
 	LRESULT WindowClass::HandleMessageSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
 	{
 		// use create parameter passed in from CreateWindowExW() to store window class pointer at WinAPI side 

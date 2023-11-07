@@ -6,6 +6,11 @@
 
 #include <format>
 
+#include <Core/thirdParty/ImGUI/imgui.h>
+#include <Core/thirdParty/ImGUI/backends/imgui_impl_win32.h>
+#include <Core/thirdParty/ImGUI/backends/imgui_impl_dx11.h>
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 namespace CPR::WIN
 {
 	Window::Window(std::shared_ptr<IWindowClass> pWindowClass, std::shared_ptr<IKeyboardSink> pKeySink,
@@ -79,6 +84,8 @@ namespace CPR::WIN
 
 	LRESULT Window::HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
 	{
+		if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
+			return true;
 		try
 		{
 			switch (msg)

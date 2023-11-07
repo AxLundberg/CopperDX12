@@ -30,4 +30,5 @@ namespace CPR::WIN
 		HINSTANCE m_hInstance;
 		ATOM m_atom;
 	};
+	
 }
