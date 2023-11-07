@@ -25,7 +25,6 @@ namespace CPR::GFX::D11
 		virtual void UpdateBuffer(ResourceIndex bufferIndex, void* data) = 0;
 		virtual void SetLightBuffer(ResourceIndex lightBufferIndexToUse) = 0;
 
-		virtual void Initialize(HWND) = 0;
 		virtual void SetRenderPass(GfxRenderPassD11* toSet) = 0;
 		virtual void PreRender() = 0;
 		virtual void Render(const std::vector<RenderObject>& objectsToRender) = 0;
@@ -34,26 +33,24 @@ namespace CPR::GFX::D11
 
 	class RendererD11 : public IRendererD11
 	{
+	public:
+		RendererD11(HWND windowHandle);
+		~RendererD11();
+
+		ResourceIndex CreateSampler(SamplerType, AddressMode) override;
+		GfxRenderPassD11* CreateRenderPass(RenderPassInfo&) override;
+		ResourceIndex SubmitBuffer(void* data, u32 elemSize, u32 elemCount, PerFrameUsage, BufferBinding) override;
+		ResourceIndex SubmitTexture(void* data, TextureInfo&) override;
+		CameraD11* CreateCamera(f32 minDepth, f32 maxDepth, f32 aspectRatio) override;
+		void UpdateBuffer(ResourceIndex bufferIndex, void* data) override;
+		void SetLightBuffer(ResourceIndex lightBufferIndexToUse) override;
+
+		void SetRenderPass(GfxRenderPassD11* toSet) override;
+		void PreRender() override;
+		void Render(const std::vector<RenderObject>& objectsToRender) override;
+		void Present() override;
+
 	private:
-		unsigned int backBufferWidth = 0;
-		unsigned int backBufferHeight = 0;
-
-		ID3D11Device* device = nullptr;
-		ID3D11DeviceContext* immediateContext = nullptr;
-		IDXGISwapChain* swapChain = nullptr;
-		ID3D11RenderTargetView* backBufferRTV = nullptr;
-		ID3D11Texture2D* depthBuffer = nullptr;
-		ID3D11DepthStencilView* depthBufferDSV = nullptr;
-		D3D11_VIEWPORT viewport;
-
-		BufferManagerD11 bufferManager;
-		TextureManagerD11 textureManager;
-		SamplerManagerD11 samplerManager;
-
-		GfxRenderPassD11* currentRenderPass = nullptr;
-		CameraD11* currentCamera = nullptr;
-		ResourceIndex lightBufferIndex = ResourceIndex(-1);
-
 		void CreateBasicInterfaces(HWND windowHandle);
 		void CreateRenderTargetView();
 		void CreateDepthStencil();
@@ -76,22 +73,24 @@ namespace CPR::GFX::D11
 
 		void HandleBinding(const PipelineBinding& binding);
 
-	public:
-		RendererD11(HWND windowHandle);
-		~RendererD11();
+	private:
+		unsigned int backBufferWidth = 0;
+		unsigned int backBufferHeight = 0;
 
-		ResourceIndex CreateSampler(SamplerType, AddressMode) override;
-		GfxRenderPassD11* CreateRenderPass(RenderPassInfo&) override;
-		ResourceIndex SubmitBuffer(void* data, u32 elemSize, u32 elemCount, PerFrameUsage, BufferBinding) override;
-		ResourceIndex SubmitTexture(void* data, TextureInfo&) override;
-		CameraD11* CreateCamera(f32 minDepth, f32 maxDepth, f32 aspectRatio) override;
-		void UpdateBuffer(ResourceIndex bufferIndex, void* data) override;
-		void SetLightBuffer(ResourceIndex lightBufferIndexToUse) override;
+		ID3D11Device* device = nullptr;
+		ID3D11DeviceContext* immediateContext = nullptr;
+		IDXGISwapChain* swapChain = nullptr;
+		ID3D11RenderTargetView* backBufferRTV = nullptr;
+		ID3D11Texture2D* depthBuffer = nullptr;
+		ID3D11DepthStencilView* depthBufferDSV = nullptr;
+		D3D11_VIEWPORT viewport;
 
-		void Initialize(HWND) override;
-		void SetRenderPass(GfxRenderPassD11* toSet) override;
-		void PreRender() override;
-		void Render(const std::vector<RenderObject>& objectsToRender) override;
-		void Present() override;
+		BufferManagerD11 bufferManager;
+		TextureManagerD11 textureManager;
+		SamplerManagerD11 samplerManager;
+
+		GfxRenderPassD11* currentRenderPass = nullptr;
+		CameraD11* currentCamera = nullptr;
+		ResourceIndex lightBufferIndex = ResourceIndex(-1);
 	};
 }

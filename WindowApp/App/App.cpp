@@ -1,4 +1,5 @@
 #include <Core/src/log/SeverityLevelPolicy.h>
+#include <Core/src/gfx/d11/RendererD11.h>
 #include <Core/src/gfx/d12/Renderer.h>
 #include <Core/src/gfx/d12/IRenderer.h>
 #include <Core/src/win/CopperWin.h>
@@ -25,7 +26,7 @@
 
 using namespace CPR;
 using namespace CPR::GFX;
-using namespace CPR::GFX::D12;
+using namespace CPR::GFX::D11;
 using namespace std::string_literals;
 using namespace std::chrono_literals;
 namespace rn = std::ranges;
@@ -61,7 +62,7 @@ namespace CPR::APP
         float colour[3] = { 1.0f, 1.0f, 1.0f };
     };
 
-    GfxRenderPass* CreateStandardRenderPass(IRenderer* renderer)
+    GfxRenderPassD11* CreateStandardRenderPass(IRendererD11* renderer)
     {
         RenderPassInfo info;
         info.vsPath = "StandardVS.cso";
@@ -136,13 +137,13 @@ namespace CPR::APP
         clampSamplerBinding.slotToBindTo = 0;
         info.globalBindings.push_back(clampSamplerBinding);
 
-        GfxRenderPass* toReturn = renderer->CreateRenderPass(info);
+        GfxRenderPassD11* toReturn = renderer->CreateRenderPass(info);
         toReturn->SetGlobalSampler(PipelineShaderStage::PS, 0, samplerIndex);
 
         return toReturn;
     }
 
-    bool CreateTriangleMesh(Mesh& mesh, IRenderer* renderer)
+    bool CreateTriangleMesh(Mesh& mesh, IRendererD11* renderer)
     {
         SimpleVertex vertices[] =
         {
@@ -173,7 +174,7 @@ namespace CPR::APP
         return true;
     }
 
-    bool CreateCubeMesh(Mesh& mesh, IRenderer* renderer)
+    bool CreateCubeMesh(Mesh& mesh, IRendererD11* renderer)
     {
         // Order per face is top left, top right, bottom left, bottom right
         SimpleVertex vertices[] =
@@ -244,7 +245,7 @@ namespace CPR::APP
     }
 
     bool LoadTexture(ResourceIndex& toSet,
-        IRenderer* renderer, std::string filePath, unsigned int components)
+        IRendererD11* renderer, std::string filePath, unsigned int components)
     {
         int width, height;
         unsigned char* imageData = stbi_load(filePath.c_str(),
@@ -266,7 +267,7 @@ namespace CPR::APP
     }
 
     bool CreateTransformBuffer(ResourceIndex& toSet,
-        IRenderer* renderer, float xPos, float yPos, float zPos)
+        IRendererD11* renderer, float xPos, float yPos, float zPos)
     {
         float matrix[16] =
         {
@@ -283,7 +284,7 @@ namespace CPR::APP
         return toSet != ResourceIndex(-1);
     }
 
-    void TransformCamera(Camera* camera, float moveSpeed,
+    void TransformCamera(CameraD11* camera, float moveSpeed,
         float turnSpeed, float deltaTime)
     {
         if (gInputs.moveRightPushed)
@@ -308,7 +309,7 @@ namespace CPR::APP
     }
 
     bool LoadSurfacePropertyFiles(SurfaceProperty& surfaceProperties,
-        IRenderer* renderer, const std::string& prefix)
+        IRendererD11* renderer, const std::string& prefix)
     {
         ResourceIndex diffuseTextureIndex;
         if (!LoadTexture(diffuseTextureIndex, renderer, prefix + "Diffuse.png", 4))
@@ -324,7 +325,7 @@ namespace CPR::APP
         return true;
     }
 
-    bool CreateLights(ResourceIndex& toSet, IRenderer* renderer, float offset)
+    bool CreateLights(ResourceIndex& toSet, IRendererD11* renderer, float offset)
     {
         float height = offset / 2.0f;
         PointLight lights[4] =
@@ -343,7 +344,7 @@ namespace CPR::APP
     }
 
     bool PlacePyramid(const Mesh& cubeMesh, const SurfaceProperty& stoneProperties,
-        std::vector<RenderObject>& toStoreIn, IRenderer* renderer, int height)
+        std::vector<RenderObject>& toStoreIn, IRendererD11* renderer, int height)
     {
         int base = (height - 1) * 2 + 1;
 
@@ -427,7 +428,7 @@ namespace CPR::APP
     }
 
     bool PlaceGround(const Mesh& cubeMesh, const SurfaceProperty& grassProperties,
-        std::vector<RenderObject>& toStoreIn, IRenderer* renderer, int height)
+        std::vector<RenderObject>& toStoreIn, IRendererD11* renderer, int height)
     {
         height += 2;
         int base = (height - 1) * 2 + 1;
@@ -462,7 +463,7 @@ namespace CPR::APP
     }
 
     bool PlaceCrystal(const Mesh& cubeMesh, const SurfaceProperty& crystalProperties,
-        std::vector<RenderObject>& toStoreIn, IRenderer* renderer, int height)
+        std::vector<RenderObject>& toStoreIn, IRendererD11* renderer, int height)
     {
         ResourceIndex transformBuffer;
         bool result = CreateTransformBuffer(transformBuffer, renderer,
@@ -480,7 +481,7 @@ namespace CPR::APP
         return true;
     }
 
-    bool PlaceBlocks(std::vector<RenderObject>& toStoreIn, IRenderer* renderer, int height)
+    bool PlaceBlocks(std::vector<RenderObject>& toStoreIn, IRendererD11* renderer, int height)
     {
         Mesh cubeMesh;
         if (!CreateCubeMesh(cubeMesh, renderer))
@@ -506,7 +507,7 @@ namespace CPR::APP
     }
 
     void RotateCrystal(RenderObject& crystal, float deltaTime, int height,
-        IRenderer* renderer)
+        IRendererD11* renderer)
     {
         static float rotationAmount = 0.0f;
         static float heightOffset = 0.0f;
@@ -552,14 +553,14 @@ namespace CPR::APP
     }
 
 
-    int Run(WIN::IWindow* window, GFX::D12::IRenderer* renderer, HINSTANCE hInstance)
+    int Run(WIN::IWindow* window, HINSTANCE hInstance, GFX::D11::IRendererD11* rendaerer)
     {
         const unsigned int WINDOW_WIDTH = 1280;
         const unsigned int WINDOW_HEIGHT = 642;
         HWND windowHandle = window->GetHandle();
-        renderer->Initialize(windowHandle);
-        //Renderer* renderer = new D12::RendererD3D12(windowHandle);
-        GfxRenderPass* standardPass = CreateStandardRenderPass(renderer);
+        //renderer->Initialize(windowHandle);
+        RendererD11* renderer = new D11::RendererD11(windowHandle);
+        GfxRenderPassD11* standardPass = CreateStandardRenderPass(renderer);
 
         //globalInputs = reinterpret_cast<Inputs*>(&window.GetInputs());
 
@@ -568,7 +569,7 @@ namespace CPR::APP
         if (!PlaceBlocks(renderObjects, renderer, DIMENSION))
             return -1;
 
-        Camera* camera = renderer->CreateCamera(0.1f, 20.0f,
+        CameraD11* camera = renderer->CreateCamera(0.1f, 20.0f,
             static_cast<float>(WINDOW_WIDTH) / WINDOW_HEIGHT);
         camera->MoveZ(-DIMENSION);
         camera->MoveY(1);

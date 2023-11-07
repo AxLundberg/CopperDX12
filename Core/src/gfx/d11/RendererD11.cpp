@@ -1,10 +1,32 @@
 #include "RendererD11.h"
+#include "../cmn/GraphicsError.h"
 
 #include <stdexcept>
 
 
 namespace CPR::GFX::D11
 {
+	RendererD11::RendererD11(HWND windowHandle)
+	{
+		CreateBasicInterfaces(windowHandle);
+		CreateRenderTargetView();
+		CreateDepthStencil();
+		CreateViewport();
+		bufferManager.Initialise(device, immediateContext);
+		textureManager.Initialise(device);
+		samplerManager.Initialise(device);
+	}
+
+	RendererD11::~RendererD11()
+	{
+		device->Release();
+		immediateContext->Release();
+		swapChain->Release();
+		backBufferRTV->Release();
+		depthBuffer->Release();
+		depthBufferDSV->Release();
+	}
+
 	void RendererD11::CreateBasicInterfaces(HWND windowHandle)
 	{
 		DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
@@ -26,12 +48,9 @@ namespace CPR::GFX::D11
 		swapChainDesc.Flags = 0;
 
 		D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
-		HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE,
+		D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE,
 			nullptr, D3D11_CREATE_DEVICE_DEBUG, &featureLevel, 1, D3D11_SDK_VERSION,
-			&swapChainDesc, &swapChain, &device, nullptr, &immediateContext);
-
-		if (FAILED(hr))
-			throw std::runtime_error("Failed to create basic interfaces");
+			&swapChainDesc, &swapChain, &device, nullptr, &immediateContext) >> hrVerify;
 	}
 
 	void RendererD11::CreateRenderTargetView()
@@ -237,25 +256,9 @@ namespace CPR::GFX::D11
 		}
 	}
 
-	RendererD11::RendererD11(HWND windowHandle)
+	ResourceIndex RendererD11::CreateSampler(SamplerType type, AddressMode adressMode)
 	{
-		CreateBasicInterfaces(windowHandle);
-		CreateRenderTargetView();
-		CreateDepthStencil();
-		CreateViewport();
-		bufferManager.Initialise(device, immediateContext);
-		textureManager.Initialise(device);
-		samplerManager.Initialise(device);
-	}
-
-	RendererD11::~RendererD11()
-	{
-		device->Release();
-		immediateContext->Release();
-		swapChain->Release();
-		backBufferRTV->Release();
-		depthBuffer->Release();
-		depthBufferDSV->Release();
+		return samplerManager.CreateSampler(type, adressMode);
 	}
 
 	GfxRenderPassD11* RendererD11::CreateRenderPass(RenderPassInfo& intialisationInfo)
@@ -263,9 +266,25 @@ namespace CPR::GFX::D11
 		return new GfxRenderPassD11(device, intialisationInfo);
 	}
 
+	ResourceIndex RendererD11::SubmitBuffer(void* data, u32 elemSize, u32 elemCount, PerFrameUsage rwPattern, BufferBinding binding)
+	{
+		return bufferManager.AddBuffer(data, elemSize, elemCount, rwPattern, binding);
+	}
+
+	ResourceIndex RendererD11::SubmitTexture(void* data, TextureInfo& info)
+	{
+		return textureManager.AddTexture(data, info);
+	}
+
 	CameraD11* RendererD11::CreateCamera(f32 minDepth, f32 maxDepth, f32 aspectRatio)
 	{
-		return new CameraD11(bufferManager, minDepth, maxDepth, aspectRatio);
+		currentCamera = new CameraD11(bufferManager, minDepth, maxDepth, aspectRatio);
+		return currentCamera;
+	}
+
+	void RendererD11::UpdateBuffer(ResourceIndex bufferIndex, void* data)
+	{
+		bufferManager.UpdateBuffer(bufferIndex, data);
 	}
 
 	void RendererD11::SetRenderPass(GfxRenderPassD11* toSet)

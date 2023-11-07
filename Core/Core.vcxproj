@@ -95,6 +95,7 @@
     <ClInclude Include="src\gfx\cmn\Helpers.h" />
     <ClInclude Include="src\gfx\cmn\TypeDefs.h" />
     <ClInclude Include="src\gfx\d11\base\IDev.h" />
+    <ClInclude Include="src\gfx\d11\BootD11.h" />
     <ClInclude Include="src\gfx\d11\BufferManagerD11.h" />
     <ClInclude Include="src\gfx\d11\CameraD11.h" />
     <ClInclude Include="src\gfx\d11\DeviceD11.h" />
@@ -197,6 +198,7 @@
     <ClCompile Include="src\ecs\EcsManager.cpp" />
     <ClCompile Include="src\ecs\EcsEntity.cpp" />
     <ClCompile Include="src\gfx\cmn\GraphicsError.cpp" />
+    <ClCompile Include="src\gfx\d11\BootD11.cpp" />
     <ClCompile Include="src\gfx\d11\BufferManagerD11.cpp" />
     <ClCompile Include="src\gfx\d11\CameraD11.cpp" />
     <ClCompile Include="src\gfx\d11\DeviceD11.cpp" />

@@ -34,7 +34,7 @@ namespace CPR::GFX::D11
 		XMVECTOR currentPos = XMLoadFloat3(&position);
 		XMVECTOR forwardVector = XMLoadFloat3(&forward);
 		currentPos += forwardVector * amount;
-		XMStoreFloat3(&position, currentPos);
+		DirectX::XMStoreFloat3(&position, currentPos);
 	}
 
 	void CameraD11::MoveY(float amount)
@@ -42,7 +42,7 @@ namespace CPR::GFX::D11
 		XMVECTOR currentPos = XMLoadFloat3(&position);
 		XMVECTOR upVector = XMLoadFloat3(&up);
 		currentPos += upVector * amount;
-		XMStoreFloat3(&position, currentPos);
+		DirectX::XMStoreFloat3(&position, currentPos);
 	}
 
 	void CameraD11::MoveX(float amount)
@@ -50,7 +50,7 @@ namespace CPR::GFX::D11
 		XMVECTOR currentPos = XMLoadFloat3(&position);
 		XMVECTOR rightVector = XMLoadFloat3(&right);
 		currentPos += rightVector * amount;
-		XMStoreFloat3(&position, currentPos);
+		DirectX::XMStoreFloat3(&position, currentPos);
 	}
 
 	void CameraD11::RotateY(float radians)
@@ -59,8 +59,8 @@ namespace CPR::GFX::D11
 		XMMATRIX rotationMatrix = XMMatrixRotationAxis(axis, radians);
 		XMVECTOR forwardVector = XMLoadFloat3(&forward);
 		XMVECTOR rightVector = XMLoadFloat3(&right);
-		XMStoreFloat3(&forward, XMVector3Transform(forwardVector, rotationMatrix));
-		XMStoreFloat3(&right, XMVector3Transform(rightVector, rotationMatrix));
+		DirectX::XMStoreFloat3(&forward, XMVector3Transform(forwardVector, rotationMatrix));
+		DirectX::XMStoreFloat3(&right, XMVector3Transform(rightVector, rotationMatrix));
 	}
 
 	ResourceIndex CameraD11::GetVP(BufferManagerD11& bufferManager)
