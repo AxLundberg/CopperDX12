@@ -561,7 +561,6 @@ namespace CPR::APP
         //renderer->Initialize(windowHandle);
         RendererD11* renderer = new D11::RendererD11(windowHandle);
         GfxRenderPassD11* standardPass = CreateStandardRenderPass(renderer);
-
         //globalInputs = reinterpret_cast<Inputs*>(&window.GetInputs());
 
         const int DIMENSION = 5;
@@ -604,7 +603,7 @@ namespace CPR::APP
                 renderer->PreRender();
 
                 //renderer->SetCamera(camera);
-                renderer->SetRenderPass(standardPass);
+                //renderer->SetRenderPass(standardPass);
                 renderer->Render(renderObjects);
 
                 renderer->Present();
@@ -619,7 +618,8 @@ namespace CPR::APP
 
         //renderer->DestroyGraphicsRenderPass(standardPass);
         //renderer->DestroyCamera(camera);
-        //delete renderer;
+        //delete(standardPass);
+        delete(renderer);
         return 0;
         /*auto x = 0;
         while (!window.IsClosing())

@@ -2,6 +2,26 @@
 
 namespace CPR::GFX::D11
 {
+	BufferManagerD11::BufferManagerD11()
+	{}
+
+	BufferManagerD11::~BufferManagerD11()
+	{
+		for (auto& buffer : buffers)
+		{
+			buffer.interfacePtr->Release();
+			if (buffer.srv != nullptr)
+				buffer.srv->Release();
+		}
+	}
+
+	void BufferManagerD11::Initialise(ComPtr<ID3D11Device> deviceToUse,
+		ComPtr<ID3D11DeviceContext> contextToUse)
+	{
+		device = deviceToUse;
+		context = contextToUse;
+	}
+
 	bool BufferManagerD11::DetermineUsage(PerFrameUsage rwPattern, D3D11_USAGE& usage)
 	{
 		usage = rwPattern == PerFrameUsage::STATIC ?
@@ -60,27 +80,6 @@ namespace CPR::GFX::D11
 			toReturn = nullptr;
 
 		return toReturn;
-	}
-
-	BufferManagerD11::BufferManagerD11()
-	{
-	}
-
-	BufferManagerD11::~BufferManagerD11()
-	{
-		for (auto& buffer : buffers)
-		{
-			buffer.interfacePtr->Release();
-			if (buffer.srv != nullptr)
-				buffer.srv->Release();
-		}
-	}
-
-	void BufferManagerD11::Initialise(ID3D11Device* deviceToUse,
-		ID3D11DeviceContext* contextToUse)
-	{
-		device = deviceToUse;
-		context = contextToUse;
 	}
 
 	ResourceIndex BufferManagerD11::AddBuffer(void* data,

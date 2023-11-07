@@ -19,13 +19,14 @@ namespace CPR::GFX::D11
 
 	RendererD11::~RendererD11()
 	{
-		device->Release();
-		immediateContext->Release();
-		swapChain->Release();
-		backBufferRTV->Release();
-		depthBuffer->Release();
-		depthBufferDSV->Release();
+		delete(currentRenderPass);
+		delete(currentCamera);
 	}
+
+	/*void RendererD11::DestroyGraphicsRenderPass(GfxRenderPassD11* pass)
+	{
+		delete pass;
+	}*/
 
 	void RendererD11::CreateBasicInterfaces(HWND windowHandle)
 	{
@@ -62,7 +63,7 @@ namespace CPR::GFX::D11
 			throw std::runtime_error("Could not fetch backbuffer from swap chain");
 		}
 
-		HRESULT hr = device->CreateRenderTargetView(backBuffer, NULL, &backBufferRTV);
+		HRESULT hr = device->CreateRenderTargetView(backBuffer, NULL, backBufferRTV.GetAddressOf());
 		if (FAILED(hr))
 			throw std::runtime_error("Could not create rtv for backbuffer");
 
@@ -71,7 +72,6 @@ namespace CPR::GFX::D11
 		backBufferWidth = desc.Width;
 		backBufferHeight = desc.Height;
 		backBuffer->Release();
-
 	}
 
 	void RendererD11::CreateDepthStencil()
@@ -89,10 +89,10 @@ namespace CPR::GFX::D11
 		desc.CPUAccessFlags = 0;
 		desc.MiscFlags = 0;
 
-		if (FAILED(device->CreateTexture2D(&desc, nullptr, &depthBuffer)))
+		if (FAILED(device->CreateTexture2D(&desc, nullptr, depthBuffer.GetAddressOf())))
 			throw std::runtime_error("Failed to create depth stencil texture!");
 
-		if (FAILED(device->CreateDepthStencilView(depthBuffer, 0, &depthBufferDSV)))
+		if (FAILED(device->CreateDepthStencilView(depthBuffer.Get(), 0, depthBufferDSV.GetAddressOf())))
 			throw std::runtime_error("Failed to create dsv!");
 	}
 
@@ -263,7 +263,8 @@ namespace CPR::GFX::D11
 
 	GfxRenderPassD11* RendererD11::CreateRenderPass(RenderPassInfo& intialisationInfo)
 	{
-		return new GfxRenderPassD11(device, intialisationInfo);
+		currentRenderPass = new GfxRenderPassD11(device.Get(), intialisationInfo);
+		return currentRenderPass;
 	}
 
 	ResourceIndex RendererD11::SubmitBuffer(void* data, u32 elemSize, u32 elemCount, PerFrameUsage rwPattern, BufferBinding binding)
@@ -300,16 +301,16 @@ namespace CPR::GFX::D11
 	void RendererD11::PreRender()
 	{
 		float clearColour[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-		immediateContext->ClearRenderTargetView(backBufferRTV, clearColour);
-		immediateContext->ClearDepthStencilView(depthBufferDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
+		immediateContext->ClearRenderTargetView(backBufferRTV.Get(), clearColour);
+		immediateContext->ClearDepthStencilView(depthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 		immediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		immediateContext->RSSetViewports(1, &viewport);
-		immediateContext->OMSetRenderTargets(1, &backBufferRTV, depthBufferDSV);
+		immediateContext->OMSetRenderTargets(1, backBufferRTV.GetAddressOf(), depthBufferDSV.Get());
 	}
 
 	void RendererD11::Render(const std::vector<RenderObject>& objectsToRender)
 	{
-		currentRenderPass->SetShaders(immediateContext);
+		currentRenderPass->SetShaders(immediateContext.Get());
 		const std::vector<PipelineBinding>& objectBindings = currentRenderPass->GetObjectBindings();
 		const std::vector<PipelineBinding>& globalBindings = currentRenderPass->GetGlobalBindings();
 

@@ -5,6 +5,28 @@ namespace CPR::GFX::D11
 	TextureManagerD11::TextureManagerD11()
 	{}
 
+	TextureManagerD11::~TextureManagerD11()
+	{
+		for (auto& texture : textures)
+		{
+			texture.interfacePtr->Release();
+
+			if (texture.views.srv != nullptr)
+				texture.views.srv->Release();
+			if (texture.views.uav != nullptr)
+				texture.views.uav->Release();
+			if (texture.views.rtv != nullptr)
+				texture.views.rtv->Release();
+			if (texture.views.dsv != nullptr)
+				texture.views.dsv->Release();
+		}
+	}
+
+	void TextureManagerD11::Initialise(ComPtr<ID3D11Device> deviceToUse)
+	{
+		device = deviceToUse;
+	}
+
 	bool TextureManagerD11::TranslateFormatInfo(const FormatInfo& formatInfo,
 		DXGI_FORMAT& toSet)
 	{
@@ -129,28 +151,6 @@ namespace CPR::GFX::D11
 		}
 
 		return result;
-	}
-
-	TextureManagerD11::~TextureManagerD11()
-	{
-		for (auto& texture : textures)
-		{
-			texture.interfacePtr->Release();
-
-			if (texture.views.srv != nullptr)
-				texture.views.srv->Release();
-			if (texture.views.uav != nullptr)
-				texture.views.uav->Release();
-			if (texture.views.rtv != nullptr)
-				texture.views.rtv->Release();
-			if (texture.views.dsv != nullptr)
-				texture.views.dsv->Release();
-		}
-	}
-
-	void TextureManagerD11::Initialise(ID3D11Device* deviceToUse)
-	{
-		device = deviceToUse;
 	}
 
 	ResourceIndex TextureManagerD11::AddTexture(void* textureData,

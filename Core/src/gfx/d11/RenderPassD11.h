@@ -55,7 +55,7 @@ namespace CPR::GFX::D11
 	class GfxRenderPassD11
 	{
 	public:
-		GfxRenderPassD11(ID3D11Device* device, const RenderPassInfo& info);
+		GfxRenderPassD11(ComPtr<ID3D11Device> device, const RenderPassInfo& info);
 		~GfxRenderPassD11();
 		void SetShaders(ID3D11DeviceContext* deviceContext);
 		const std::vector<PipelineBinding>& GetObjectBindings();
@@ -65,17 +65,15 @@ namespace CPR::GFX::D11
 		ResourceIndex GetGlobalSampler(PipelineShaderStage shader, std::uint8_t slot) const;
 
 	private:
-		ID3D11Device* device = nullptr;
+		ComPtr<ID3D11Device> device = nullptr;
 		std::vector<PipelineBinding> objectBindings;
 		std::vector<PipelineBinding> globalBindings;
-		ID3D11VertexShader* vertexShader = nullptr;
-		ID3D11PixelShader* pixelShader = nullptr;
+		ComPtr<ID3D11VertexShader> vertexShader = nullptr;
+		ComPtr<ID3D11PixelShader> pixelShader = nullptr;
 
-		std::array<ResourceIndex,
-			D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT> vsGlobalSamplers;
-		std::array<ResourceIndex,
-			D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT> psGlobalSamplers;
+		std::array<ResourceIndex, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT> vsGlobalSamplers;
+		std::array<ResourceIndex, D3D11_COMMONSHADER_SAMPLER_SLOT_COUNT> psGlobalSamplers;
 
-		ID3DBlob* LoadCSO(const std::string& filepath);
+		ComPtr<ID3DBlob> LoadCSO(const std::string& filepath);
 	};
 }

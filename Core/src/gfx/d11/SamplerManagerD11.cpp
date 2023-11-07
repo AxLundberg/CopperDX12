@@ -7,6 +7,17 @@ namespace CPR::GFX::D11
 	SamplerManagerD11::SamplerManagerD11()
 	{}
 
+	SamplerManagerD11::~SamplerManagerD11()
+	{
+		for (auto& sampler : samplers)
+			sampler->Release();
+	}
+
+	void SamplerManagerD11::Initialise(ComPtr<ID3D11Device> deviceToUse)
+	{
+		device = deviceToUse;
+	}
+
 	void SamplerManagerD11::SetFilter(D3D11_SAMPLER_DESC& toSetIn,
 		SamplerType type)
 	{
@@ -54,17 +65,6 @@ namespace CPR::GFX::D11
 		}
 
 		memset(toSetIn.BorderColor, 0, sizeof(float) * 4);
-	}
-
-	SamplerManagerD11::~SamplerManagerD11()
-	{
-		for (auto& sampler : samplers)
-			sampler->Release();
-	}
-
-	void SamplerManagerD11::Initialise(ID3D11Device* deviceToUse)
-	{
-		device = deviceToUse;
 	}
 
 	ResourceIndex SamplerManagerD11::CreateSampler(SamplerType type,

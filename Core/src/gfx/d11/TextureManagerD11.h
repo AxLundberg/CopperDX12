@@ -63,29 +63,30 @@ namespace CPR::GFX::D11
 			ID3D11DepthStencilView* dsv = nullptr;
 		};
 
-		struct StoredTexture
-		{
-			ID3D11Texture2D* interfacePtr = nullptr;
-			TextureViews views;
-		};
+	public:
+		TextureManagerD11();
+		~TextureManagerD11();
+		void Initialise(ComPtr<ID3D11Device> deviceToUse);
 
-		ID3D11Device* device = nullptr;
-		std::vector<StoredTexture> textures;
+		ResourceIndex AddTexture(void* textureData,
+			const TextureInfo& textureInfo);
 
+		ID3D11ShaderResourceView* GetSRV(ResourceIndex index);
+	private:
 		bool TranslateFormatInfo(const FormatInfo& formatInfo, DXGI_FORMAT& toSet);
 		D3D11_USAGE DetermineUsage(unsigned int bindingFlags);
 		UINT TranslateBindFlags(unsigned int bindingFlags);
 		bool CreateDescription(const TextureInfo& textureInfo, D3D11_TEXTURE2D_DESC& toSet);
 		bool CreateResourceViews(ID3D11Texture2D* texture, unsigned int bindingFlags, TextureViews& toSet);
 
-	public:
-		TextureManagerD11();
-		~TextureManagerD11();
-		void Initialise(ID3D11Device* deviceToUse);
+	private:
+		struct StoredTexture
+		{
+			ID3D11Texture2D* interfacePtr = nullptr;
+			TextureViews views;
+		};
 
-		ResourceIndex AddTexture(void* textureData,
-			const TextureInfo& textureInfo);
-
-		ID3D11ShaderResourceView* GetSRV(ResourceIndex index);
+		ComPtr<ID3D11Device> device;
+		std::vector<StoredTexture> textures;
 	};
 }

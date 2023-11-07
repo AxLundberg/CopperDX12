@@ -24,6 +24,7 @@ namespace CPR::GFX::D11
 		virtual CameraD11* CreateCamera(f32 minDepth, f32 maxDepth, f32 aspectRatio) = 0;
 		virtual void UpdateBuffer(ResourceIndex bufferIndex, void* data) = 0;
 		virtual void SetLightBuffer(ResourceIndex lightBufferIndexToUse) = 0;
+		//virtual void DestroyGraphicsRenderPass(GfxRenderPassD11* pass) = 0;
 
 		virtual void SetRenderPass(GfxRenderPassD11* toSet) = 0;
 		virtual void PreRender() = 0;
@@ -44,7 +45,7 @@ namespace CPR::GFX::D11
 		CameraD11* CreateCamera(f32 minDepth, f32 maxDepth, f32 aspectRatio) override;
 		void UpdateBuffer(ResourceIndex bufferIndex, void* data) override;
 		void SetLightBuffer(ResourceIndex lightBufferIndexToUse) override;
-
+		//void DestroyGraphicsRenderPass(GfxRenderPassD11* pass) override;
 		void SetRenderPass(GfxRenderPassD11* toSet) override;
 		void PreRender() override;
 		void Render(const std::vector<RenderObject>& objectsToRender) override;
@@ -77,12 +78,12 @@ namespace CPR::GFX::D11
 		unsigned int backBufferWidth = 0;
 		unsigned int backBufferHeight = 0;
 
-		ID3D11Device* device = nullptr;
-		ID3D11DeviceContext* immediateContext = nullptr;
-		IDXGISwapChain* swapChain = nullptr;
-		ID3D11RenderTargetView* backBufferRTV = nullptr;
-		ID3D11Texture2D* depthBuffer = nullptr;
-		ID3D11DepthStencilView* depthBufferDSV = nullptr;
+		ComPtr<ID3D11Device> device;
+		ComPtr<ID3D11DeviceContext> immediateContext;
+		ComPtr<IDXGISwapChain> swapChain = nullptr;
+		ComPtr<ID3D11RenderTargetView> backBufferRTV = nullptr;
+		ComPtr<ID3D11Texture2D> depthBuffer = nullptr;
+		ComPtr<ID3D11DepthStencilView> depthBufferDSV = nullptr;
 		D3D11_VIEWPORT viewport;
 
 		BufferManagerD11 bufferManager;

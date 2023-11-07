@@ -6,7 +6,25 @@
 
 namespace CPR::GFX::D11
 {
-	ID3DBlob* GfxRenderPassD11::LoadCSO(const std::string& filepath)
+	GfxRenderPassD11::GfxRenderPassD11(ComPtr<ID3D11Device> device, const RenderPassInfo& info)
+		:
+		device(device),
+		objectBindings(info.objectBindings),
+		globalBindings(info.globalBindings)
+	{
+		ComPtr<ID3DBlob> vsBlob = LoadCSO(info.vsPath);
+		device->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(),
+			nullptr, vertexShader.GetAddressOf());
+		ComPtr<ID3DBlob> psBlob = LoadCSO(info.psPath);
+		device->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(),
+			nullptr, pixelShader.GetAddressOf());
+	}
+
+	GfxRenderPassD11::~GfxRenderPassD11()
+	{
+	}
+
+	ComPtr<ID3DBlob> GfxRenderPassD11::LoadCSO(const std::string& filepath)
 	{
 		std::ifstream file(filepath, std::ios::binary);
 
@@ -17,7 +35,7 @@ namespace CPR::GFX::D11
 		size_t size = static_cast<size_t>(file.tellg());
 		file.seekg(0, std::ios_base::beg);
 
-		ID3DBlob* toReturn = nullptr;
+		ComPtr<ID3DBlob> toReturn;
 		HRESULT hr = D3DCreateBlob(size, &toReturn);
 
 		if (FAILED(hr))
@@ -29,27 +47,10 @@ namespace CPR::GFX::D11
 		return toReturn;
 	}
 
-	GfxRenderPassD11::GfxRenderPassD11(ID3D11Device* device, const RenderPassInfo& info) : device(device),
-		objectBindings(info.objectBindings), globalBindings(info.globalBindings)
-	{
-		ID3DBlob* vsBlob = LoadCSO(info.vsPath);
-		device->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(),
-			nullptr, &vertexShader);
-		ID3DBlob* psBlob = LoadCSO(info.psPath);
-		device->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(),
-			nullptr, &pixelShader);
-	}
-
-	GfxRenderPassD11::~GfxRenderPassD11()
-	{
-		vertexShader->Release();
-		pixelShader->Release();
-	}
-
 	void GfxRenderPassD11::SetShaders(ID3D11DeviceContext* deviceContext)
 	{
-		deviceContext->VSSetShader(vertexShader, nullptr, 0);
-		deviceContext->PSSetShader(pixelShader, nullptr, 0);
+		deviceContext->VSSetShader(vertexShader.Get(), nullptr, 0);
+		deviceContext->PSSetShader(pixelShader.Get(), nullptr, 0);
 	}
 
 	const std::vector<PipelineBinding>& GfxRenderPassD11::GetObjectBindings()

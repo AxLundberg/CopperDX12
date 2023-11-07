@@ -23,7 +23,7 @@ namespace CPR::GFX::D11
 	public:
 		BufferManagerD11();
 		~BufferManagerD11();
-		void Initialise(ID3D11Device* deviceToUse, ID3D11DeviceContext* contextToUse);
+		void Initialise(ComPtr<ID3D11Device> deviceToUse, ComPtr<ID3D11DeviceContext> contextToUse);
 
 		ResourceIndex AddBuffer(void* data, unsigned int elementSize,
 			unsigned int nrOfElements, PerFrameUsage rwPattern, unsigned int bindingFlags);
@@ -52,8 +52,8 @@ namespace CPR::GFX::D11
 			ID3D11ShaderResourceView* srv;
 		};
 
-		ID3D11Device* device = nullptr;
-		ID3D11DeviceContext* context = nullptr;
+		ComPtr<ID3D11Device> device = nullptr;
+		ComPtr<ID3D11DeviceContext> context = nullptr;
 		std::vector<StoredBuffer> buffers;
 
 	};

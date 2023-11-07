@@ -24,7 +24,7 @@ namespace CPR::GFX::D11
 	public:
 		SamplerManagerD11();
 		~SamplerManagerD11();
-		void Initialise(ID3D11Device* deviceToUse);
+		void Initialise(ComPtr<ID3D11Device> deviceToUse);
 
 		ResourceIndex CreateSampler(SamplerType type, AddressMode adressMode);
 
@@ -34,7 +34,7 @@ namespace CPR::GFX::D11
 		void SetFilter(D3D11_SAMPLER_DESC& toSetIn, SamplerType type);
 		void SetAdressMode(D3D11_SAMPLER_DESC& toSetIn, AddressMode adressMode);
 
-		ID3D11Device* device = nullptr;
+		ComPtr<ID3D11Device> device = nullptr;
 		std::vector<ID3D11SamplerState*> samplers;
 	};
 }

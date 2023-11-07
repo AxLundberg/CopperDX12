@@ -4,14 +4,6 @@ namespace CPR::GFX::D11
 {
 	using namespace DirectX;
 
-	void CameraD11::CreateProjectionMatrix(float minDepth,
-		float maxDepth, float aspectRatio)
-	{
-		XMMATRIX projection = XMMatrixPerspectiveFovLH(XM_PIDIV2,
-			aspectRatio, minDepth, maxDepth);
-		XMStoreFloat4x4(&projectionMatrix, projection);
-	}
-
 	CameraD11::CameraD11(BufferManagerD11& bufferManager, float minDepth,
 		float maxDepth, float aspectRatio)
 	{
@@ -27,6 +19,14 @@ namespace CPR::GFX::D11
 			BufferBinding::CONSTANT_BUFFER);
 		cameraPosBufferIndex = bufferManager.AddBuffer(nullptr,
 			sizeof(XMFLOAT3), 1, PerFrameUsage::DYNAMIC, BufferBinding::CONSTANT_BUFFER);
+	}
+
+	void CameraD11::CreateProjectionMatrix(float minDepth,
+		float maxDepth, float aspectRatio)
+	{
+		XMMATRIX projection = XMMatrixPerspectiveFovLH(XM_PIDIV2,
+			aspectRatio, minDepth, maxDepth);
+		XMStoreFloat4x4(&projectionMatrix, projection);
 	}
 
 	void CameraD11::MoveZ(float amount)
