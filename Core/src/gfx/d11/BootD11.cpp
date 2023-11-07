@@ -6,10 +6,10 @@
 
 namespace CPR::GFX::D11
 {
-	void Boot(HWND hWnd)
+	void Boot()
 	{
-		IOC::Get().Register<IRendererD11>([&]() {
-			return std::make_shared<RendererD11>(hWnd);
+		IOC::Get().Register<IRendererD11>([](IRendererD11::IocParams args) {
+			return std::make_shared<RendererD11>(args.hWnd);
 			});
 	}
 }

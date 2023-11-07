@@ -553,13 +553,13 @@ namespace CPR::APP
     }
 
 
-    int Run(WIN::IWindow* window, HINSTANCE hInstance, GFX::D11::IRendererD11* rendaerer)
+    int Run(WIN::IWindow* window, HINSTANCE hInstance, GFX::D11::IRendererD11* renderer)
     {
         const unsigned int WINDOW_WIDTH = 1280;
         const unsigned int WINDOW_HEIGHT = 642;
         HWND windowHandle = window->GetHandle();
         //renderer->Initialize(windowHandle);
-        RendererD11* renderer = new D11::RendererD11(windowHandle);
+        //RendererD11* renderer = new D11::RendererD11(windowHandle);
         GfxRenderPassD11* standardPass = CreateStandardRenderPass(renderer);
         //globalInputs = reinterpret_cast<Inputs*>(&window.GetInputs());
 
@@ -619,7 +619,7 @@ namespace CPR::APP
         //renderer->DestroyGraphicsRenderPass(standardPass);
         //renderer->DestroyCamera(camera);
         //delete(standardPass);
-        delete(renderer);
+        //delete(renderer);
         return 0;
         /*auto x = 0;
         while (!window.IsClosing())

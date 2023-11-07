@@ -15,6 +15,11 @@ namespace CPR::GFX::D11
 	class IRendererD11
 	{
 	public:
+		struct IocParams
+		{
+			HWND hWnd;
+		};
+	public:
 		virtual ~IRendererD11() = default;
 
 		virtual ResourceIndex CreateSampler(SamplerType, AddressMode) = 0;

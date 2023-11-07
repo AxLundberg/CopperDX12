@@ -54,9 +54,9 @@ int WINAPI wWinMain(
 				.size = SPA::DimensionsI{ 1280, 720 },
 				.position = {} 
 		});
-		GFX::D11::Boot(pWindow->GetHandle());
-		//auto pRenderer = IOC::Get().Resolve<GFX::D11::IRendererD11>();
-		return APP::Run(pWindow.get(), hInstance);
+		GFX::D11::Boot();
+		auto pRenderer = IOC::Get().Resolve<GFX::D11::IRendererD11>({ pWindow->GetHandle() });
+		return APP::Run(pWindow.get(), hInstance, pRenderer.get());
 	}
 	catch (const std::exception& e)
 	{
