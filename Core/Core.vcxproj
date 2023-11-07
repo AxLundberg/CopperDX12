@@ -183,6 +183,7 @@
     <ClInclude Include="src\win\WindowClass.h" />
     <ClInclude Include="thirdParty\backward.h" />
     <ClInclude Include="thirdParty\concurrentqueue.h" />
+    <ClInclude Include="thirdParty\ImGUI\backends\imgui_impl_dx11.h" />
     <ClInclude Include="thirdParty\ImGUI\backends\imgui_impl_dx12.h" />
     <ClInclude Include="thirdParty\ImGUI\backends\imgui_impl_win32.h" />
     <ClInclude Include="thirdParty\ImGUI\imconfig.h" />
@@ -251,7 +252,9 @@
     <ClCompile Include="src\win\Util.cpp" />
     <ClCompile Include="src\win\Window.cpp" />
     <ClCompile Include="src\win\WindowClass.cpp" />
+    <ClCompile Include="thirdParty\ImGUI\backends\imgui_impl_dx11.cpp" />
     <ClCompile Include="thirdParty\ImGUI\backends\imgui_impl_dx12.cpp" />
+    <ClCompile Include="thirdParty\ImGUI\backends\imgui_impl_win32.cpp" />
     <ClCompile Include="thirdParty\ImGUI\imgui.cpp" />
     <ClCompile Include="thirdParty\ImGUI\imgui_demo.cpp" />
     <ClCompile Include="thirdParty\ImGUI\imgui_draw.cpp" />

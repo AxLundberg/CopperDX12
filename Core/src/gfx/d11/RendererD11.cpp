@@ -1,6 +1,9 @@
 #include "RendererD11.h"
 #include "../cmn/GraphicsError.h"
 
+#include <Core/thirdParty/ImGUI/imgui.h>
+#include "Core/thirdParty/ImGUI/backends/imgui_impl_win32.h"
+#include "Core/thirdParty/ImGUI/backends/imgui_impl_dx11.h"
 #include <stdexcept>
 
 
@@ -15,10 +18,22 @@ namespace CPR::GFX::D11
 		bufferManager.Initialise(device, immediateContext);
 		textureManager.Initialise(device);
 		samplerManager.Initialise(device);
+
+		// Setup Dear ImGui context
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		ImGui::StyleColorsDark();
+
+		ImGui_ImplWin32_Init(windowHandle);
+		ImGui_ImplDX11_Init(device.Get(), immediateContext.Get());
 	}
 
 	RendererD11::~RendererD11()
 	{
+		ImGui_ImplDX11_Shutdown();
+		ImGui_ImplWin32_Shutdown();
+		ImGui::DestroyContext();
 		delete(currentRenderPass);
 		delete(currentCamera);
 	}
@@ -300,16 +315,25 @@ namespace CPR::GFX::D11
 
 	void RendererD11::PreRender()
 	{
+		ImGui_ImplDX11_NewFrame();
+		ImGui_ImplWin32_NewFrame();
+		ImGui::NewFrame();
+		ImGui::Begin("Hello, world!");
+		ImGui::Text("This is some useful text.");
+		ImGui::End();
+		ImGui::Render();
 		float clearColour[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 		immediateContext->ClearRenderTargetView(backBufferRTV.Get(), clearColour);
 		immediateContext->ClearDepthStencilView(depthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 		immediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		immediateContext->RSSetViewports(1, &viewport);
 		immediateContext->OMSetRenderTargets(1, backBufferRTV.GetAddressOf(), depthBufferDSV.Get());
+		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 	}
 
 	void RendererD11::Render(const std::vector<RenderObject>& objectsToRender)
 	{
+		
 		currentRenderPass->SetShaders(immediateContext.Get());
 		const std::vector<PipelineBinding>& objectBindings = currentRenderPass->GetObjectBindings();
 		const std::vector<PipelineBinding>& globalBindings = currentRenderPass->GetGlobalBindings();

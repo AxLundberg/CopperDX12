@@ -47,7 +47,7 @@ namespace CPR::APP
         bool turnRightPushed = false;
 
         bool quitKey = false;
-    }gInputs;
+    }keyboardInputs;
 
     struct SimpleVertex
     {
@@ -287,24 +287,24 @@ namespace CPR::APP
     void TransformCamera(CameraD11* camera, float moveSpeed,
         float turnSpeed, float deltaTime)
     {
-        if (gInputs.moveRightPushed)
+        if (keyboardInputs.moveRightPushed)
             camera->MoveX(moveSpeed * deltaTime);
-        else if (gInputs.moveLeftPushed)
+        else if (keyboardInputs.moveLeftPushed)
             camera->MoveX(-moveSpeed * deltaTime);
 
-        if (gInputs.moveForwardPushed)
+        if (keyboardInputs.moveForwardPushed)
             camera->MoveZ(moveSpeed * deltaTime);
-        else if (gInputs.moveBackwardsPushed)
+        else if (keyboardInputs.moveBackwardsPushed)
             camera->MoveZ(-moveSpeed * deltaTime);
 
-        if (gInputs.moveUpPushed)
+        if (keyboardInputs.moveUpPushed)
             camera->MoveY(moveSpeed * deltaTime);
-        else if (gInputs.moveDownPushed)
+        else if (keyboardInputs.moveDownPushed)
             camera->MoveY(-moveSpeed * deltaTime);
 
-        if (gInputs.turnLeftPushed)
+        if (keyboardInputs.turnLeftPushed)
             camera->RotateY(-turnSpeed * deltaTime);
-        else if (gInputs.turnRightPushed)
+        else if (keyboardInputs.turnRightPushed)
             camera->RotateY(turnSpeed * deltaTime);
     }
 
@@ -537,29 +537,26 @@ namespace CPR::APP
             offsetSpeed *= -1;
         }
     }
-    void InterpretKeyboardInput(unsigned long long input)
+   
+    void HandleKeyboard(WIN::Keyboard* keyboard)
     {
-        gInputs.moveLeftPushed = input & 1;
-        gInputs.moveRightPushed = input & 2;
-        gInputs.moveForwardPushed = input & 4;
-        gInputs.moveBackwardsPushed = input & 8;
-        gInputs.moveUpPushed = input & 16;
-        gInputs.moveDownPushed = input & 32;
-
-        gInputs.turnLeftPushed = input & 64;
-        gInputs.turnRightPushed = input & 128;
-
-        gInputs.quitKey = input & (1ULL << 63);
+        while (const auto e = keyboard->GetEvent()) {
+            keyboardInputs.moveForwardPushed = keyboard->KeyIsPressed('W');
+            keyboardInputs.moveBackwardsPushed = keyboard->KeyIsPressed('S');
+            keyboardInputs.moveLeftPushed = keyboard->KeyIsPressed('A');
+            keyboardInputs.moveRightPushed = keyboard->KeyIsPressed('D');
+            keyboardInputs.moveUpPushed = keyboard->KeyIsPressed(VK_SHIFT);
+            keyboardInputs.moveDownPushed = keyboard->KeyIsPressed(VK_CONTROL);
+            keyboardInputs.quitKey = keyboard->KeyIsPressed(VK_ESCAPE);
+        }
     }
 
-
-    int Run(WIN::IWindow* window, HINSTANCE hInstance, GFX::D11::IRendererD11* renderer)
+    int Run(WIN::IWindow* window, WIN::Keyboard* keyboard, GFX::D11::IRendererD11* renderer, HINSTANCE hInstance)
     {
         const unsigned int WINDOW_WIDTH = 1280;
         const unsigned int WINDOW_HEIGHT = 642;
         HWND windowHandle = window->GetHandle();
-        //renderer->Initialize(windowHandle);
-        //RendererD11* renderer = new D11::RendererD11(windowHandle);
+
         GfxRenderPassD11* standardPass = CreateStandardRenderPass(renderer);
         //globalInputs = reinterpret_cast<Inputs*>(&window.GetInputs());
 
@@ -586,7 +583,7 @@ namespace CPR::APP
         float turnSpeed = 3.14f / 2;
         auto lastFrameEnd = std::chrono::system_clock::now();
 
-        while (!window->IsClosing())
+        while (!window->IsClosing() && !keyboardInputs.quitKey)
         {
             if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
             {
@@ -595,6 +592,7 @@ namespace CPR::APP
             }
             else
             {
+                HandleKeyboard(keyboard);
                 //InterpretKeyboardInput(window.GetKeyboardInputs());
                 TransformCamera(camera, moveSpeed, turnSpeed, deltaTime);
                 RotateCrystal(renderObjects.back(), deltaTime,
@@ -613,22 +611,9 @@ namespace CPR::APP
                 deltaTime = elapsed / 1000000.0f;
                 lastFrameEnd = currentFrameEnd;
             }
-
         }
 
-        //renderer->DestroyGraphicsRenderPass(standardPass);
-        //renderer->DestroyCamera(camera);
-        //delete(standardPass);
-        //delete(renderer);
         return 0;
-        /*auto x = 0;
-        while (!window.IsClosing())
-        {
-            window.SetTitle(std::format(L"Animated Window Title [{:*<{}}]", L'*', x + 1));
-            x = (x + 1) % 20;
-            std::this_thread::sleep_for(50ms);
-        }
-        return 1;*/
     }
 
 }

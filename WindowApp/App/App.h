@@ -4,5 +4,5 @@
 
 namespace CPR::APP
 {
-	int Run(WIN::IWindow* window, HINSTANCE hInstance, GFX::D11::IRendererD11* renderer = nullptr);
+	int Run(WIN::IWindow*, WIN::Keyboard*, GFX::D11::IRendererD11*, HINSTANCE);
 }

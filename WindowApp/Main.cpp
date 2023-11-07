@@ -56,7 +56,7 @@ int WINAPI wWinMain(
 		});
 		GFX::D11::Boot();
 		auto pRenderer = IOC::Get().Resolve<GFX::D11::IRendererD11>({ pWindow->GetHandle() });
-		return APP::Run(pWindow.get(), hInstance, pRenderer.get());
+		return APP::Run(pWindow.get(), keyboard.get(), pRenderer.get(), hInstance);
 	}
 	catch (const std::exception& e)
 	{
