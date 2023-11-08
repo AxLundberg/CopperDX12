@@ -9,6 +9,7 @@
 #include "TextureManagerD11.h"
 #include "SamplerManagerD11.h"
 #include "CameraD11.h"
+#include "DeviceD11.h"
 
 namespace CPR::GFX::D11
 {
@@ -29,7 +30,6 @@ namespace CPR::GFX::D11
 		virtual CameraD11* CreateCamera(f32 minDepth, f32 maxDepth, f32 aspectRatio) = 0;
 		virtual void UpdateBuffer(ResourceIndex bufferIndex, void* data) = 0;
 		virtual void SetLightBuffer(ResourceIndex lightBufferIndexToUse) = 0;
-		//virtual void DestroyGraphicsRenderPass(GfxRenderPassD11* pass) = 0;
 
 		virtual void SetRenderPass(GfxRenderPassD11* toSet) = 0;
 		virtual void PreRender() = 0;
@@ -40,7 +40,7 @@ namespace CPR::GFX::D11
 	class RendererD11 : public IRendererD11
 	{
 	public:
-		RendererD11(HWND windowHandle);
+		RendererD11(HWND windowHandle, std::shared_ptr<IDev> device);
 		~RendererD11();
 
 		ResourceIndex CreateSampler(SamplerType, AddressMode) override;
@@ -57,7 +57,6 @@ namespace CPR::GFX::D11
 		void Present() override;
 
 	private:
-		void CreateBasicInterfaces(HWND windowHandle);
 		void CreateRenderTargetView();
 		void CreateDepthStencil();
 		void CreateViewport();
@@ -83,9 +82,8 @@ namespace CPR::GFX::D11
 		unsigned int backBufferWidth = 0;
 		unsigned int backBufferHeight = 0;
 
-		ComPtr<ID3D11Device> device;
-		ComPtr<ID3D11DeviceContext> immediateContext;
-		ComPtr<IDXGISwapChain> swapChain = nullptr;
+		std::shared_ptr<IDev> deviceSwapchainAndContext;
+		
 		ComPtr<ID3D11RenderTargetView> backBufferRTV = nullptr;
 		ComPtr<ID3D11Texture2D> depthBuffer = nullptr;
 		ComPtr<ID3D11DepthStencilView> depthBufferDSV = nullptr;

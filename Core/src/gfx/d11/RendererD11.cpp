@@ -9,13 +9,16 @@
 
 namespace CPR::GFX::D11
 {
-	RendererD11::RendererD11(HWND windowHandle)
+	RendererD11::RendererD11(HWND windowHandle, std::shared_ptr<IDev> dev)
+		: deviceSwapchainAndContext(std::move(dev))
 	{
-		CreateBasicInterfaces(windowHandle);
+		auto device = deviceSwapchainAndContext->GetD3D11Device();
+		auto context = deviceSwapchainAndContext->GetD3D11DeviceContext();
+		//CreateBasicInterfaces(windowHandle);
 		CreateRenderTargetView();
 		CreateDepthStencil();
 		CreateViewport();
-		bufferManager.Initialise(device, immediateContext);
+		bufferManager.Initialise(device, context);
 		textureManager.Initialise(device);
 		samplerManager.Initialise(device);
 
@@ -26,7 +29,7 @@ namespace CPR::GFX::D11
 		ImGui::StyleColorsDark();
 
 		ImGui_ImplWin32_Init(windowHandle);
-		ImGui_ImplDX11_Init(device.Get(), immediateContext.Get());
+		ImGui_ImplDX11_Init(device.Get(), context.Get());
 	}
 
 	RendererD11::~RendererD11()
@@ -38,49 +41,18 @@ namespace CPR::GFX::D11
 		delete(currentCamera);
 	}
 
-	/*void RendererD11::DestroyGraphicsRenderPass(GfxRenderPassD11* pass)
-	{
-		delete pass;
-	}*/
-
-	void RendererD11::CreateBasicInterfaces(HWND windowHandle)
-	{
-		DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
-
-		swapChainDesc.BufferDesc.Width = 0;
-		swapChainDesc.BufferDesc.Height = 0;
-		swapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
-		swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
-		swapChainDesc.BufferDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
-		swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-		swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-		swapChainDesc.SampleDesc.Count = 1;
-		swapChainDesc.SampleDesc.Quality = 0;
-		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		swapChainDesc.BufferCount = 1;
-		swapChainDesc.OutputWindow = windowHandle;
-		swapChainDesc.Windowed = true;
-		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-		swapChainDesc.Flags = 0;
-
-		D3D_FEATURE_LEVEL featureLevel = D3D_FEATURE_LEVEL_11_0;
-		D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE,
-			nullptr, D3D11_CREATE_DEVICE_DEBUG, &featureLevel, 1, D3D11_SDK_VERSION,
-			&swapChainDesc, &swapChain, &device, nullptr, &immediateContext) >> hrVerify;
-	}
-
 	void RendererD11::CreateRenderTargetView()
 	{
 		ID3D11Texture2D* backBuffer = nullptr;
-		if (FAILED(swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D),
+		auto sc = deviceSwapchainAndContext->GetD3D11SwapChain();
+		if (FAILED(sc->GetBuffer(0, __uuidof(ID3D11Texture2D),
 			reinterpret_cast<void**>(&backBuffer))))
 		{
 			throw std::runtime_error("Could not fetch backbuffer from swap chain");
 		}
 
-		HRESULT hr = device->CreateRenderTargetView(backBuffer, NULL, backBufferRTV.GetAddressOf());
-		if (FAILED(hr))
-			throw std::runtime_error("Could not create rtv for backbuffer");
+		auto device = deviceSwapchainAndContext->GetD3D11Device();
+		device->CreateRenderTargetView(backBuffer, NULL, backBufferRTV.GetAddressOf()) >> hrVerify;
 
 		D3D11_TEXTURE2D_DESC desc;
 		backBuffer->GetDesc(&desc);
@@ -104,6 +76,7 @@ namespace CPR::GFX::D11
 		desc.CPUAccessFlags = 0;
 		desc.MiscFlags = 0;
 
+		auto device = deviceSwapchainAndContext->GetD3D11Device();
 		if (FAILED(device->CreateTexture2D(&desc, nullptr, depthBuffer.GetAddressOf())))
 			throw std::runtime_error("Failed to create depth stencil texture!");
 
@@ -126,13 +99,14 @@ namespace CPR::GFX::D11
 	{
 		ID3D11ShaderResourceView* srv = bufferManager.GetSRV(bufferIndex);
 
+		auto context = deviceSwapchainAndContext->GetD3D11DeviceContext();
 		switch (stage)
 		{
 		case PipelineShaderStage::VS:
-			immediateContext->VSSetShaderResources(slot, 1, &srv);
+			context->VSSetShaderResources(slot, 1, &srv);
 			break;
 		case PipelineShaderStage::PS:
-			immediateContext->PSSetShaderResources(slot, 1, &srv);
+			context->PSSetShaderResources(slot, 1, &srv);
 			break;
 		default:
 			throw std::runtime_error("Incorrect shader stage for binding structured buffer");
@@ -144,13 +118,14 @@ namespace CPR::GFX::D11
 	{
 		ID3D11Buffer* buffer = bufferManager.GetBufferInterface(bufferIndex);
 
+		auto context = deviceSwapchainAndContext->GetD3D11DeviceContext();
 		switch (stage)
 		{
 		case PipelineShaderStage::VS:
-			immediateContext->VSSetConstantBuffers(slot, 1, &buffer);
+			context->VSSetConstantBuffers(slot, 1, &buffer);
 			break;
 		case PipelineShaderStage::PS:
-			immediateContext->PSSetConstantBuffers(slot, 1, &buffer);
+			context->PSSetConstantBuffers(slot, 1, &buffer);
 			break;
 		default:
 			throw std::runtime_error("Incorrect shader stage for binding constant buffer");
@@ -177,13 +152,14 @@ namespace CPR::GFX::D11
 	{
 		ID3D11ShaderResourceView* srv = textureManager.GetSRV(textureIndex);
 
+		auto context = deviceSwapchainAndContext->GetD3D11DeviceContext();
 		switch (stage)
 		{
 		case PipelineShaderStage::VS:
-			immediateContext->VSSetShaderResources(slot, 1, &srv);
+			context->VSSetShaderResources(slot, 1, &srv);
 			break;
 		case PipelineShaderStage::PS:
-			immediateContext->PSSetShaderResources(slot, 1, &srv);
+			context->PSSetShaderResources(slot, 1, &srv);
 			break;
 		default:
 			throw std::runtime_error("Incorrect shader stage for binding texture srv");
@@ -209,13 +185,15 @@ namespace CPR::GFX::D11
 		ID3D11SamplerState* sampler = samplerManager.GetSampler(index);
 		D3D11_SAMPLER_DESC temp;
 		sampler->GetDesc(&temp);
+
+		auto context = deviceSwapchainAndContext->GetD3D11DeviceContext();
 		switch (binding.shaderStage)
 		{
 		case PipelineShaderStage::VS:
-			immediateContext->VSSetSamplers(slot, 1, &sampler);
+			context->VSSetSamplers(slot, 1, &sampler);
 			break;
 		case PipelineShaderStage::PS:
-			immediateContext->PSSetSamplers(slot, 1, &sampler);
+			context->PSSetSamplers(slot, 1, &sampler);
 			break;
 		default:
 			throw std::runtime_error("Incorrect shader stage for binding sampler");
@@ -278,6 +256,7 @@ namespace CPR::GFX::D11
 
 	GfxRenderPassD11* RendererD11::CreateRenderPass(RenderPassInfo& intialisationInfo)
 	{
+		auto device = deviceSwapchainAndContext->GetD3D11Device();
 		currentRenderPass = new GfxRenderPassD11(device.Get(), intialisationInfo);
 		return currentRenderPass;
 	}
@@ -328,18 +307,20 @@ namespace CPR::GFX::D11
 		ImGui::End();
 		ImGui::Render();
 		float clearColour[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-		immediateContext->OMSetRenderTargets(1, backBufferRTV.GetAddressOf(), depthBufferDSV.Get());
-		immediateContext->ClearRenderTargetView(backBufferRTV.Get(), clearColour);
+		auto context = deviceSwapchainAndContext->GetD3D11DeviceContext();
+		context->OMSetRenderTargets(1, backBufferRTV.GetAddressOf(), depthBufferDSV.Get());
+		context->ClearRenderTargetView(backBufferRTV.Get(), clearColour);
 		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-		immediateContext->ClearDepthStencilView(depthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-		immediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		immediateContext->RSSetViewports(1, &viewport);
+		context->ClearDepthStencilView(depthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		context->RSSetViewports(1, &viewport);
 	}
 
 	void RendererD11::Render(const std::vector<RenderObject>& objectsToRender)
 	{
 		
-		currentRenderPass->SetShaders(immediateContext.Get());
+		auto context = deviceSwapchainAndContext->GetD3D11DeviceContext();
+		currentRenderPass->SetShaders(context.Get());
 		const std::vector<PipelineBinding>& objectBindings = currentRenderPass->GetObjectBindings();
 		const std::vector<PipelineBinding>& globalBindings = currentRenderPass->GetGlobalBindings();
 
@@ -358,12 +339,14 @@ namespace CPR::GFX::D11
 			else
 				drawCount = bufferManager.GetElementCount(mesh.vertexBuffer);
 
-			immediateContext->Draw(drawCount, 0);
+			auto context = deviceSwapchainAndContext->GetD3D11DeviceContext();
+			context->Draw(drawCount, 0);
 		}
 	}
 
 	void RendererD11::Present()
 	{
+		auto swapChain = deviceSwapchainAndContext->GetD3D11SwapChain();
 		swapChain->Present(0, 0);
 	}
 }
