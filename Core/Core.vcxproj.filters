@@ -330,6 +330,9 @@
     <ClInclude Include="src\gfx\IBufferManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\gfx\ISamplerManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ioc\Container.cpp">

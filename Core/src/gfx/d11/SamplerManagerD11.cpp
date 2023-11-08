@@ -1,21 +1,19 @@
 #include <stdexcept>
 
+#include "../cmn/GraphicsError.h"
 #include "SamplerManagerD11.h"
 
 namespace CPR::GFX::D11
 {
-	SamplerManagerD11::SamplerManagerD11()
+	SamplerManagerD11::SamplerManagerD11(std::shared_ptr<IDevice> device)
+		:
+		device(std::move(device))
 	{}
 
 	SamplerManagerD11::~SamplerManagerD11()
 	{
 		for (auto& sampler : samplers)
 			sampler->Release();
-	}
-
-	void SamplerManagerD11::Initialise(ComPtr<ID3D11Device> deviceToUse)
-	{
-		device = deviceToUse;
 	}
 
 	void SamplerManagerD11::SetFilter(D3D11_SAMPLER_DESC& toSetIn,
@@ -80,13 +78,10 @@ namespace CPR::GFX::D11
 		SetAdressMode(desc, adressMode);
 
 		ID3D11SamplerState* toStore = nullptr;
-		HRESULT hr = device->CreateSamplerState(&desc, &toStore);
-
-		if (FAILED(hr))
-			return ResourceIndex(-1);
+		device->GetD3D11Device()->CreateSamplerState(&desc, &toStore) >> hrVerify;
 
 		samplers.push_back(toStore);
-		return samplers.size() - 1;
+		return static_cast<ResourceIndex>(samplers.size() - 1);
 	}
 
 	ID3D11SamplerState* SamplerManagerD11::GetSampler(ResourceIndex index)

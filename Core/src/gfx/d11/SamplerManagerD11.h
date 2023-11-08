@@ -1,40 +1,35 @@
 #pragma once
 #include <vector>
+#include <memory>
 #include <d3d11_4.h>
 
-#include "cmn/D11Headers.h"
+#include "DeviceD11.h"
+#include "../ISamplerManager.h"
+#include "../cmn/TypeDefs.h"
 
 namespace CPR::GFX::D11
 {
-	enum class SamplerType
-	{
-		POINT,
-		BILINEAR,
-		ANISOTROPIC
-	};
-
-	enum class AddressMode
-	{
-		WRAP,
-		CLAMP,
-		BLACK_BORDER_COLOUR
-	};
-	class SamplerManagerD11
+	class ISamplerManager : public GFX::ISamplerManager
 	{
 	public:
-		SamplerManagerD11();
+		virtual ResourceIndex CreateSampler(SamplerType type, AddressMode adressMode) = 0;
+		virtual ID3D11SamplerState* GetSampler(ResourceIndex index) = 0;
+	};
+
+	class SamplerManagerD11 : public ISamplerManager
+	{
+	public:
+		SamplerManagerD11(std::shared_ptr<IDevice>);
 		~SamplerManagerD11();
-		void Initialise(ComPtr<ID3D11Device> deviceToUse);
 
-		ResourceIndex CreateSampler(SamplerType type, AddressMode adressMode);
-
-		ID3D11SamplerState* GetSampler(ResourceIndex index);
+		ResourceIndex CreateSampler(SamplerType type, AddressMode adressMode) override;
+		ID3D11SamplerState* GetSampler(ResourceIndex index) override;
 
 	private:
 		void SetFilter(D3D11_SAMPLER_DESC& toSetIn, SamplerType type);
 		void SetAdressMode(D3D11_SAMPLER_DESC& toSetIn, AddressMode adressMode);
 
-		ComPtr<ID3D11Device> device = nullptr;
+		std::shared_ptr<IDevice> device;
 		std::vector<ID3D11SamplerState*> samplers;
 	};
 }

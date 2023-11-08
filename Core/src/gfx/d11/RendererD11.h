@@ -40,7 +40,11 @@ namespace CPR::GFX::D11
 	class RendererD11 : public IRendererD11
 	{
 	public:
-		RendererD11(HWND windowHandle, std::shared_ptr<IDevice> device, std::shared_ptr<IBufferManager> bufferManager);
+		RendererD11(HWND windowHandle,
+			std::shared_ptr<IDevice> device,
+			std::shared_ptr<IBufferManager> bufferManager,
+			std::shared_ptr<ISamplerManager> samplerManager
+		);
 		~RendererD11();
 
 		ResourceIndex CreateSampler(SamplerType, AddressMode) override;
@@ -90,8 +94,8 @@ namespace CPR::GFX::D11
 		D3D11_VIEWPORT viewport;
 
 		std::shared_ptr<IBufferManager> bufferManager;
+		std::shared_ptr<ISamplerManager> samplerManager;
 		TextureManagerD11 textureManager;
-		SamplerManagerD11 samplerManager;
 
 		GfxRenderPassD11* currentRenderPass = nullptr;
 		CameraD11* currentCamera = nullptr;

@@ -11,19 +11,7 @@ namespace CPR::GFX::D11
 {
 	class IBufferManager : public GFX::IBufferManager
 	{
-	/*public:
-		struct IocParams
-		{
-			std::shared_ptr<IDevice> device;
-		};*/
 	public:
-		virtual ResourceIndex AddBuffer(void* data, u32 elementSize,
-			u32 nrOfElements, PerFrameUsage rwPattern, u32 bindingFlags) = 0;
-
-		virtual void UpdateBuffer(ResourceIndex index, void* data) = 0;
-		virtual u32 GetElementSize(ResourceIndex index) = 0;
-		virtual u32 GetElementCount(ResourceIndex index) = 0;
-
 		virtual ID3D11Buffer* GetBufferInterface(ResourceIndex index) = 0;
 		virtual ID3D11ShaderResourceView* GetSRV(ResourceIndex index) = 0;
 	};

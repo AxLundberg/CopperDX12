@@ -9,10 +9,14 @@
 
 namespace CPR::GFX::D11
 {
-	RendererD11::RendererD11(HWND windowHandle, std::shared_ptr<IDevice> dev, std::shared_ptr<IBufferManager> bufferManager)
+	RendererD11::RendererD11(HWND windowHandle,
+		std::shared_ptr<IDevice> dev,
+		std::shared_ptr<IBufferManager> bufferManager,
+		std::shared_ptr<ISamplerManager> samplerManager)
 		:
 		deviceSwapchainAndContext(std::move(dev)),
-		bufferManager(std::move(bufferManager))
+		bufferManager(std::move(bufferManager)),
+		samplerManager(std::move(samplerManager))
 	{
 		auto device = deviceSwapchainAndContext->GetD3D11Device();
 		auto context = deviceSwapchainAndContext->GetD3D11DeviceContext();
@@ -21,7 +25,6 @@ namespace CPR::GFX::D11
 		CreateDepthStencil();
 		CreateViewport();
 		textureManager.Initialise(device);
-		samplerManager.Initialise(device);
 
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
@@ -183,7 +186,7 @@ namespace CPR::GFX::D11
 		const PipelineBinding& binding)
 	{
 		std::uint8_t slot = binding.slotToBindTo;
-		ID3D11SamplerState* sampler = samplerManager.GetSampler(index);
+		ID3D11SamplerState* sampler = samplerManager->GetSampler(index);
 		D3D11_SAMPLER_DESC temp;
 		sampler->GetDesc(&temp);
 
@@ -262,7 +265,7 @@ namespace CPR::GFX::D11
 
 	ResourceIndex RendererD11::CreateSampler(SamplerType type, AddressMode adressMode)
 	{
-		return samplerManager.CreateSampler(type, adressMode);
+		return samplerManager->CreateSampler(type, adressMode);
 	}
 
 	GfxRenderPassD11* RendererD11::CreateRenderPass(RenderPassInfo& intialisationInfo)
@@ -311,7 +314,7 @@ namespace CPR::GFX::D11
 		ImGui::Begin("Hello, world!");
 		ImGui::Text("This is some useful text.");
 		static i32 counter = 0;
-		if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+		if (ImGui::Button("Button"))
 			counter++;
 		ImGui::SameLine();
 		ImGui::Text("counter = %d", counter);
