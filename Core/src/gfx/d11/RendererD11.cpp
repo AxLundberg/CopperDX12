@@ -9,8 +9,10 @@
 
 namespace CPR::GFX::D11
 {
-	RendererD11::RendererD11(HWND windowHandle, std::shared_ptr<IDevice> dev)
-		: deviceSwapchainAndContext(std::move(dev))
+	RendererD11::RendererD11(HWND windowHandle, std::shared_ptr<IDevice> dev, std::shared_ptr<IBufferManager> bufferManager)
+		:
+		deviceSwapchainAndContext(std::move(dev)),
+		bufferManager(std::move(bufferManager))
 	{
 		auto device = deviceSwapchainAndContext->GetD3D11Device();
 		auto context = deviceSwapchainAndContext->GetD3D11DeviceContext();
@@ -18,7 +20,6 @@ namespace CPR::GFX::D11
 		CreateRenderTargetView();
 		CreateDepthStencil();
 		CreateViewport();
-		bufferManager.Initialise(device, context);
 		textureManager.Initialise(device);
 		samplerManager.Initialise(device);
 
@@ -97,7 +98,7 @@ namespace CPR::GFX::D11
 	void RendererD11::BindStructuredBuffer(ResourceIndex bufferIndex,
 		PipelineShaderStage stage, std::uint8_t slot)
 	{
-		ID3D11ShaderResourceView* srv = bufferManager.GetSRV(bufferIndex);
+		ID3D11ShaderResourceView* srv = bufferManager->GetSRV(bufferIndex);
 
 		auto context = deviceSwapchainAndContext->GetD3D11DeviceContext();
 		switch (stage)
@@ -116,7 +117,7 @@ namespace CPR::GFX::D11
 	void RendererD11::BindConstantBuffer(ResourceIndex bufferIndex,
 		PipelineShaderStage stage, std::uint8_t slot)
 	{
-		ID3D11Buffer* buffer = bufferManager.GetBufferInterface(bufferIndex);
+		ID3D11Buffer* buffer = bufferManager->GetBufferInterface(bufferIndex);
 
 		auto context = deviceSwapchainAndContext->GetD3D11DeviceContext();
 		switch (stage)
@@ -232,11 +233,21 @@ namespace CPR::GFX::D11
 		switch (binding.dataType)
 		{
 		case PipelineDataType::VIEW_PROJECTION:
-			BindBuffer(currentCamera->GetVP(bufferManager), binding);
+		{
+			auto vp = currentCamera->GetVP();
+			auto vpBufferIndex = currentCamera->GetVPBufferIndex();
+			bufferManager->UpdateBuffer(vpBufferIndex, &vp);
+			BindBuffer(vpBufferIndex, binding);
 			break;
+		}
 		case PipelineDataType::CAMERA_POS:
-			BindBuffer(currentCamera->GetPosition(bufferManager), binding);
+		{
+			auto pos = currentCamera->GetPosition();
+			auto posBufferIdx = currentCamera->GetPositionBufferIndex();
+			bufferManager->UpdateBuffer(posBufferIdx, &pos);
+			BindBuffer(posBufferIdx, binding);
 			break;
+		}
 		case PipelineDataType::LIGHT:
 			BindBuffer(lightBufferIndex, binding);
 			break;
@@ -263,7 +274,7 @@ namespace CPR::GFX::D11
 
 	ResourceIndex RendererD11::SubmitBuffer(void* data, u32 elemSize, u32 elemCount, PerFrameUsage rwPattern, BufferBinding binding)
 	{
-		return bufferManager.AddBuffer(data, elemSize, elemCount, rwPattern, binding);
+		return bufferManager->AddBuffer(data, elemSize, elemCount, rwPattern, binding);
 	}
 
 	ResourceIndex RendererD11::SubmitTexture(void* data, TextureInfo& info)
@@ -279,7 +290,7 @@ namespace CPR::GFX::D11
 
 	void RendererD11::UpdateBuffer(ResourceIndex bufferIndex, void* data)
 	{
-		bufferManager.UpdateBuffer(bufferIndex, data);
+		bufferManager->UpdateBuffer(bufferIndex, data);
 	}
 
 	void RendererD11::SetRenderPass(GfxRenderPassD11* toSet)
@@ -335,9 +346,9 @@ namespace CPR::GFX::D11
 			const Mesh& mesh = object.mesh;
 			unsigned int drawCount = 0;
 			if (mesh.indexBuffer != ResourceIndex(-1))
-				drawCount = bufferManager.GetElementCount(mesh.indexBuffer);
+				drawCount = bufferManager->GetElementCount(mesh.indexBuffer);
 			else
-				drawCount = bufferManager.GetElementCount(mesh.vertexBuffer);
+				drawCount = bufferManager->GetElementCount(mesh.vertexBuffer);
 
 			auto context = deviceSwapchainAndContext->GetD3D11DeviceContext();
 			context->Draw(drawCount, 0);

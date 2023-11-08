@@ -4,7 +4,7 @@ namespace CPR::GFX::D11
 {
 	using namespace DirectX;
 
-	CameraD11::CameraD11(BufferManagerD11& bufferManager, float minDepth,
+	CameraD11::CameraD11(std::shared_ptr<IBufferManager> bufferManager, float minDepth,
 		float maxDepth, float aspectRatio)
 	{
 		CreateProjectionMatrix(minDepth,
@@ -14,10 +14,10 @@ namespace CPR::GFX::D11
 		up = { 0.0f, 1.0f, 0.0f };
 		right = { 1.0f, 0.0f, 0.0f };
 
-		vpBufferIndex = bufferManager.AddBuffer(nullptr, sizeof(XMFLOAT4X4),
+		vpBufferIdx = bufferManager->AddBuffer(nullptr, sizeof(XMFLOAT4X4),
 			1, PerFrameUsage::DYNAMIC,
 			BufferBinding::CONSTANT_BUFFER);
-		cameraPosBufferIndex = bufferManager.AddBuffer(nullptr,
+		cameraPosBufferIdx = bufferManager->AddBuffer(nullptr,
 			sizeof(XMFLOAT3), 1, PerFrameUsage::DYNAMIC, BufferBinding::CONSTANT_BUFFER);
 	}
 
@@ -63,7 +63,7 @@ namespace CPR::GFX::D11
 		DirectX::XMStoreFloat3(&right, XMVector3Transform(rightVector, rotationMatrix));
 	}
 
-	ResourceIndex CameraD11::GetVP(BufferManagerD11& bufferManager)
+	XMFLOAT4X4 CameraD11::GetVP()
 	{
 		XMVECTOR eyePos = XMLoadFloat3(&position);
 		XMVECTOR forwardVector = XMLoadFloat3(&forward);
@@ -73,17 +73,21 @@ namespace CPR::GFX::D11
 			XMVectorAdd(eyePos, forwardVector), upVector);
 		XMMATRIX projection = XMLoadFloat4x4(&projectionMatrix);
 
-		XMFLOAT4X4 toUpload;
-		XMStoreFloat4x4(&toUpload, XMMatrixTranspose(view * projection));
+		XMFLOAT4X4 toReturn;
+		XMStoreFloat4x4(&toReturn, XMMatrixTranspose(view * projection));
 
-		bufferManager.UpdateBuffer(vpBufferIndex, &toUpload);
-
-		return vpBufferIndex;
+		return toReturn;
 	}
-
-	ResourceIndex CameraD11::GetPosition(BufferManagerD11& bufferManager)
+	ResourceIndex CameraD11::GetVPBufferIndex()
 	{
-		bufferManager.UpdateBuffer(cameraPosBufferIndex, &position);
-		return cameraPosBufferIndex;
+		return vpBufferIdx;
+	}
+	DirectX::XMFLOAT3 CameraD11::GetPosition()
+	{
+		return position;
+	}
+	ResourceIndex CameraD11::GetPositionBufferIndex()
+	{
+		return cameraPosBufferIdx;
 	}
 }

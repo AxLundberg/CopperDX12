@@ -1,59 +1,67 @@
 #pragma once
 #include <vector>
+#include <memory>
 #include <d3d11_4.h>
 
+#include "DeviceD11.h"
 #include "cmn/D11Headers.h"
+#include "../IBufferManager.h"
 
 namespace CPR::GFX::D11
 {
-	enum class PerFrameUsage
+	class IBufferManager : public GFX::IBufferManager
 	{
-		STATIC,
-		DYNAMIC
+	/*public:
+		struct IocParams
+		{
+			std::shared_ptr<IDevice> device;
+		};*/
+	public:
+		virtual ResourceIndex AddBuffer(void* data, u32 elementSize,
+			u32 nrOfElements, PerFrameUsage rwPattern, u32 bindingFlags) = 0;
+
+		virtual void UpdateBuffer(ResourceIndex index, void* data) = 0;
+		virtual u32 GetElementSize(ResourceIndex index) = 0;
+		virtual u32 GetElementCount(ResourceIndex index) = 0;
+
+		virtual ID3D11Buffer* GetBufferInterface(ResourceIndex index) = 0;
+		virtual ID3D11ShaderResourceView* GetSRV(ResourceIndex index) = 0;
 	};
 
-	enum BufferBinding
-	{
-		STRUCTURED_BUFFER = 1,
-		CONSTANT_BUFFER = 2
-	};
-
-	class BufferManagerD11
+	class BufferManagerD11 : public IBufferManager
 	{
 	public:
-		BufferManagerD11();
+		BufferManagerD11(std::shared_ptr<IDevice> device);
 		~BufferManagerD11();
-		void Initialise(ComPtr<ID3D11Device> deviceToUse, ComPtr<ID3D11DeviceContext> contextToUse);
 
-		ResourceIndex AddBuffer(void* data, unsigned int elementSize,
-			unsigned int nrOfElements, PerFrameUsage rwPattern, unsigned int bindingFlags);
+		ResourceIndex AddBuffer(void* data, u32 elementSize,
+			u32 nrOfElements, PerFrameUsage rwPattern, u32 bindingFlags) override;
 
-		void UpdateBuffer(ResourceIndex index, void* data);
-		unsigned int GetElementSize(ResourceIndex index);
-		unsigned int GetElementCount(ResourceIndex index);
+		void UpdateBuffer(ResourceIndex index, void* data) override;
+		u32 GetElementSize(ResourceIndex index) override;
+		u32 GetElementCount(ResourceIndex index) override;
 
-		ID3D11Buffer* GetBufferInterface(ResourceIndex index);
-		ID3D11ShaderResourceView* GetSRV(ResourceIndex index);
+		ID3D11Buffer* GetBufferInterface(ResourceIndex index) override;
+		ID3D11ShaderResourceView* GetSRV(ResourceIndex index) override;
 	private:
 		bool DetermineUsage(PerFrameUsage, D3D11_USAGE& usage);
-		UINT TranslateBindFlags(unsigned int bindingFlags);
-		bool CreateDescription(unsigned int elementSize,
-			unsigned int nrOfElements, PerFrameUsage rwPattern, unsigned int bindingFlags,
+		UINT TranslateBindFlags(u32 bindingFlags);
+		bool CreateDescription(u32 elementSize,
+			u32 nrOfElements, PerFrameUsage rwPattern, u32 bindingFlags,
 			D3D11_BUFFER_DESC& toSet);
 
-		ID3D11ShaderResourceView* CreateSRV(ID3D11Buffer* buffer, unsigned int stride);
+		ID3D11ShaderResourceView* CreateSRV(ID3D11Buffer* buffer, u32 stride);
 
 
 		struct StoredBuffer
 		{
 			ID3D11Buffer* interfacePtr = nullptr;
-			unsigned int elementSize = 0;
-			unsigned int elementCount = 0;
+			u32 elementSize = 0;
+			u32 elementCount = 0;
 			ID3D11ShaderResourceView* srv;
 		};
 
-		ComPtr<ID3D11Device> device = nullptr;
-		ComPtr<ID3D11DeviceContext> context = nullptr;
+		std::shared_ptr<IDevice> deviceAndContext;
 		std::vector<StoredBuffer> buffers;
 
 	};

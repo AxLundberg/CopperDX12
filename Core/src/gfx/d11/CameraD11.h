@@ -8,7 +8,7 @@ namespace CPR::GFX::D11
 	class CameraD11
 	{
 	public:
-		CameraD11(BufferManagerD11& bufferManager, float minDepth, float maxDepth, float aspectRatio);
+		CameraD11(std::shared_ptr<IBufferManager> bufferManager, float minDepth, float maxDepth, float aspectRatio);
 		~CameraD11() = default;
 
 		void MoveZ(float amount);
@@ -16,8 +16,10 @@ namespace CPR::GFX::D11
 		void MoveX(float amount);
 		void RotateY(float radians);
 
-		ResourceIndex GetVP(BufferManagerD11& bufferManager);
-		ResourceIndex GetPosition(BufferManagerD11& bufferManager);
+		DirectX::XMFLOAT4X4 GetVP();
+		ResourceIndex GetVPBufferIndex();
+		DirectX::XMFLOAT3 GetPosition();
+		ResourceIndex GetPositionBufferIndex();
 
 	private:
 		DirectX::XMFLOAT3 position;
@@ -27,8 +29,8 @@ namespace CPR::GFX::D11
 
 		DirectX::XMFLOAT4X4 projectionMatrix;
 
-		ResourceIndex vpBufferIndex = ResourceIndex(-1);
-		ResourceIndex cameraPosBufferIndex = ResourceIndex(-1);
+		ResourceIndex vpBufferIdx = ResourceIndex(-1);
+		ResourceIndex cameraPosBufferIdx = ResourceIndex(-1);
 
 		void CreateProjectionMatrix(float minDepth, float maxDepth, float aspectRatio);
 

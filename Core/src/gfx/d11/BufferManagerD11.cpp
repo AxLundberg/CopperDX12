@@ -1,8 +1,11 @@
 #include "BufferManagerD11.h"
+#include "../cmn/GraphicsError.h"
 
 namespace CPR::GFX::D11
 {
-	BufferManagerD11::BufferManagerD11()
+	BufferManagerD11::BufferManagerD11(std::shared_ptr<IDevice> device)
+		:
+		deviceAndContext(std::move(device))
 	{}
 
 	BufferManagerD11::~BufferManagerD11()
@@ -15,13 +18,6 @@ namespace CPR::GFX::D11
 		}
 	}
 
-	void BufferManagerD11::Initialise(ComPtr<ID3D11Device> deviceToUse,
-		ComPtr<ID3D11DeviceContext> contextToUse)
-	{
-		device = deviceToUse;
-		context = contextToUse;
-	}
-
 	bool BufferManagerD11::DetermineUsage(PerFrameUsage rwPattern, D3D11_USAGE& usage)
 	{
 		usage = rwPattern == PerFrameUsage::STATIC ?
@@ -31,7 +27,7 @@ namespace CPR::GFX::D11
 		return true;
 	}
 
-	UINT BufferManagerD11::TranslateBindFlags(unsigned int bindingFlags)
+	UINT BufferManagerD11::TranslateBindFlags(u32 bindingFlags)
 	{
 		UINT toReturn = 0;
 
@@ -43,8 +39,8 @@ namespace CPR::GFX::D11
 		return toReturn;
 	}
 
-	bool BufferManagerD11::CreateDescription(unsigned int elementSize,
-		unsigned int nrOfElements, PerFrameUsage rwPattern, unsigned int bindingFlags,
+	bool BufferManagerD11::CreateDescription(u32 elementSize,
+		u32 nrOfElements, PerFrameUsage rwPattern, u32 bindingFlags,
 		D3D11_BUFFER_DESC& toSet)
 	{
 		toSet.ByteWidth = elementSize * nrOfElements;
@@ -63,8 +59,7 @@ namespace CPR::GFX::D11
 		return result;
 	}
 
-	ID3D11ShaderResourceView* BufferManagerD11::CreateSRV(
-		ID3D11Buffer* buffer, unsigned int nrOfElements)
+	ID3D11ShaderResourceView* BufferManagerD11::CreateSRV(ID3D11Buffer* buffer, u32 nrOfElements)
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC desc;
 		desc.Format = DXGI_FORMAT_UNKNOWN;
@@ -72,45 +67,39 @@ namespace CPR::GFX::D11
 		desc.Buffer.FirstElement = 0;
 		desc.Buffer.NumElements = nrOfElements;
 
+		auto device = deviceAndContext->GetD3D11Device();
 		ID3D11ShaderResourceView* toReturn;
-		HRESULT hr = device->CreateShaderResourceView(buffer,
-			&desc, &toReturn);
-
-		if (FAILED(hr))
-			toReturn = nullptr;
+		device->CreateShaderResourceView(buffer, &desc, &toReturn) >> hrVerify;
 
 		return toReturn;
 	}
 
 	ResourceIndex BufferManagerD11::AddBuffer(void* data,
-		unsigned int elementSize, unsigned int nrOfElements,
-		PerFrameUsage rwPattern, unsigned int bindingFlags)
+		u32 elementSize, u32 nrOfElements,
+		PerFrameUsage rwPattern, u32 bindingFlags)
 	{
 		D3D11_BUFFER_DESC desc;
-		bool result = CreateDescription(elementSize, nrOfElements,
-			rwPattern, bindingFlags, desc);
+		bool result = CreateDescription(elementSize, nrOfElements, rwPattern, bindingFlags, desc);
 
 		if (result == false)
 			return ResourceIndex(-1);
 
-		HRESULT hr = S_OK;
 		ID3D11Buffer* interfacePtr = nullptr;
 
+		auto device = deviceAndContext->GetD3D11Device();
 		if (data != nullptr)
 		{
-			D3D11_SUBRESOURCE_DATA resourceData;
+			D3D11_SUBRESOURCE_DATA resourceData = {};
 			resourceData.pSysMem = data;
 			resourceData.SysMemPitch = resourceData.SysMemSlicePitch = 0;
 
-			hr = device->CreateBuffer(&desc, &resourceData, &interfacePtr);
+			device->CreateBuffer(&desc, &resourceData, &interfacePtr) >> hrVerify;
 		}
 		else
 		{
-			hr = device->CreateBuffer(&desc, nullptr, &interfacePtr);
+			device->CreateBuffer(&desc, nullptr, &interfacePtr) >> hrVerify;
 		}
 
-		if (FAILED(hr))
-			return ResourceIndex(-1);
 
 		ID3D11ShaderResourceView* srv = nullptr;
 		if (bindingFlags & BufferBinding::STRUCTURED_BUFFER)
@@ -131,6 +120,7 @@ namespace CPR::GFX::D11
 	void BufferManagerD11::UpdateBuffer(ResourceIndex index, void* data)
 	{
 		StoredBuffer& toUpdate = buffers[index];
+		auto context = deviceAndContext->GetD3D11DeviceContext();
 
 		D3D11_MAPPED_SUBRESOURCE mappedBuffer;
 		context->Map(toUpdate.interfacePtr, 0,
@@ -140,12 +130,12 @@ namespace CPR::GFX::D11
 		context->Unmap(toUpdate.interfacePtr, 0);
 	}
 
-	unsigned int BufferManagerD11::GetElementSize(ResourceIndex index)
+	u32 BufferManagerD11::GetElementSize(ResourceIndex index)
 	{
 		return buffers[index].elementSize;
 	}
 
-	unsigned int BufferManagerD11::GetElementCount(ResourceIndex index)
+	u32 BufferManagerD11::GetElementCount(ResourceIndex index)
 	{
 		return buffers[index].elementCount;
 	}

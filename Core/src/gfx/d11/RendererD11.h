@@ -40,7 +40,7 @@ namespace CPR::GFX::D11
 	class RendererD11 : public IRendererD11
 	{
 	public:
-		RendererD11(HWND windowHandle, std::shared_ptr<IDevice> device);
+		RendererD11(HWND windowHandle, std::shared_ptr<IDevice> device, std::shared_ptr<IBufferManager> bufferManager);
 		~RendererD11();
 
 		ResourceIndex CreateSampler(SamplerType, AddressMode) override;
@@ -89,7 +89,7 @@ namespace CPR::GFX::D11
 		ComPtr<ID3D11DepthStencilView> depthBufferDSV = nullptr;
 		D3D11_VIEWPORT viewport;
 
-		BufferManagerD11 bufferManager;
+		std::shared_ptr<IBufferManager> bufferManager;
 		TextureManagerD11 textureManager;
 		SamplerManagerD11 samplerManager;
 

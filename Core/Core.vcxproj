@@ -95,6 +95,7 @@
     <ClInclude Include="src\gfx\cmn\Helpers.h" />
     <ClInclude Include="src\gfx\cmn\TypeDefs.h" />
     <ClInclude Include="src\gfx\d12\DeviceD12.h" />
+    <ClInclude Include="src\gfx\IBufferManager.h" />
     <ClInclude Include="src\gfx\IDevice.h" />
     <ClInclude Include="src\gfx\d11\BootD11.h" />
     <ClInclude Include="src\gfx\d11\BufferManagerD11.h" />
