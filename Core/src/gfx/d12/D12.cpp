@@ -15,7 +15,7 @@ namespace CPR::GFX::D12
 {
 	void Boot(HWND window)
 	{
-		IOC::Get().Register<IRenderer>([]() {
+		/*IOC::Get().Register<IRenderer>([]() {
 			auto device = IOC::Sing().Resolve<IDevice>();
 			auto swapChain = IOC::Get().Resolve<ISwapChain>();
 			auto syncCommander = IOC::Get().Resolve<ISyncCommander>();
@@ -59,6 +59,6 @@ namespace CPR::GFX::D12
 			return std::make_shared<SwapChainD12>(
 				args.window = window,
 				args.nrOfBuffers.value_or(2));
-			});
+			});*/
 	}
 }
