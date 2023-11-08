@@ -9,7 +9,7 @@
 
 namespace CPR::GFX::D11
 {
-	RendererD11::RendererD11(HWND windowHandle, std::shared_ptr<IDev> dev)
+	RendererD11::RendererD11(HWND windowHandle, std::shared_ptr<IDevice> dev)
 		: deviceSwapchainAndContext(std::move(dev))
 	{
 		auto device = deviceSwapchainAndContext->GetD3D11Device();

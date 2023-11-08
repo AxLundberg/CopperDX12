@@ -14,7 +14,7 @@ namespace CPR::GFX::D12
 		static constexpr u32 DESCRIPTOR_HEAP_SIZE = 1000;
 		static constexpr f32 CLEAR_COLOR[4] = { 0.1f, 0.1f, 0.1f, 0.0f };
 	public:
-		Renderer(std::shared_ptr<CPR::GFX::IDevice> device,
+		Renderer(std::shared_ptr<IDevice> device,
 			std::shared_ptr<CPR::GFX::ISwapChain> swapChain,
 			std::shared_ptr<CPR::GFX::D12::ISyncCommander> syncCommander);
 
@@ -42,7 +42,7 @@ namespace CPR::GFX::D12
 		void TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES currentState, D3D12_RESOURCE_STATES newState);
 	private:
 		std::shared_ptr<CPR::GFX::D12::ISyncCommander> _syncMan;
-		std::shared_ptr<CPR::GFX::IDevice> _device;
+		std::shared_ptr<CPR::GFX::D12::IDevice> _device;
 		std::shared_ptr<CPR::GFX::ISwapChain> _swapChain;
 
 		GfxRenderPass* _currentPass = nullptr;

@@ -1,7 +1,7 @@
 #pragma once
 #include <Core/src/win/IWindow.h>
 
-#include "../IDevice.h"
+#include "DeviceD12.h"
 #include "../ISwapChain.h"
 #include "../cmn/TypeDefs.h"
 

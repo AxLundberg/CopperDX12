@@ -4,6 +4,7 @@
 #pragma comment(lib, "d3dcompiler.lib")
 
 #include "PipelineState.h"
+#include "../cmn/GraphicsError.h"
 
 namespace CPR::GFX::D12
 {

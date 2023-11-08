@@ -183,12 +183,6 @@
     <ClInclude Include="src\gfx\d12\D12.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\gfx\IDevice.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gfx\d12\Types\DeviceD12.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\gfx\ISwapChain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -321,7 +315,7 @@
     <ClInclude Include="src\gfx\d11\TextureManagerD11.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\gfx\d11\base\IDev.h">
+    <ClInclude Include="src\gfx\IDevice.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\gfx\d11\DeviceD11.h">
@@ -331,6 +325,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="thirdParty\ImGUI\backends\imgui_impl_dx11.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gfx\d12\DeviceD12.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -531,6 +528,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="thirdParty\ImGUI\backends\imgui_impl_win32.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gfx\d12\DeviceD12.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

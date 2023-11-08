@@ -40,7 +40,7 @@ namespace CPR::GFX::D11
 	class RendererD11 : public IRendererD11
 	{
 	public:
-		RendererD11(HWND windowHandle, std::shared_ptr<IDev> device);
+		RendererD11(HWND windowHandle, std::shared_ptr<IDevice> device);
 		~RendererD11();
 
 		ResourceIndex CreateSampler(SamplerType, AddressMode) override;
@@ -82,7 +82,7 @@ namespace CPR::GFX::D11
 		unsigned int backBufferWidth = 0;
 		unsigned int backBufferHeight = 0;
 
-		std::shared_ptr<IDev> deviceSwapchainAndContext;
+		std::shared_ptr<IDevice> deviceSwapchainAndContext;
 		
 		ComPtr<ID3D11RenderTargetView> backBufferRTV = nullptr;
 		ComPtr<ID3D11Texture2D> depthBuffer = nullptr;

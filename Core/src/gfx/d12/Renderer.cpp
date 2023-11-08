@@ -6,7 +6,7 @@
 
 namespace CPR::GFX::D12
 {
-	Renderer::Renderer(std::shared_ptr<CPR::GFX::IDevice> device, std::shared_ptr<CPR::GFX::ISwapChain> swapChain, std::shared_ptr<CPR::GFX::D12::ISyncCommander> syncCommander)
+	Renderer::Renderer(std::shared_ptr<IDevice> device, std::shared_ptr<CPR::GFX::ISwapChain> swapChain, std::shared_ptr<CPR::GFX::D12::ISyncCommander> syncCommander)
 		: 
 		_device(std::move(device)),
 		_swapChain(std::move(swapChain)),

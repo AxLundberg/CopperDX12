@@ -1,7 +1,7 @@
 #pragma once
 #include <Core/src/win/IWindow.h>
 
-#include "base/IDev.h"
+#include "../IDevice.h"
 #include "cmn/D11Headers.h"
 
 
@@ -10,7 +10,7 @@
 
 namespace CPR::GFX::D11
 {
-	class IDev : public GFX::IDev
+	class IDevice : public GFX::IDevice
 	{
 	public:
 		struct IocParams
@@ -23,7 +23,7 @@ namespace CPR::GFX::D11
 		virtual Microsoft::WRL::ComPtr<ID3D11DeviceContext> GetD3D11DeviceContext() = 0;
 	};
 
-	class Device : public IDev
+	class Device : public IDevice
 	{
 	public:
 		Device(HWND windowHandle);

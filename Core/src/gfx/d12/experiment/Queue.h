@@ -2,7 +2,7 @@
 #include <memory>
 
 #include "../../cmn/TypeDefs.h"
-#include "../../IDevice.h"
+#include "../DeviceD12.h"
 #include "../cmn/D12Headers.h"
 #include "AllocatorAndList.h"
 

@@ -3,7 +3,8 @@
 #include <Core/src/win/IWindow.h>
 
 #include "Types/SwapChainD12.h"
-#include "Types/DeviceD12.h"
+#include "../IDevice.h"
+#include "DeviceD12.h"
 #include "IRenderer.h"
 #include "Renderer.h"
 #include "D12.h"
@@ -49,7 +50,7 @@ namespace CPR::GFX::D12
 		});
 
 		IOC::Get().Register<GFX::IDevice>([]() {
-			return std::make_shared<DeviceD12>();
+			return std::make_shared<CPR::GFX::D12::Device>();
 			});
 
 		IOC::Sing().RegisterPassThrough<IDevice>();

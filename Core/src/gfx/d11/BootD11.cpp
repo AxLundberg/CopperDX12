@@ -11,14 +11,14 @@ namespace CPR::GFX::D11
 	void Boot()
 	{
 		IOC::Get().Register<IRendererD11>([](IRendererD11::IocParams args) {
-			auto device = IOC::Get().Resolve<IDev>({ args.hWnd });
+			auto device = IOC::Get().Resolve<IDevice>({ args.hWnd });
 			return std::make_shared<RendererD11>(args.hWnd, device);
 			});
 
-		IOC::Get().Register<IDev>([](IDev::IocParams args) {
+		IOC::Get().Register<IDevice>([](IDevice::IocParams args) {
 			return std::make_shared<Device>(args.hWnd);
 			});
 
-		IOC::Sing().RegisterPassThrough<IDev>();
+		IOC::Sing().RegisterPassThrough<IDevice>();
 	}
 }
