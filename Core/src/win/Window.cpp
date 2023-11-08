@@ -6,9 +6,7 @@
 
 #include <format>
 
-#include <Core/thirdParty/ImGUI/imgui.h>
-#include <Core/thirdParty/ImGUI/backends/imgui_impl_win32.h>
-#include <Core/thirdParty/ImGUI/backends/imgui_impl_dx11.h>
+#include <Core/thirdParty/ImGUI/imguiIncludes.h>
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 namespace CPR::WIN

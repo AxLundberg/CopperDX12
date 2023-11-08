@@ -188,10 +188,10 @@
     <ClInclude Include="thirdParty\ImGUI\backends\imgui_impl_win32.h" />
     <ClInclude Include="thirdParty\ImGUI\imconfig.h" />
     <ClInclude Include="thirdParty\ImGUI\imgui.h" />
+    <ClInclude Include="thirdParty\ImGUI\ImguiIncludes.h" />
     <ClInclude Include="thirdParty\ImGUI\imgui_internal.h" />
     <ClInclude Include="thirdParty\ImGUI\imstb_rectpack.h" />
     <ClInclude Include="thirdParty\ImGUI\imstb_textedit.h" />
-    <ClInclude Include="thirdParty\ImGUI\imstb_truetype.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ccr\GenericTaskQueue.cpp" />
@@ -254,7 +254,6 @@
     <ClCompile Include="src\win\Window.cpp" />
     <ClCompile Include="src\win\WindowClass.cpp" />
     <ClCompile Include="thirdParty\ImGUI\backends\imgui_impl_dx11.cpp" />
-    <ClCompile Include="thirdParty\ImGUI\backends\imgui_impl_dx12.cpp" />
     <ClCompile Include="thirdParty\ImGUI\backends\imgui_impl_win32.cpp" />
     <ClCompile Include="thirdParty\ImGUI\imgui.cpp" />
     <ClCompile Include="thirdParty\ImGUI\imgui_demo.cpp" />

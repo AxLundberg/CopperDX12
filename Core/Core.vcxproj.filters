@@ -243,9 +243,6 @@
     <ClInclude Include="thirdParty\ImGUI\imstb_textedit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="thirdParty\ImGUI\imstb_truetype.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="thirdParty\ImGUI\backends\imgui_impl_dx12.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -331,6 +328,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\gfx\ISamplerManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="thirdParty\ImGUI\ImguiIncludes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -465,9 +465,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\gfx\d12\experiment\ImguiD12.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="thirdParty\ImGUI\backends\imgui_impl_dx12.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="thirdParty\ImGUI\imgui.cpp">
