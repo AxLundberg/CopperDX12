@@ -3,7 +3,7 @@
 
 namespace CPR::GFX::D12
 {
-	ResourceLoader::ResourceLoader(std::shared_ptr<IDeviceChil> pDevice)
+	ResourceLoader::ResourceLoader(std::shared_ptr<IDevice> pDevice)
 		:
 		pDevice_{ std::move(pDevice) },
 		pQueue_{ std::make_shared<CommandQueue>(pDevice_) }

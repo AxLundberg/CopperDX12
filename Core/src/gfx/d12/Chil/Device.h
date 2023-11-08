@@ -1,5 +1,5 @@
 #pragma once
-#include "../../IDeviceChil.h"
+#include "../../IDevice.h"
 #include <Core/src/win/IWindow.h>
 #include <d3d12.h> 
 #include <dxgi1_6.h>
@@ -11,14 +11,14 @@
 
 namespace CPR::GFX::D12
 {
-	class IDeviceChil : public GFX::IDeviceChil
+	class IDevice : public GFX::IDevice
 	{
 	public:
 		virtual Microsoft::WRL::ComPtr<ID3D12Device2> GetD3D12DeviceInterface() = 0;
 		virtual Microsoft::WRL::ComPtr<IDXGIFactory4> GetDXGIFactoryInterface() = 0;
 	};
 
-	class Device : public IDeviceChil
+	class Device : public IDevice
 	{
 	public:
 		Device();

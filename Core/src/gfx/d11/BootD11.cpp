@@ -6,6 +6,7 @@
 #include "RendererD11.h"
 #include "DeviceD11.h"
 
+
 namespace CPR::GFX::D11
 {
 	void Boot()

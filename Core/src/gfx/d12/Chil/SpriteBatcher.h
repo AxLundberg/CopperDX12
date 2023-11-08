@@ -28,7 +28,7 @@ namespace CPR::GFX::D12
 	class SpriteCodex
 	{
 	public:
-		SpriteCodex(std::shared_ptr<IDeviceChil> pDevice, UINT maxNumAtlases = 4);
+		SpriteCodex(std::shared_ptr<IDevice> pDevice, UINT maxNumAtlases = 4);
 		void AddSpriteAtlas(std::shared_ptr<ITexture> pTexture);
 		ID3D12DescriptorHeap* GetHeap() const;
 		D3D12_GPU_DESCRIPTOR_HANDLE GetTableHandle() const;
@@ -41,7 +41,7 @@ namespace CPR::GFX::D12
 			std::shared_ptr<ITexture> pTexture_;
 		};
 		// data
-		std::shared_ptr<IDeviceChil> pDevice_;
+		std::shared_ptr<IDevice> pDevice_;
 		UINT descriptorSize_;
 		UINT maxNumAtlases_;
 		UINT curNumAtlases_ = 0;
@@ -107,7 +107,7 @@ namespace CPR::GFX::D12
 	class SpriteBatcher : public ISpriteBatcher
 	{
 	public:
-		SpriteBatcher(const SPA::DimensionsI& targetDimensions, std::shared_ptr<IDeviceChil> pDevice,
+		SpriteBatcher(const SPA::DimensionsI& targetDimensions, std::shared_ptr<IDevice> pDevice,
 			std::shared_ptr<SpriteCodex> pSpriteCodex_, UINT maxSpriteCount = 4000);
 		~SpriteBatcher();
 		void StartBatch(AllocatorListPair cmd, uint64_t frameFenceValue, uint64_t signaledFenceValue) override;
@@ -139,7 +139,7 @@ namespace CPR::GFX::D12
 		FrameResource_ GetFrameResource_(uint64_t frameFenceValue);
 		void WriteIndexBufferFillCommands_(AllocatorListPair& cmd);
 		// connection to other gfx components
-		std::shared_ptr<IDeviceChil> pDevice_;
+		std::shared_ptr<IDevice> pDevice_;
 		// vertex stuff
 		UINT maxVertices_;
 		UINT maxIndices_;

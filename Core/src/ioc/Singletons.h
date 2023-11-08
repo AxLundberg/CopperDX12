@@ -34,7 +34,7 @@ namespace CPR::IOC
 			mServiceMap[typeid(T)] = gen;
 		}
 		template<class T>
-		void RegisterPassThrough()
+		void RegisterPassThrough() // not working since implemented parametrized singletons
 		{
 			Register<T>([] { return IOC::Get().Resolve<T>(); });
 		}

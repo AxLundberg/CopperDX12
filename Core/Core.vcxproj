@@ -135,7 +135,6 @@
     <ClInclude Include="src\gfx\d12\HeapManager.h" />
     <ClInclude Include="src\gfx\d12\Types\QueueTypes.h" />
     <ClInclude Include="src\gfx\Exception.h" />
-    <ClInclude Include="src\gfx\IDeviceChil.h" />
     <ClInclude Include="src\gfx\IRenderPane.h" />
     <ClInclude Include="src\gfx\ISwapChain.h" />
     <ClInclude Include="src\gfx\d12\Renderer.h" />

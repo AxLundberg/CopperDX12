@@ -12,7 +12,7 @@ namespace CPR::GFX::D12
 	namespace rn = std::ranges;
 
 	SpriteBatcher::SpriteBatcher(const SPA::DimensionsI& targetDimensions,
-		std::shared_ptr<IDeviceChil> pDevice,
+		std::shared_ptr<IDevice> pDevice,
 		std::shared_ptr<SpriteCodex> pSpriteCodex,
 		UINT maxSpriteCount)
 		:
@@ -560,7 +560,7 @@ namespace CPR::GFX::D12
 	// sprite codex
 	// ------------
 
-	SpriteCodex::SpriteCodex(std::shared_ptr<IDeviceChil> pDevice, UINT maxNumAtlases)
+	SpriteCodex::SpriteCodex(std::shared_ptr<IDevice> pDevice, UINT maxNumAtlases)
 		:
 		pDevice_{ std::move(pDevice) },
 		maxNumAtlases_{ maxNumAtlases }

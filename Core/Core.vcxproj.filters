@@ -279,9 +279,6 @@
     <ClInclude Include="src\gfx\d12\Chil\Texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\gfx\IDeviceChil.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\gfx\IRenderPane.h">
       <Filter>Header Files</Filter>
     </ClInclude>
