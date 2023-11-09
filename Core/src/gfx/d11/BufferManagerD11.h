@@ -22,8 +22,7 @@ namespace CPR::GFX::D11
 		BufferManagerD11(std::shared_ptr<IDevice> device);
 		~BufferManagerD11();
 
-		ResourceIndex AddBuffer(void* data, u32 elementSize,
-			u32 nrOfElements, PerFrameUsage rwPattern, u32 bindingFlags) override;
+		ResourceIndex AddBuffer(void* data, const BufferInfo& info) override;
 
 		void UpdateBuffer(ResourceIndex index, void* data) override;
 		u32 GetElementSize(ResourceIndex index) override;

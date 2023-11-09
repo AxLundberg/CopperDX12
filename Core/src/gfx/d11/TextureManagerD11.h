@@ -39,7 +39,7 @@ namespace CPR::GFX::D11
 		D3D11_USAGE DetermineUsage(unsigned int bindingFlags);
 		UINT TranslateBindFlags(unsigned int bindingFlags);
 		bool CreateDescription(const TextureInfo& textureInfo, D3D11_TEXTURE2D_DESC& toSet);
-		bool CreateResourceViews(ID3D11Texture2D* texture, unsigned int bindingFlags, TextureViews& toSet);
+		void CreateResourceViews(ID3D11Texture2D* texture, unsigned int bindingFlags, TextureViews& toSet);
 
 	private:
 		struct StoredTexture

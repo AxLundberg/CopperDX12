@@ -14,11 +14,24 @@ namespace CPR::GFX::D11
 		up = { 0.0f, 1.0f, 0.0f };
 		right = { 1.0f, 0.0f, 0.0f };
 
-		vpBufferIdx = bufferManager->AddBuffer(nullptr, sizeof(XMFLOAT4X4),
-			1, PerFrameUsage::DYNAMIC,
-			BufferBinding::CONSTANT_BUFFER);
+
+		vpBufferIdx = bufferManager->AddBuffer(nullptr,
+			BufferInfo{
+				.elementSize = sizeof(XMFLOAT4X4),
+				.nrOfElements = 1,
+				.rwPattern = PerFrameUsage::DYNAMIC,
+				.bindingFlags = BufferBinding::CONSTANT_BUFFER,
+			}
+		);
+
 		cameraPosBufferIdx = bufferManager->AddBuffer(nullptr,
-			sizeof(XMFLOAT3), 1, PerFrameUsage::DYNAMIC, BufferBinding::CONSTANT_BUFFER);
+			BufferInfo{
+				.elementSize = sizeof(XMFLOAT3),
+				.nrOfElements = 1,
+				.rwPattern = PerFrameUsage::DYNAMIC,
+				.bindingFlags = BufferBinding::CONSTANT_BUFFER,
+			}
+		);
 	}
 
 	void CameraD11::CreateProjectionMatrix(float minDepth,

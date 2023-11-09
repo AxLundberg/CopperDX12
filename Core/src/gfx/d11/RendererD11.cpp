@@ -273,9 +273,9 @@ namespace CPR::GFX::D11
 		return currentRenderPass;
 	}
 
-	ResourceIndex RendererD11::SubmitBuffer(void* data, u32 elemSize, u32 elemCount, PerFrameUsage rwPattern, BufferBinding binding)
+	ResourceIndex RendererD11::SubmitBuffer(void* data, const BufferInfo& info)
 	{
-		return bufferManager->AddBuffer(data, elemSize, elemCount, rwPattern, binding);
+		return bufferManager->AddBuffer(data, info);
 	}
 
 	ResourceIndex RendererD11::SubmitTexture(void* data, TextureInfo& info)

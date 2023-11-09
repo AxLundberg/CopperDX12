@@ -153,19 +153,28 @@ namespace CPR::APP
         };
 
         ResourceIndex verticesIndex = renderer->SubmitBuffer(
-            vertices, sizeof(SimpleVertex), ARRAYSIZE(vertices),
-            PerFrameUsage::STATIC, BufferBinding::STRUCTURED_BUFFER);
-
-        if (verticesIndex == ResourceIndex(-1))
-            return false;
+            vertices,
+            BufferInfo{
+                .elementSize = sizeof(SimpleVertex),
+                .nrOfElements = ARRAYSIZE(vertices),
+                .rwPattern = PerFrameUsage::STATIC,
+                .bindingFlags = BufferBinding::STRUCTURED_BUFFER
+            }
+        );
 
         unsigned int indices[] = { 0, 1, 2 };
-
+        
         ResourceIndex indicesIndex = renderer->SubmitBuffer(
-            indices, sizeof(unsigned int), ARRAYSIZE(indices),
-            PerFrameUsage::STATIC, BufferBinding::STRUCTURED_BUFFER);
+            indices,
+            BufferInfo{
+                .elementSize = sizeof(unsigned int),
+                .nrOfElements = ARRAYSIZE(indices),
+                .rwPattern = PerFrameUsage::STATIC,
+                .bindingFlags = BufferBinding::STRUCTURED_BUFFER,
+            }
+        );
 
-        if (indicesIndex == ResourceIndex(-1))
+        if (indicesIndex == ResourceIndex(-1) || verticesIndex == ResourceIndex(-1))
             return false;
 
         mesh.vertexBuffer = verticesIndex;
@@ -211,11 +220,15 @@ namespace CPR::APP
         };
 
         ResourceIndex verticesIndex = renderer->SubmitBuffer(
-            vertices, sizeof(SimpleVertex), ARRAYSIZE(vertices),
-            PerFrameUsage::STATIC, BufferBinding::STRUCTURED_BUFFER);
-
-        if (verticesIndex == ResourceIndex(-1))
-            return false;
+            vertices,
+            BufferInfo{
+                .elementSize = sizeof(SimpleVertex),
+                .nrOfElements = ARRAYSIZE(vertices),
+                .rwPattern = PerFrameUsage::STATIC,
+                .bindingFlags = BufferBinding::STRUCTURED_BUFFER
+            }
+        );
+        
 
         const unsigned int NR_OF_INDICES = 36;
         unsigned int indices[NR_OF_INDICES];
@@ -232,10 +245,16 @@ namespace CPR::APP
         }
 
         ResourceIndex indicesIndex = renderer->SubmitBuffer(
-            indices, sizeof(unsigned int), NR_OF_INDICES, PerFrameUsage::STATIC,
-            BufferBinding::STRUCTURED_BUFFER);
+            indices,
+            BufferInfo{
+                .elementSize = sizeof(unsigned int),
+                .nrOfElements = NR_OF_INDICES,
+                .rwPattern = PerFrameUsage::STATIC,
+                .bindingFlags = BufferBinding::STRUCTURED_BUFFER,
+            }
+        );
 
-        if (indicesIndex == ResourceIndex(-1))
+        if (indicesIndex == ResourceIndex(-1) || verticesIndex == ResourceIndex(-1))
             return false;
 
         mesh.vertexBuffer = verticesIndex;
@@ -278,8 +297,13 @@ namespace CPR::APP
         };
 
         toSet = renderer->SubmitBuffer(matrix,
-            sizeof(float) * 16, 1, PerFrameUsage::DYNAMIC,
-            BufferBinding::CONSTANT_BUFFER);
+            BufferInfo{
+                .elementSize = sizeof(float),
+                .nrOfElements = ARRAYSIZE(matrix),
+                .rwPattern = PerFrameUsage::DYNAMIC,
+                .bindingFlags = BufferBinding::CONSTANT_BUFFER
+            }
+        );
 
         return toSet != ResourceIndex(-1);
     }
@@ -337,8 +361,13 @@ namespace CPR::APP
         };
 
         toSet = renderer->SubmitBuffer(lights,
-            sizeof(PointLight), 4, PerFrameUsage::STATIC,
-            BufferBinding::STRUCTURED_BUFFER);
+            BufferInfo{
+                .elementSize = sizeof(PointLight),
+                .nrOfElements = ARRAYSIZE(lights),
+                .rwPattern = PerFrameUsage::STATIC,
+                .bindingFlags = BufferBinding::STRUCTURED_BUFFER,
+            }
+        );
 
         return toSet != ResourceIndex(-1);
     }

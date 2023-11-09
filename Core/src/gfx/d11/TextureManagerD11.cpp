@@ -122,29 +122,25 @@ namespace CPR::GFX::D11
 		return TranslateFormatInfo(textureInfo.format, toSet.Format);
 	}
 
-	bool TextureManagerD11::CreateResourceViews(ID3D11Texture2D* texture,
+	void TextureManagerD11::CreateResourceViews(ID3D11Texture2D* texture,
 		unsigned int bindingFlags, TextureViews& toSet)
 	{
-		bool result = true;
-
-		if (result == true && bindingFlags & TextureBinding::SHADER_RESOURCE)
+		if (bindingFlags & TextureBinding::SHADER_RESOURCE)
 		{
 			device->GetD3D11Device()->CreateShaderResourceView(texture, nullptr, &toSet.srv) >> hrVerify;
 		}
-		if (result == true && bindingFlags & TextureBinding::UNORDERED_ACCESS)
+		if (bindingFlags & TextureBinding::UNORDERED_ACCESS)
 		{
 			device->GetD3D11Device()->CreateUnorderedAccessView(texture, nullptr, &toSet.uav) >> hrVerify;
 		}
-		if (result == true && bindingFlags & TextureBinding::RENDER_TARGET)
+		if (bindingFlags & TextureBinding::RENDER_TARGET)
 		{
 			device->GetD3D11Device()->CreateRenderTargetView(texture, nullptr, &toSet.rtv) >> hrVerify;
 		}
-		if (result == true && bindingFlags & TextureBinding::DEPTH_STENCIL)
+		if (bindingFlags & TextureBinding::DEPTH_STENCIL)
 		{
 			device->GetD3D11Device()->CreateDepthStencilView(texture, nullptr, &toSet.dsv) >> hrVerify;
 		}
-
-		return result;
 	}
 
 	ResourceIndex TextureManagerD11::AddTexture(void* textureData,

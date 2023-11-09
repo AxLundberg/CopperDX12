@@ -74,12 +74,10 @@ namespace CPR::GFX::D11
 		return toReturn;
 	}
 
-	ResourceIndex BufferManagerD11::AddBuffer(void* data,
-		u32 elementSize, u32 nrOfElements,
-		PerFrameUsage rwPattern, u32 bindingFlags)
+	ResourceIndex BufferManagerD11::AddBuffer(void* data, const BufferInfo& info)
 	{
 		D3D11_BUFFER_DESC desc;
-		bool result = CreateDescription(elementSize, nrOfElements, rwPattern, bindingFlags, desc);
+		bool result = CreateDescription(info.elementSize, info.nrOfElements, info.rwPattern, info.bindingFlags, desc);
 
 		if (result == false)
 			return ResourceIndex(-1);
@@ -102,9 +100,9 @@ namespace CPR::GFX::D11
 
 
 		ID3D11ShaderResourceView* srv = nullptr;
-		if (bindingFlags & BufferBinding::STRUCTURED_BUFFER)
+		if (info.bindingFlags & BufferBinding::STRUCTURED_BUFFER)
 		{
-			srv = CreateSRV(interfacePtr, nrOfElements);
+			srv = CreateSRV(interfacePtr, info.nrOfElements);
 
 			if (srv == nullptr)
 			{
@@ -113,7 +111,7 @@ namespace CPR::GFX::D11
 			}
 		}
 
-		buffers.push_back({ interfacePtr, elementSize, nrOfElements, srv });
+		buffers.push_back({ interfacePtr, info.elementSize, info.nrOfElements, srv });
 		return ResourceIndex(buffers.size() - 1);
 	}
 
