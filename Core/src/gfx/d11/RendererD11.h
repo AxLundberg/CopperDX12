@@ -43,7 +43,8 @@ namespace CPR::GFX::D11
 		RendererD11(HWND windowHandle,
 			std::shared_ptr<IDevice> device,
 			std::shared_ptr<IBufferManager> bufferManager,
-			std::shared_ptr<ISamplerManager> samplerManager
+			std::shared_ptr<ISamplerManager> samplerManager,
+			std::shared_ptr<ITextureManager> textureManager
 		);
 		~RendererD11();
 
@@ -88,14 +89,14 @@ namespace CPR::GFX::D11
 
 		std::shared_ptr<IDevice> deviceSwapchainAndContext;
 		
-		ComPtr<ID3D11RenderTargetView> backBufferRTV = nullptr;
-		ComPtr<ID3D11Texture2D> depthBuffer = nullptr;
-		ComPtr<ID3D11DepthStencilView> depthBufferDSV = nullptr;
 		D3D11_VIEWPORT viewport;
+		ComPtr<ID3D11Texture2D> depthBuffer = nullptr;
+		ComPtr<ID3D11RenderTargetView> backBufferRTV = nullptr;
+		ComPtr<ID3D11DepthStencilView> depthBufferDSV = nullptr;
 
 		std::shared_ptr<IBufferManager> bufferManager;
 		std::shared_ptr<ISamplerManager> samplerManager;
-		TextureManagerD11 textureManager;
+		std::shared_ptr<ITextureManager> textureManager;
 
 		GfxRenderPassD11* currentRenderPass = nullptr;
 		CameraD11* currentCamera = nullptr;

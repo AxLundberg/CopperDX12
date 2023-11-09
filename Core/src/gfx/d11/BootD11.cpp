@@ -6,7 +6,7 @@
 #include "RendererD11.h"
 #include "DeviceD11.h"
 #include "BufferManagerD11.h"
-
+#include "TextureManagerD11.h"
 
 namespace CPR::GFX::D11
 {
@@ -16,7 +16,8 @@ namespace CPR::GFX::D11
 			auto device = IOC::Sing().Resolve<IDevice>({ args.hWnd });
 			auto bufferMan = IOC::Get().Resolve<IBufferManager>();
 			auto samplerMan = IOC::Get().Resolve<ISamplerManager>();
-			return std::make_shared<RendererD11>(args.hWnd, device, bufferMan, samplerMan);
+			auto textureMan = IOC::Get().Resolve<ITextureManager>();
+			return std::make_shared<RendererD11>(args.hWnd, device, bufferMan, samplerMan, textureMan);
 			});
 
 		IOC::Get().Register<IBufferManager>([](){
@@ -27,6 +28,11 @@ namespace CPR::GFX::D11
 		IOC::Get().Register<ISamplerManager>([]() {
 			auto device = IOC::Sing().Resolve<IDevice>();
 			return std::make_shared<SamplerManagerD11>(device);
+			});
+
+		IOC::Get().Register<ITextureManager>([]() {
+			auto device = IOC::Sing().Resolve<IDevice>();
+			return std::make_shared<TextureManagerD11>(device);
 			});
 
 		IOC::Sing().Register<IDevice>([](IDevice::IocParams args) {

@@ -140,6 +140,7 @@
     <ClInclude Include="src\gfx\ISamplerManager.h" />
     <ClInclude Include="src\gfx\ISwapChain.h" />
     <ClInclude Include="src\gfx\d12\Renderer.h" />
+    <ClInclude Include="src\gfx\ITextureManager.h" />
     <ClInclude Include="src\gfx\Mesh.h" />
     <ClInclude Include="src\gfx\d12\IRenderer.h" />
     <ClInclude Include="src\gfx\RenderObject.h" />

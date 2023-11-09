@@ -1,8 +1,11 @@
 #include "TextureManagerD11.h"
+#include "../cmn/GraphicsError.h"
 
 namespace CPR::GFX::D11
 {
-	TextureManagerD11::TextureManagerD11()
+	TextureManagerD11::TextureManagerD11(std::shared_ptr<IDevice> device)
+		:
+		device(std::move(device))
 	{}
 
 	TextureManagerD11::~TextureManagerD11()
@@ -20,11 +23,6 @@ namespace CPR::GFX::D11
 			if (texture.views.dsv != nullptr)
 				texture.views.dsv->Release();
 		}
-	}
-
-	void TextureManagerD11::Initialise(ComPtr<ID3D11Device> deviceToUse)
-	{
-		device = deviceToUse;
 	}
 
 	bool TextureManagerD11::TranslateFormatInfo(const FormatInfo& formatInfo,
@@ -131,23 +129,19 @@ namespace CPR::GFX::D11
 
 		if (result == true && bindingFlags & TextureBinding::SHADER_RESOURCE)
 		{
-			HRESULT hr = device->CreateShaderResourceView(texture, nullptr, &toSet.srv);
-			result &= hr == S_OK;
+			device->GetD3D11Device()->CreateShaderResourceView(texture, nullptr, &toSet.srv) >> hrVerify;
 		}
 		if (result == true && bindingFlags & TextureBinding::UNORDERED_ACCESS)
 		{
-			HRESULT hr = device->CreateUnorderedAccessView(texture, nullptr, &toSet.uav);
-			result &= hr == S_OK;
+			device->GetD3D11Device()->CreateUnorderedAccessView(texture, nullptr, &toSet.uav) >> hrVerify;
 		}
 		if (result == true && bindingFlags & TextureBinding::RENDER_TARGET)
 		{
-			HRESULT hr = device->CreateRenderTargetView(texture, nullptr, &toSet.rtv);
-			result &= hr == S_OK;
+			device->GetD3D11Device()->CreateRenderTargetView(texture, nullptr, &toSet.rtv) >> hrVerify;
 		}
 		if (result == true && bindingFlags & TextureBinding::DEPTH_STENCIL)
 		{
-			HRESULT hr = device->CreateDepthStencilView(texture, nullptr, &toSet.dsv);
-			result &= hr == S_OK;
+			device->GetD3D11Device()->CreateDepthStencilView(texture, nullptr, &toSet.dsv) >> hrVerify;
 		}
 
 		return result;
@@ -170,18 +164,10 @@ namespace CPR::GFX::D11
 			TexelComponentSize::WORD ? 4 : 1;
 
 		ID3D11Texture2D* interfacePtr = nullptr;
-		HRESULT hr = device->CreateTexture2D(&desc, &resourceData, &interfacePtr);
-
-		if (FAILED(hr))
-			return ResourceIndex(-1);
+		device->GetD3D11Device()->CreateTexture2D(&desc, &resourceData, &interfacePtr);
 
 		TextureViews views;
-		result = CreateResourceViews(interfacePtr, textureInfo.bindingFlags, views);
-		if (result == false)
-		{
-			interfacePtr->Release();
-			return ResourceIndex(-1);
-		}
+		CreateResourceViews(interfacePtr, textureInfo.bindingFlags, views);
 
 		textures.push_back({ interfacePtr, views });
 		return ResourceIndex(textures.size() - 1);

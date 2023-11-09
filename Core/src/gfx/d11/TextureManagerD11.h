@@ -1,58 +1,21 @@
 #pragma once
-#include <d3d11_4.h>
 #include <vector>
+#include <memory>
 
 #include "cmn/D11Headers.h"
+#include "DeviceD11.h"
+#include "../ITextureManager.h"
 
 
 namespace CPR::GFX::D11
 {
-	enum class TexelComponentCount
+	class ITextureManager : public GFX::ITextureManager
 	{
-		SINGLE,
-		QUAD
+	public:
+		virtual ID3D11ShaderResourceView* GetSRV(ResourceIndex index) = 0;
 	};
 
-	enum class TexelComponentSize
-	{
-		BYTE,
-		WORD
-	};
-
-	enum class TexelComponentType
-	{
-		FLOAT,
-		UNORM,
-		DEPTH,
-	};
-
-	struct FormatInfo
-	{
-		TexelComponentCount componentCount = TexelComponentCount::QUAD;
-		TexelComponentSize componentSize = TexelComponentSize::BYTE;
-		TexelComponentType componentType = TexelComponentType::UNORM;
-	};
-
-	enum TextureBinding
-	{
-		NONE = 0,
-		SHADER_RESOURCE = 1,
-		UNORDERED_ACCESS = 2,
-		RENDER_TARGET = 4,
-		DEPTH_STENCIL = 8
-	};
-
-	struct TextureInfo
-	{
-		unsigned int mipLevels = 1;
-		unsigned int baseTextureWidth = 0;
-		unsigned int baseTextureHeight = 0;
-		FormatInfo format;
-		unsigned int bindingFlags = TextureBinding::NONE;
-	};
-
-
-	class TextureManagerD11
+	class TextureManagerD11 : public ITextureManager
 	{
 	private:
 		struct TextureViews
@@ -64,14 +27,13 @@ namespace CPR::GFX::D11
 		};
 
 	public:
-		TextureManagerD11();
+		TextureManagerD11(std::shared_ptr<IDevice>);
 		~TextureManagerD11();
-		void Initialise(ComPtr<ID3D11Device> deviceToUse);
 
-		ResourceIndex AddTexture(void* textureData,
-			const TextureInfo& textureInfo);
+		ResourceIndex AddTexture(void* textureData, const TextureInfo& textureInfo) override;
 
-		ID3D11ShaderResourceView* GetSRV(ResourceIndex index);
+		ID3D11ShaderResourceView* GetSRV(ResourceIndex index) override;
+
 	private:
 		bool TranslateFormatInfo(const FormatInfo& formatInfo, DXGI_FORMAT& toSet);
 		D3D11_USAGE DetermineUsage(unsigned int bindingFlags);
@@ -86,7 +48,7 @@ namespace CPR::GFX::D11
 			TextureViews views;
 		};
 
-		ComPtr<ID3D11Device> device;
+		std::shared_ptr<IDevice> device;
 		std::vector<StoredTexture> textures;
 	};
 }

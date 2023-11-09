@@ -10,11 +10,13 @@ namespace CPR::GFX::D11
 	RendererD11::RendererD11(HWND windowHandle,
 		std::shared_ptr<IDevice> dev,
 		std::shared_ptr<IBufferManager> bufferManager,
-		std::shared_ptr<ISamplerManager> samplerManager)
+		std::shared_ptr<ISamplerManager> samplerManager,
+		std::shared_ptr<ITextureManager> textureManager)
 		:
 		deviceSwapchainAndContext(std::move(dev)),
 		bufferManager(std::move(bufferManager)),
-		samplerManager(std::move(samplerManager))
+		samplerManager(std::move(samplerManager)),
+		textureManager(std::move(textureManager))
 	{
 		auto device = deviceSwapchainAndContext->GetD3D11Device();
 		auto context = deviceSwapchainAndContext->GetD3D11DeviceContext();
@@ -22,8 +24,6 @@ namespace CPR::GFX::D11
 		CreateRenderTargetView();
 		CreateDepthStencil();
 		CreateViewport();
-		textureManager.Initialise(device);
-
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
@@ -152,7 +152,7 @@ namespace CPR::GFX::D11
 	void RendererD11::BindTextureSRV(ResourceIndex textureIndex,
 		PipelineShaderStage stage, std::uint8_t slot)
 	{
-		ID3D11ShaderResourceView* srv = textureManager.GetSRV(textureIndex);
+		ID3D11ShaderResourceView* srv = textureManager->GetSRV(textureIndex);
 
 		auto context = deviceSwapchainAndContext->GetD3D11DeviceContext();
 		switch (stage)
@@ -280,7 +280,7 @@ namespace CPR::GFX::D11
 
 	ResourceIndex RendererD11::SubmitTexture(void* data, TextureInfo& info)
 	{
-		return textureManager.AddTexture(data, info);
+		return textureManager->AddTexture(data, info);
 	}
 
 	CameraD11* RendererD11::CreateCamera(f32 minDepth, f32 maxDepth, f32 aspectRatio)
