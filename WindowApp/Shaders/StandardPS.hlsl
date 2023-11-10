@@ -12,6 +12,8 @@ struct PointLight
 	float3 colour;
 };
 
+
+
 Texture2D diffuseTexture : register(t0);
 Texture2D specularTexture : register(t1);
 
@@ -23,6 +25,11 @@ cbuffer CameraPos : register(b0)
 {
 	float3 cameraPos;
 }
+
+cbuffer Imgui : register(b1)
+{
+	float3 imguiPos;
+};
 
 float4 main(PixelShaderInput input) : SV_TARGET
 {
@@ -54,6 +61,9 @@ float4 main(PixelShaderInput input) : SV_TARGET
 
 	float3 illumination = (ambient + diffuse) * diffuseMaterial +
 		specularMaterial * specular;
+
+	if(imguiPos.x > 0.5f)
+		return float4(imguiPos.x, imguiPos.y, imguiPos.z, 1.f);
 
 	return float4(illumination, 1.0f);
 }

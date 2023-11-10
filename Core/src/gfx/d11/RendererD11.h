@@ -30,6 +30,7 @@ namespace CPR::GFX::D11
 		virtual CameraD11* CreateCamera(f32 minDepth, f32 maxDepth, f32 aspectRatio) = 0;
 		virtual void UpdateBuffer(ResourceIndex bufferIndex, void* data) = 0;
 		virtual void SetLightBuffer(ResourceIndex lightBufferIndexToUse) = 0;
+		virtual void SetImguiBuffer(ResourceIndex imguiBufferIndexToUse) = 0;
 
 		virtual void SetRenderPass(GfxRenderPassD11* toSet) = 0;
 		virtual void PreRender() = 0;
@@ -55,6 +56,7 @@ namespace CPR::GFX::D11
 		CameraD11* CreateCamera(f32 minDepth, f32 maxDepth, f32 aspectRatio) override;
 		void UpdateBuffer(ResourceIndex bufferIndex, void* data) override;
 		void SetLightBuffer(ResourceIndex lightBufferIndexToUse) override;
+		void SetImguiBuffer(ResourceIndex imguitBufferIndexToUse) override;
 		//void DestroyGraphicsRenderPass(GfxRenderPassD11* pass) override;
 		void SetRenderPass(GfxRenderPassD11* toSet) override;
 		void PreRender() override;
@@ -101,5 +103,6 @@ namespace CPR::GFX::D11
 		GfxRenderPassD11* currentRenderPass = nullptr;
 		CameraD11* currentCamera = nullptr;
 		ResourceIndex lightBufferIndex = ResourceIndex(-1);
+		ResourceIndex imguiBufferIndex = ResourceIndex(-1);
 	};
 }

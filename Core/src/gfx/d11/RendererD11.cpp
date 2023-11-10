@@ -252,6 +252,11 @@ namespace CPR::GFX::D11
 		case PipelineDataType::LIGHT:
 			BindBuffer(lightBufferIndex, binding);
 			break;
+		case PipelineDataType::IMGUI:
+			/*auto test = currentCamera->GetPosition();
+			bufferManager->UpdateBuffer(imguiBufferIndex, &test);*/
+			BindBuffer(imguiBufferIndex, binding);
+			break;
 		case PipelineDataType::SAMPLER:
 			BindSampler(currentRenderPass->GetGlobalSampler(
 				binding.shaderStage, binding.slotToBindTo), binding);
@@ -303,21 +308,12 @@ namespace CPR::GFX::D11
 	{
 		lightBufferIndex = lightBufferIndexToUse;
 	}
-
+	void RendererD11::SetImguiBuffer(ResourceIndex imguiBufferIndexToUse)
+	{
+		imguiBufferIndex = imguiBufferIndexToUse;
+	}
 	void RendererD11::PreRender()
 	{
-		ImGui_ImplDX11_NewFrame();
-		ImGui_ImplWin32_NewFrame();
-		ImGui::NewFrame();
-		ImGui::Begin("Hello, world!");
-		ImGui::Text("This is some useful text.");
-		static i32 counter = 0;
-		if (ImGui::Button("Button"))
-			counter++;
-		ImGui::SameLine();
-		ImGui::Text("counter = %d", counter);
-		ImGui::End();
-		ImGui::Render();
 		float clearColour[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 		auto context = deviceSwapchainAndContext->GetD3D11DeviceContext();
 		context->OMSetRenderTargets(1, backBufferRTV.GetAddressOf(), depthBufferDSV.Get());

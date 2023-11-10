@@ -9,6 +9,7 @@
 #include <Core/src/ioc/Container.h>
 #include <Core/src/ioc/Singletons.h>
 
+#include <Core/thirdParty/ImGUI/ImguiIncludes.h>
 #include <DirectXMath.h>
 #include <stdexcept>
 #include <format>
@@ -60,6 +61,14 @@ namespace CPR::APP
     {
         float position[3] = { 0.0f, 0.0f, 0.0f };
         float colour[3] = { 1.0f, 1.0f, 1.0f };
+    };
+
+    struct ImguiVariables
+    {
+        f32 a = 0.f;
+        f32 b = 0.f;
+        f32 c = 0.f;
+        f32 d = 0.f;
     };
 
     GfxRenderPassD11* CreateStandardRenderPass(IRendererD11* renderer)
@@ -123,6 +132,14 @@ namespace CPR::APP
         cameraPosBinding.shaderStage = PipelineShaderStage::PS;
         cameraPosBinding.slotToBindTo = 0;
         info.globalBindings.push_back(cameraPosBinding);
+
+        PipelineBinding testBufferBinding;
+        testBufferBinding.dataType = PipelineDataType::IMGUI;
+        testBufferBinding.bindingType = PipelineBindingType::CONSTANT_BUFFER;
+        testBufferBinding.shaderStage = PipelineShaderStage::PS;
+        testBufferBinding.slotToBindTo = 1;
+        info.globalBindings.push_back(testBufferBinding);
+
 
         ResourceIndex samplerIndex = renderer->CreateSampler(
             SamplerType::ANISOTROPIC, AddressMode::CLAMP);
@@ -372,6 +389,30 @@ namespace CPR::APP
         return toSet != ResourceIndex(-1);
     }
 
+    bool CreateTest(ResourceIndex& toSet, IRendererD11* renderer, float offset)
+    {
+        float height = offset / 2.0f;
+        ImguiVariables data[1] = {
+            {
+                .a = 0.00f,
+                .b = 0.25f,
+                .c = 0.50f,
+                .d = 0.75f,
+            }
+        };
+
+        toSet = renderer->SubmitBuffer(data,
+            BufferInfo{
+                .elementSize = sizeof(ImguiVariables),
+                .nrOfElements = ARRAYSIZE(data),
+                .rwPattern = PerFrameUsage::DYNAMIC,
+                .bindingFlags = BufferBinding::CONSTANT_BUFFER,
+            }
+        );
+
+        return toSet != ResourceIndex(-1);
+    }
+
     bool PlacePyramid(const Mesh& cubeMesh, const SurfaceProperty& stoneProperties,
         std::vector<RenderObject>& toStoreIn, IRendererD11* renderer, int height)
     {
@@ -535,8 +576,7 @@ namespace CPR::APP
             && PlaceCrystal(cubeMesh, crystalProperties, toStoreIn, renderer, height);
     }
 
-    void RotateCrystal(RenderObject& crystal, float deltaTime, int height,
-        IRendererD11* renderer)
+    void RotateCrystal(RenderObject& crystal, float deltaTime, int height, IRendererD11* renderer)
     {
         static float rotationAmount = 0.0f;
         static float heightOffset = 0.0f;
@@ -602,8 +642,12 @@ namespace CPR::APP
         ResourceIndex lightBufferIndex;
         if (!CreateLights(lightBufferIndex, renderer, DIMENSION * 2.5f))
             return -1;
-
         renderer->SetLightBuffer(lightBufferIndex);
+
+        ResourceIndex imguiBufferIndex;
+        if (!CreateTest(imguiBufferIndex, renderer, DIMENSION * 2.5f))
+            return -1;
+        renderer->SetImguiBuffer(imguiBufferIndex);
 
         MSG msg = { };
 
@@ -624,9 +668,26 @@ namespace CPR::APP
                 HandleKeyboard(keyboard);
                 //InterpretKeyboardInput(window.GetKeyboardInputs());
                 TransformCamera(camera, moveSpeed, turnSpeed, deltaTime);
-                RotateCrystal(renderObjects.back(), deltaTime,
-                    DIMENSION, renderer);
+                RotateCrystal(renderObjects.back(), deltaTime, DIMENSION, renderer);
 
+                ImGui_ImplDX11_NewFrame();
+                ImGui_ImplWin32_NewFrame();
+                ImGui::NewFrame();
+                ImGui::Begin("Hello, world!");
+                ImGui::Text("This is some useful text.");
+                static f32 data[3] = { 0.f, 0.f, 0.f };
+                static i32 counter = 0;
+                if (ImGui::Button("Button"))
+                    counter++;
+                ImGui::SliderFloat("a", &data[0], 0.f, 1.f);
+                ImGui::SliderFloat("b", &data[1], 0.f, 1.f);
+                ImGui::SliderFloat("c", &data[2], 0.f, 1.f);
+
+                if (counter > 0)
+                    renderer->UpdateBuffer(imguiBufferIndex, &data);
+                ImGui::Text("counter = %d", counter);
+                ImGui::End();
+                ImGui::Render();
                 renderer->PreRender();
 
                 //renderer->SetCamera(camera);

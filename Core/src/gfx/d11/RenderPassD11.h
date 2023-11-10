@@ -18,7 +18,8 @@ namespace CPR::GFX::D11
 		INDEX,
 		DIFFUSE,
 		SPECULAR,
-		SAMPLER
+		SAMPLER,
+		IMGUI
 	};
 
 	enum class PipelineBindingType
