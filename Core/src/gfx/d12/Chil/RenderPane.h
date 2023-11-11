@@ -25,7 +25,7 @@ namespace CPR::GFX::D12
 	class RenderPane : public IRenderPane
 	{
 	public:
-		RenderPane(HWND hWnd, const SPA::DimensionsI& dims, std::shared_ptr<IDeviceChil> pDevice,
+		RenderPane(HWND hWnd, const SPA::DimensionsI& dims, std::shared_ptr<IDevice> pDevice,
 			std::shared_ptr<ICommandQueue> pCommandQueue);
 		~RenderPane();
 		void BeginFrame() override;
@@ -45,7 +45,7 @@ namespace CPR::GFX::D12
 		};
 		// data
 		SPA::DimensionsI dims_;
-		std::shared_ptr<IDeviceChil> pDevice_;
+		std::shared_ptr<IDevice> pDevice_;
 		std::shared_ptr<ICommandQueue> pCommandQueue_;
 		static constexpr UINT bufferCount_ = 2;
 		Microsoft::WRL::ComPtr<IDXGISwapChain4> pSwapChain_;

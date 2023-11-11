@@ -29,16 +29,19 @@ namespace CPR::GFX::D11
 			nullptr, D3D11_CREATE_DEVICE_DEBUG, &featureLevel, 1, D3D11_SDK_VERSION,
 			&swapChainDesc, &swapChain_, &device_, nullptr, &deviceContext_) >> hrVerify;
 	}
+
+	Device::~Device() = default;
+
 	ComPtr<ID3D11Device> Device::GetD3D11Device()
 	{
 		return device_;
 	}
-	ComPtr<ID3D11DeviceContext> Device::GetD3D11DeviceContext()
-	{
-		return deviceContext_;
-	}
 	ComPtr<IDXGISwapChain> Device::GetD3D11SwapChain()
 	{
 		return swapChain_;
+	}
+	ComPtr<ID3D11DeviceContext> Device::GetD3D11DeviceContext()
+	{
+		return deviceContext_;
 	}
 }

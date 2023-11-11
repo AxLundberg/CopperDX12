@@ -20,19 +20,37 @@ namespace CPR::IOC
 		// types
 		template<class T>
 		using Generator = std::function<std::shared_ptr<T>()>;
-		// functions
 		template<class T>
+		using ParameterizedGenerator = std::function<std::shared_ptr<T>(typename T::IocParams)>;
+		// functions
+		template<Parameterized T>
+		void Register(ParameterizedGenerator<T> gen)
+		{
+			mServiceMap[typeid(T)] = gen;
+		}
+		template<NotParameterized T>
 		void Register(Generator<T> gen)
 		{
 			mServiceMap[typeid(T)] = gen;
 		}
 		template<class T>
-		void RegisterPassThrough()
+		void RegisterPassThrough() // not working since implemented parametrized singletons
 		{
 			Register<T>([] { return IOC::Get().Resolve<T>(); });
 		}
-		template<class T>
+		template<Parameterized T>
+		std::shared_ptr<T> Resolve(typename T::IocParams&& params = {})
+		{
+			return Resolve_<T, ParameterizedGenerator<T>>(std::forward<typename T::IocParams>(params));
+		}
+		template<NotParameterized T>
 		std::shared_ptr<T> Resolve()
+		{
+			return Resolve_<T, Generator<T>>();
+		}
+	private:
+		template<class T, class G, typename...Ps>
+		std::shared_ptr<T> Resolve_(Ps&&...arg)
 		{
 			// TODO: pull this out of template/header
 			if (const auto i = mServiceMap.find(typeid(T)); i != mServiceMap.end())
@@ -44,7 +62,7 @@ namespace CPR::IOC
 						return *ppInstance;
 					}
 					// if not, generate instance, store, and return
-					auto pInstance = std::any_cast<Generator<T>>(entry)();
+					auto pInstance = std::any_cast<G>(entry)(std::forward<Ps>(arg)...);
 					entry = pInstance;
 					return pInstance;
 				}

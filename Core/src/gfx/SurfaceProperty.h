@@ -1,7 +1,7 @@
 #pragma once
-#include "../cmn/TypeDefs.h"
+#include "cmn/TypeDefs.h"
 
-namespace CPR::GFX::D12
+namespace CPR::GFX
 {
 	ResourceIndex diffuseTexture = ResourceIndex(-1);
 	ResourceIndex specularTexture = ResourceIndex(-1);

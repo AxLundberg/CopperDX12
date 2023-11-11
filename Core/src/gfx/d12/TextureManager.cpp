@@ -25,13 +25,13 @@ namespace CPR::GFX::D12
 		auto cType = textureInfo.format.componentType;
 
 		DXGI_FORMAT format;
-		if (cCount == TexelComponentCount::SINGLE && cSize == TexelComponentSize::DWORD)
+		if (cCount == TexelComponentCount::SINGLE && cSize == TexelComponentSize::WORD)
 		{
 			format = cType == TexelComponentType::DEPTH ?
 				DXGI_FORMAT_D32_FLOAT :
 				DXGI_FORMAT_R32_FLOAT;
 		}
-		else if (cCount == TexelComponentCount::QUAD && cSize == TexelComponentSize::DWORD)
+		else if (cCount == TexelComponentCount::QUAD && cSize == TexelComponentSize::WORD)
 		{
 			format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 		}

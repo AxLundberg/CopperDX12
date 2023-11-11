@@ -1,4 +1,5 @@
 #include "RootSignature.h"
+#include "../cmn/GraphicsError.h"
 
 namespace CPR::GFX::D12
 {

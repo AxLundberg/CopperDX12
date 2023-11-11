@@ -11,7 +11,7 @@ namespace CPR::GFX::D12
 	using Microsoft::WRL::ComPtr;
 	namespace rn = std::ranges;
 
-	RenderPane::RenderPane(HWND hWnd, const SPA::DimensionsI& dims, std::shared_ptr<IDeviceChil> pDevice,
+	RenderPane::RenderPane(HWND hWnd, const SPA::DimensionsI& dims, std::shared_ptr<IDevice> pDevice,
 		std::shared_ptr<ICommandQueue> pCommandQueue)
 		:
 		dims_{ dims },

@@ -12,7 +12,7 @@ namespace CPR::GFX::D12
 	class CommandQueue : public ICommandQueue
 	{
 	public:
-		CommandQueue(std::shared_ptr<IDeviceChil> pDevice,
+		CommandQueue(std::shared_ptr<IDevice> pDevice,
 			D3D12_COMMAND_LIST_TYPE commandListType = D3D12_COMMAND_LIST_TYPE_DIRECT);
 		AllocatorListPair GetAllocatorListPair() override;
 		void ExecuteCommandList(AllocatorListPair commandListPair) override;
@@ -41,7 +41,7 @@ namespace CPR::GFX::D12
 		// data
 		static constexpr uint64_t maxFencesPerFrame_ = 100;
 		D3D12_COMMAND_LIST_TYPE commandListType_;
-		std::shared_ptr<IDeviceChil> pDevice_;
+		std::shared_ptr<IDevice> pDevice_;
 		Microsoft::WRL::ComPtr<ID3D12CommandQueue> pCommandQueue_;
 		Microsoft::WRL::ComPtr<ID3D12Fence> pFence_;
 		std::atomic<uint64_t> currentFenceValue_ = 0;

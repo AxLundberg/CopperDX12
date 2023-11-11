@@ -6,7 +6,7 @@ namespace CPR::GFX::D12
 {
 	using Microsoft::WRL::ComPtr;
 
-	CommandQueue::CommandQueue(std::shared_ptr<IDeviceChil> pDevice, D3D12_COMMAND_LIST_TYPE commandListType)
+	CommandQueue::CommandQueue(std::shared_ptr<IDevice> pDevice, D3D12_COMMAND_LIST_TYPE commandListType)
 		:
 		pDevice_{ std::move(pDevice) },
 		commandListType_{ commandListType }

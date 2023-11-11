@@ -9,8 +9,11 @@
 #include <ranges>
 
 #include <Core/src/gfx/d12/D12.h>
+#include <Core/src/gfx/d11/BootD11.h>
+#include <Core/src/gfx/d11/cmn/D11Headers.h>
 #include <Core/src/ecs/Ecs.h>
 #include <Core/src/gfx/d12/Renderer.h>
+#include <Core/src/gfx/d11/RendererD11.h>
 
 #include "App/App.h"
 
@@ -51,9 +54,9 @@ int WINAPI wWinMain(
 				.size = SPA::DimensionsI{ 1280, 720 },
 				.position = {} 
 		});
-		GFX::D12::Boot(pWindow->GetHandle());
-		auto pRenderer = IOC::Get().Resolve<GFX::D12::IRenderer>();
-		return APP::Run(pWindow.get(), pRenderer.get(), hInstance);
+		GFX::D11::Boot();
+		auto pRenderer = IOC::Get().Resolve<GFX::D11::IRendererD11>({ pWindow->GetHandle() });
+		return APP::Run(pWindow.get(), keyboard.get(), pRenderer.get(), hInstance);
 	}
 	catch (const std::exception& e)
 	{

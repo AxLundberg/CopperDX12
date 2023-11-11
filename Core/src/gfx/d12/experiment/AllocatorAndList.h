@@ -2,7 +2,7 @@
 #include <memory>
 #include <functional>
 
-#include "../../IDevice.h"
+#include "../DeviceD12.h"
 #include "../cmn/D12Headers.h"
 #include "../Types/QueueTypes.h"
 

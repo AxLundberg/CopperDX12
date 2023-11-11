@@ -3,7 +3,8 @@
 #include <Core/src/win/IWindow.h>
 
 #include "Types/SwapChainD12.h"
-#include "Types/DeviceD12.h"
+#include "../IDevice.h"
+#include "DeviceD12.h"
 #include "IRenderer.h"
 #include "Renderer.h"
 #include "D12.h"
@@ -14,7 +15,7 @@ namespace CPR::GFX::D12
 {
 	void Boot(HWND window)
 	{
-		IOC::Get().Register<IRenderer>([]() {
+		/*IOC::Get().Register<IRenderer>([]() {
 			auto device = IOC::Sing().Resolve<IDevice>();
 			auto swapChain = IOC::Get().Resolve<ISwapChain>();
 			auto syncCommander = IOC::Get().Resolve<ISyncCommander>();
@@ -49,7 +50,7 @@ namespace CPR::GFX::D12
 		});
 
 		IOC::Get().Register<GFX::IDevice>([]() {
-			return std::make_shared<DeviceD12>();
+			return std::make_shared<CPR::GFX::D12::Device>();
 			});
 
 		IOC::Sing().RegisterPassThrough<IDevice>();
@@ -58,6 +59,6 @@ namespace CPR::GFX::D12
 			return std::make_shared<SwapChainD12>(
 				args.window = window,
 				args.nrOfBuffers.value_or(2));
-			});
+			});*/
 	}
 }

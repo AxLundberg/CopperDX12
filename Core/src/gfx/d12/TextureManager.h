@@ -16,7 +16,7 @@ namespace CPR::GFX::D12
 	enum class TexelComponentSize
 	{
 		BYTE,
-		DWORD
+		WORD
 	};
 
 	enum class TexelComponentType

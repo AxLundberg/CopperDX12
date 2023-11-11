@@ -16,10 +16,10 @@ namespace CPR::GFX::D12
 	class ResourceLoader : public IResourceLoader
 	{
 	public:
-		ResourceLoader(std::shared_ptr<IDeviceChil> pDevice);
+		ResourceLoader(std::shared_ptr<IDevice> pDevice);
 		std::future<std::shared_ptr<ITexture>> LoadTexture(std::wstring path) override;
 	private:
-		std::shared_ptr<IDeviceChil> pDevice_;
+		std::shared_ptr<IDevice> pDevice_;
 		std::shared_ptr<ICommandQueue> pQueue_;
 	};
 }

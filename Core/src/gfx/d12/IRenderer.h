@@ -1,7 +1,7 @@
 #pragma once
 #include <Core/src/win/IWindow.h>
 
-#include "../IDevice.h"
+#include "DeviceD12.h"
 #include "../ISwapChain.h"
 #include "../cmn/TypeDefs.h"
 
@@ -9,7 +9,7 @@
 #include "TextureManager.h"
 #include "SamplerManager.h"
 #include "BufferManager.h"
-#include "RenderObject.h"
+#include "../RenderObject.h"
 #include "HeapManager.h"
 #include "RenderPass.h"
 #include "Camera.h"

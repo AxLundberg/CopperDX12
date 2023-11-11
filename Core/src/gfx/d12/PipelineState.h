@@ -2,7 +2,7 @@
 #include <Core/src/utl/String.h>
 
 #include "cmn/D12Headers.h"
-#include "../IDevice.h"
+#include "DeviceD12.h"
 
 
 namespace CPR::GFX::D12

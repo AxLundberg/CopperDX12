@@ -1,4 +1,5 @@
 #include <Core/src/log/SeverityLevelPolicy.h>
+#include <Core/src/gfx/d11/RendererD11.h>
 #include <Core/src/gfx/d12/Renderer.h>
 #include <Core/src/gfx/d12/IRenderer.h>
 #include <Core/src/win/CopperWin.h>
@@ -8,6 +9,7 @@
 #include <Core/src/ioc/Container.h>
 #include <Core/src/ioc/Singletons.h>
 
+#include <Core/thirdParty/ImGUI/ImguiIncludes.h>
 #include <DirectXMath.h>
 #include <stdexcept>
 #include <format>
@@ -24,7 +26,8 @@
 #include "App.h"
 
 using namespace CPR;
-using namespace CPR::GFX::D12;
+using namespace CPR::GFX;
+using namespace CPR::GFX::D11;
 using namespace std::string_literals;
 using namespace std::chrono_literals;
 namespace rn = std::ranges;
@@ -45,7 +48,7 @@ namespace CPR::APP
         bool turnRightPushed = false;
 
         bool quitKey = false;
-    }gInputs;
+    }keyboardInputs;
 
     struct SimpleVertex
     {
@@ -60,7 +63,15 @@ namespace CPR::APP
         float colour[3] = { 1.0f, 1.0f, 1.0f };
     };
 
-    GfxRenderPass* CreateStandardRenderPass(IRenderer* renderer)
+    struct ImguiVariables
+    {
+        f32 a = 0.f;
+        f32 b = 0.f;
+        f32 c = 0.f;
+        f32 d = 0.f;
+    };
+
+    GfxRenderPassD11* CreateStandardRenderPass(IRendererD11* renderer)
     {
         RenderPassInfo info;
         info.vsPath = "StandardVS.cso";
@@ -122,6 +133,14 @@ namespace CPR::APP
         cameraPosBinding.slotToBindTo = 0;
         info.globalBindings.push_back(cameraPosBinding);
 
+        PipelineBinding testBufferBinding;
+        testBufferBinding.dataType = PipelineDataType::IMGUI;
+        testBufferBinding.bindingType = PipelineBindingType::CONSTANT_BUFFER;
+        testBufferBinding.shaderStage = PipelineShaderStage::PS;
+        testBufferBinding.slotToBindTo = 1;
+        info.globalBindings.push_back(testBufferBinding);
+
+
         ResourceIndex samplerIndex = renderer->CreateSampler(
             SamplerType::ANISOTROPIC, AddressMode::CLAMP);
 
@@ -135,13 +154,13 @@ namespace CPR::APP
         clampSamplerBinding.slotToBindTo = 0;
         info.globalBindings.push_back(clampSamplerBinding);
 
-        GfxRenderPass* toReturn = renderer->CreateRenderPass(info);
+        GfxRenderPassD11* toReturn = renderer->CreateRenderPass(info);
         toReturn->SetGlobalSampler(PipelineShaderStage::PS, 0, samplerIndex);
 
         return toReturn;
     }
 
-    bool CreateTriangleMesh(Mesh& mesh, IRenderer* renderer)
+    bool CreateTriangleMesh(Mesh& mesh, IRendererD11* renderer)
     {
         SimpleVertex vertices[] =
         {
@@ -151,19 +170,28 @@ namespace CPR::APP
         };
 
         ResourceIndex verticesIndex = renderer->SubmitBuffer(
-            vertices, sizeof(SimpleVertex), ARRAYSIZE(vertices),
-            PerFrameUsage::STATIC, BufferBinding::STRUCTURED_BUFFER);
-
-        if (verticesIndex == ResourceIndex(-1))
-            return false;
+            vertices,
+            BufferInfo{
+                .elementSize = sizeof(SimpleVertex),
+                .nrOfElements = ARRAYSIZE(vertices),
+                .rwPattern = PerFrameUsage::STATIC,
+                .bindingFlags = BufferBinding::STRUCTURED_BUFFER
+            }
+        );
 
         unsigned int indices[] = { 0, 1, 2 };
-
+        
         ResourceIndex indicesIndex = renderer->SubmitBuffer(
-            indices, sizeof(unsigned int), ARRAYSIZE(indices),
-            PerFrameUsage::STATIC, BufferBinding::STRUCTURED_BUFFER);
+            indices,
+            BufferInfo{
+                .elementSize = sizeof(unsigned int),
+                .nrOfElements = ARRAYSIZE(indices),
+                .rwPattern = PerFrameUsage::STATIC,
+                .bindingFlags = BufferBinding::STRUCTURED_BUFFER,
+            }
+        );
 
-        if (indicesIndex == ResourceIndex(-1))
+        if (indicesIndex == ResourceIndex(-1) || verticesIndex == ResourceIndex(-1))
             return false;
 
         mesh.vertexBuffer = verticesIndex;
@@ -171,8 +199,59 @@ namespace CPR::APP
 
         return true;
     }
+    bool CreateTileMesh(Mesh& mesh, IRendererD11* renderer)
+    {
+        SimpleVertex vertices[] =
+        {
+            {{-0.5f, 0.5f, -0.5f}, {1.0f / 3, 0.5f}, {0.0f, 0.0f, -1.0f}}, // back
+            {{0.5f, 0.5f, -0.5f}, {2.0f / 3, 0.5f}, {0.0f, 0.0f, -1.0f}},
+            {{-0.5f, -0.5f, -0.5f}, {1.0f / 3, 1.0f}, {0.0f, 0.0f, -1.0f}},
+            {{0.5f, -0.5f, -0.5f}, {2.0f / 3, 1.0f}, {0.0f, 0.0f, -1.0f}},
+        };
 
-    bool CreateCubeMesh(Mesh& mesh, IRenderer* renderer)
+        ResourceIndex verticesIndex = renderer->SubmitBuffer(
+            vertices,
+            BufferInfo{
+                .elementSize = sizeof(SimpleVertex),
+                .nrOfElements = ARRAYSIZE(vertices),
+                .rwPattern = PerFrameUsage::STATIC,
+                .bindingFlags = BufferBinding::STRUCTURED_BUFFER
+            }
+        );
+
+        const u32 NR_OF_INDICES = 6;
+        u32 indices[NR_OF_INDICES];
+        for (u32 i = 0; i < NR_OF_INDICES / 6; ++i)
+        {
+            u32 baseBufferIndex = i * 6;
+            u32 baseVertexIndex = i * 4;
+            indices[baseBufferIndex + 0] = baseVertexIndex + 0;
+            indices[baseBufferIndex + 1] = baseVertexIndex + 1;
+            indices[baseBufferIndex + 2] = baseVertexIndex + 2;
+            indices[baseBufferIndex + 3] = baseVertexIndex + 2;
+            indices[baseBufferIndex + 4] = baseVertexIndex + 1;
+            indices[baseBufferIndex + 5] = baseVertexIndex + 3;
+        }
+
+        ResourceIndex indicesIndex = renderer->SubmitBuffer(
+            indices,
+            BufferInfo{
+                .elementSize = sizeof(u32),
+                .nrOfElements = NR_OF_INDICES,
+                .rwPattern = PerFrameUsage::STATIC,
+                .bindingFlags = BufferBinding::STRUCTURED_BUFFER,
+            }
+        );
+
+        if (indicesIndex == ResourceIndex(-1) || verticesIndex == ResourceIndex(-1))
+            return false;
+
+        mesh.vertexBuffer = verticesIndex;
+        mesh.indexBuffer = indicesIndex;
+
+        return true;
+    }
+    bool CreateCubeMesh(Mesh& mesh, IRendererD11* renderer)
     {
         // Order per face is top left, top right, bottom left, bottom right
         SimpleVertex vertices[] =
@@ -209,11 +288,15 @@ namespace CPR::APP
         };
 
         ResourceIndex verticesIndex = renderer->SubmitBuffer(
-            vertices, sizeof(SimpleVertex), ARRAYSIZE(vertices),
-            PerFrameUsage::STATIC, BufferBinding::STRUCTURED_BUFFER);
-
-        if (verticesIndex == ResourceIndex(-1))
-            return false;
+            vertices,
+            BufferInfo{
+                .elementSize = sizeof(SimpleVertex),
+                .nrOfElements = ARRAYSIZE(vertices),
+                .rwPattern = PerFrameUsage::STATIC,
+                .bindingFlags = BufferBinding::STRUCTURED_BUFFER
+            }
+        );
+        
 
         const unsigned int NR_OF_INDICES = 36;
         unsigned int indices[NR_OF_INDICES];
@@ -230,10 +313,16 @@ namespace CPR::APP
         }
 
         ResourceIndex indicesIndex = renderer->SubmitBuffer(
-            indices, sizeof(unsigned int), NR_OF_INDICES, PerFrameUsage::STATIC,
-            BufferBinding::STRUCTURED_BUFFER);
+            indices,
+            BufferInfo{
+                .elementSize = sizeof(unsigned int),
+                .nrOfElements = NR_OF_INDICES,
+                .rwPattern = PerFrameUsage::STATIC,
+                .bindingFlags = BufferBinding::STRUCTURED_BUFFER,
+            }
+        );
 
-        if (indicesIndex == ResourceIndex(-1))
+        if (indicesIndex == ResourceIndex(-1) || verticesIndex == ResourceIndex(-1))
             return false;
 
         mesh.vertexBuffer = verticesIndex;
@@ -243,7 +332,7 @@ namespace CPR::APP
     }
 
     bool LoadTexture(ResourceIndex& toSet,
-        IRenderer* renderer, std::string filePath, unsigned int components)
+        IRendererD11* renderer, std::string filePath, unsigned int components)
     {
         int width, height;
         unsigned char* imageData = stbi_load(filePath.c_str(),
@@ -265,7 +354,7 @@ namespace CPR::APP
     }
 
     bool CreateTransformBuffer(ResourceIndex& toSet,
-        IRenderer* renderer, float xPos, float yPos, float zPos)
+        IRendererD11* renderer, float xPos, float yPos, float zPos)
     {
         float matrix[16] =
         {
@@ -276,38 +365,43 @@ namespace CPR::APP
         };
 
         toSet = renderer->SubmitBuffer(matrix,
-            sizeof(float) * 16, 1, PerFrameUsage::DYNAMIC,
-            BufferBinding::CONSTANT_BUFFER);
+            BufferInfo{
+                .elementSize = sizeof(float),
+                .nrOfElements = ARRAYSIZE(matrix),
+                .rwPattern = PerFrameUsage::DYNAMIC,
+                .bindingFlags = BufferBinding::CONSTANT_BUFFER
+            }
+        );
 
         return toSet != ResourceIndex(-1);
     }
 
-    void TransformCamera(Camera* camera, float moveSpeed,
+    void TransformCamera(CameraD11* camera, float moveSpeed,
         float turnSpeed, float deltaTime)
     {
-        if (gInputs.moveRightPushed)
+        if (keyboardInputs.moveRightPushed)
             camera->MoveX(moveSpeed * deltaTime);
-        else if (gInputs.moveLeftPushed)
+        else if (keyboardInputs.moveLeftPushed)
             camera->MoveX(-moveSpeed * deltaTime);
 
-        if (gInputs.moveForwardPushed)
+        if (keyboardInputs.moveForwardPushed)
             camera->MoveZ(moveSpeed * deltaTime);
-        else if (gInputs.moveBackwardsPushed)
+        else if (keyboardInputs.moveBackwardsPushed)
             camera->MoveZ(-moveSpeed * deltaTime);
 
-        if (gInputs.moveUpPushed)
+        if (keyboardInputs.moveUpPushed)
             camera->MoveY(moveSpeed * deltaTime);
-        else if (gInputs.moveDownPushed)
+        else if (keyboardInputs.moveDownPushed)
             camera->MoveY(-moveSpeed * deltaTime);
 
-        if (gInputs.turnLeftPushed)
+        if (keyboardInputs.turnLeftPushed)
             camera->RotateY(-turnSpeed * deltaTime);
-        else if (gInputs.turnRightPushed)
+        else if (keyboardInputs.turnRightPushed)
             camera->RotateY(turnSpeed * deltaTime);
     }
 
     bool LoadSurfacePropertyFiles(SurfaceProperty& surfaceProperties,
-        IRenderer* renderer, const std::string& prefix)
+        IRendererD11* renderer, const std::string& prefix)
     {
         ResourceIndex diffuseTextureIndex;
         if (!LoadTexture(diffuseTextureIndex, renderer, prefix + "Diffuse.png", 4))
@@ -323,7 +417,7 @@ namespace CPR::APP
         return true;
     }
 
-    bool CreateLights(ResourceIndex& toSet, IRenderer* renderer, float offset)
+    bool CreateLights(ResourceIndex& toSet, IRendererD11* renderer, float offset)
     {
         float height = offset / 2.0f;
         PointLight lights[4] =
@@ -335,14 +429,43 @@ namespace CPR::APP
         };
 
         toSet = renderer->SubmitBuffer(lights,
-            sizeof(PointLight), 4, PerFrameUsage::STATIC,
-            BufferBinding::STRUCTURED_BUFFER);
+            BufferInfo{
+                .elementSize = sizeof(PointLight),
+                .nrOfElements = ARRAYSIZE(lights),
+                .rwPattern = PerFrameUsage::STATIC,
+                .bindingFlags = BufferBinding::STRUCTURED_BUFFER,
+            }
+        );
+
+        return toSet != ResourceIndex(-1);
+    }
+
+    bool CreateTest(ResourceIndex& toSet, IRendererD11* renderer, float offset)
+    {
+        float height = offset / 2.0f;
+        ImguiVariables data[1] = {
+            {
+                .a = 0.00f,
+                .b = 0.25f,
+                .c = 0.50f,
+                .d = 0.75f,
+            }
+        };
+
+        toSet = renderer->SubmitBuffer(data,
+            BufferInfo{
+                .elementSize = sizeof(ImguiVariables),
+                .nrOfElements = ARRAYSIZE(data),
+                .rwPattern = PerFrameUsage::DYNAMIC,
+                .bindingFlags = BufferBinding::CONSTANT_BUFFER,
+            }
+        );
 
         return toSet != ResourceIndex(-1);
     }
 
     bool PlacePyramid(const Mesh& cubeMesh, const SurfaceProperty& stoneProperties,
-        std::vector<RenderObject>& toStoreIn, IRenderer* renderer, int height)
+        std::vector<RenderObject>& toStoreIn, IRendererD11* renderer, int height)
     {
         int base = (height - 1) * 2 + 1;
 
@@ -425,8 +548,32 @@ namespace CPR::APP
         return true;
     }
 
+    bool PlaceGrid(const Mesh& tileMesh, const SurfaceProperty& stoneProperties,
+        std::vector<RenderObject>& toStoreIn, IRendererD11* renderer, int dim)
+    {
+        int base = dim;
+        for (i32 x = 0; x < dim; x++)
+        {
+            for (i32 y = 0; y < dim-1; y++)
+            {
+                ResourceIndex transformBuffer;
+                bool result = CreateTransformBuffer(transformBuffer, renderer,
+                    static_cast<float>(x*1.25f),
+                    static_cast<float>(y*1.25f), 0.f);
+
+                RenderObject toStore;
+                toStore.transformBuffer = transformBuffer;
+                toStore.surfaceProperty = stoneProperties;
+                toStore.mesh = tileMesh;
+                toStoreIn.push_back(toStore);
+            }
+        }
+        
+        return true;
+    }
+
     bool PlaceGround(const Mesh& cubeMesh, const SurfaceProperty& grassProperties,
-        std::vector<RenderObject>& toStoreIn, IRenderer* renderer, int height)
+        std::vector<RenderObject>& toStoreIn, IRendererD11* renderer, int height)
     {
         height += 2;
         int base = (height - 1) * 2 + 1;
@@ -461,7 +608,7 @@ namespace CPR::APP
     }
 
     bool PlaceCrystal(const Mesh& cubeMesh, const SurfaceProperty& crystalProperties,
-        std::vector<RenderObject>& toStoreIn, IRenderer* renderer, int height)
+        std::vector<RenderObject>& toStoreIn, IRendererD11* renderer, int height)
     {
         ResourceIndex transformBuffer;
         bool result = CreateTransformBuffer(transformBuffer, renderer,
@@ -479,10 +626,14 @@ namespace CPR::APP
         return true;
     }
 
-    bool PlaceBlocks(std::vector<RenderObject>& toStoreIn, IRenderer* renderer, int height)
+    bool PlaceBlocks(std::vector<RenderObject>& toStoreIn, IRendererD11* renderer, int height)
     {
         Mesh cubeMesh;
         if (!CreateCubeMesh(cubeMesh, renderer))
+            return false;
+
+        Mesh tileMesh;
+        if (!CreateTileMesh(tileMesh, renderer))
             return false;
 
         const std::string path = "../../WindowApp/Assets/Textures/";
@@ -499,13 +650,12 @@ namespace CPR::APP
         if (!LoadSurfacePropertyFiles(crystalProperties, renderer, path + "Crystal"))
             return false;
 
-        return PlacePyramid(cubeMesh, stoneProperties, toStoreIn, renderer, height)
-            && PlaceGround(cubeMesh, grassProperties, toStoreIn, renderer, height)
-            && PlaceCrystal(cubeMesh, crystalProperties, toStoreIn, renderer, height);
+        return PlaceGrid(tileMesh, stoneProperties, toStoreIn, renderer, 10);
+           /* && PlaceGround(cubeMesh, grassProperties, toStoreIn, renderer, height)
+            && PlaceCrystal(cubeMesh, crystalProperties, toStoreIn, renderer, height);*/
     }
 
-    void RotateCrystal(RenderObject& crystal, float deltaTime, int height,
-        IRenderer* renderer)
+    void RotateCrystal(RenderObject& crystal, float deltaTime, int height, IRendererD11* renderer)
     {
         static float rotationAmount = 0.0f;
         static float heightOffset = 0.0f;
@@ -535,31 +685,27 @@ namespace CPR::APP
             offsetSpeed *= -1;
         }
     }
-    void InterpretKeyboardInput(unsigned long long input)
+   
+    void HandleKeyboard(WIN::Keyboard* keyboard)
     {
-        gInputs.moveLeftPushed = input & 1;
-        gInputs.moveRightPushed = input & 2;
-        gInputs.moveForwardPushed = input & 4;
-        gInputs.moveBackwardsPushed = input & 8;
-        gInputs.moveUpPushed = input & 16;
-        gInputs.moveDownPushed = input & 32;
-
-        gInputs.turnLeftPushed = input & 64;
-        gInputs.turnRightPushed = input & 128;
-
-        gInputs.quitKey = input & (1ULL << 63);
+        while (const auto e = keyboard->GetEvent()) {
+            keyboardInputs.moveForwardPushed = keyboard->KeyIsPressed('W');
+            keyboardInputs.moveBackwardsPushed = keyboard->KeyIsPressed('S');
+            keyboardInputs.moveLeftPushed = keyboard->KeyIsPressed('A');
+            keyboardInputs.moveRightPushed = keyboard->KeyIsPressed('D');
+            keyboardInputs.moveUpPushed = keyboard->KeyIsPressed(VK_SHIFT);
+            keyboardInputs.moveDownPushed = keyboard->KeyIsPressed(VK_CONTROL);
+            keyboardInputs.quitKey = keyboard->KeyIsPressed(VK_ESCAPE);
+        }
     }
 
-
-    int Run(WIN::IWindow* window, GFX::D12::IRenderer* renderer, HINSTANCE hInstance)
+    int Run(WIN::IWindow* window, WIN::Keyboard* keyboard, GFX::D11::IRendererD11* renderer, HINSTANCE hInstance)
     {
         const unsigned int WINDOW_WIDTH = 1280;
         const unsigned int WINDOW_HEIGHT = 642;
         HWND windowHandle = window->GetHandle();
-        renderer->Initialize(windowHandle);
-        //Renderer* renderer = new D12::RendererD3D12(windowHandle);
-        GfxRenderPass* standardPass = CreateStandardRenderPass(renderer);
 
+        GfxRenderPassD11* standardPass = CreateStandardRenderPass(renderer);
         //globalInputs = reinterpret_cast<Inputs*>(&window.GetInputs());
 
         const int DIMENSION = 5;
@@ -567,7 +713,7 @@ namespace CPR::APP
         if (!PlaceBlocks(renderObjects, renderer, DIMENSION))
             return -1;
 
-        Camera* camera = renderer->CreateCamera(0.1f, 20.0f,
+        CameraD11* camera = renderer->CreateCamera(0.1f, 20.0f,
             static_cast<float>(WINDOW_WIDTH) / WINDOW_HEIGHT);
         camera->MoveZ(-DIMENSION);
         camera->MoveY(1);
@@ -575,8 +721,12 @@ namespace CPR::APP
         ResourceIndex lightBufferIndex;
         if (!CreateLights(lightBufferIndex, renderer, DIMENSION * 2.5f))
             return -1;
-
         renderer->SetLightBuffer(lightBufferIndex);
+
+        ResourceIndex imguiBufferIndex;
+        if (!CreateTest(imguiBufferIndex, renderer, DIMENSION * 2.5f))
+            return -1;
+        renderer->SetImguiBuffer(imguiBufferIndex);
 
         MSG msg = { };
 
@@ -585,7 +735,7 @@ namespace CPR::APP
         float turnSpeed = 3.14f / 2;
         auto lastFrameEnd = std::chrono::system_clock::now();
 
-        while (!window->IsClosing())
+        while (!window->IsClosing() && !keyboardInputs.quitKey)
         {
             if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
             {
@@ -594,15 +744,33 @@ namespace CPR::APP
             }
             else
             {
+                HandleKeyboard(keyboard);
                 //InterpretKeyboardInput(window.GetKeyboardInputs());
                 TransformCamera(camera, moveSpeed, turnSpeed, deltaTime);
-                RotateCrystal(renderObjects.back(), deltaTime,
-                    DIMENSION, renderer);
+                //RotateCrystal(renderObjects.back(), deltaTime, DIMENSION, renderer);
 
+                ImGui_ImplDX11_NewFrame();
+                ImGui_ImplWin32_NewFrame();
+                ImGui::NewFrame();
+                ImGui::Begin("Hello, world!");
+                ImGui::Text("This is some useful text.");
+                static f32 data[3] = { 0.f, 0.f, 0.f };
+                static i32 counter = 0;
+                if (ImGui::Button("Button"))
+                    counter++;
+                ImGui::SliderFloat("a", &data[0], 0.f, 1.f);
+                ImGui::SliderFloat("b", &data[1], 0.f, 1.f);
+                ImGui::SliderFloat("c", &data[2], 0.f, 1.f);
+
+                if (counter > 0)
+                    renderer->UpdateBuffer(imguiBufferIndex, &data);
+                ImGui::Text("counter = %d", counter);
+                ImGui::End();
+                ImGui::Render();
                 renderer->PreRender();
 
                 //renderer->SetCamera(camera);
-                renderer->SetRenderPass(standardPass);
+                //renderer->SetRenderPass(standardPass);
                 renderer->Render(renderObjects);
 
                 renderer->Present();
@@ -612,21 +780,9 @@ namespace CPR::APP
                 deltaTime = elapsed / 1000000.0f;
                 lastFrameEnd = currentFrameEnd;
             }
-
         }
 
-        //renderer->DestroyGraphicsRenderPass(standardPass);
-        //renderer->DestroyCamera(camera);
-        //delete renderer;
         return 0;
-        /*auto x = 0;
-        while (!window.IsClosing())
-        {
-            window.SetTitle(std::format(L"Animated Window Title [{:*<{}}]", L'*', x + 1));
-            x = (x + 1) % 20;
-            std::this_thread::sleep_for(50ms);
-        }
-        return 1;*/
     }
 
 }
