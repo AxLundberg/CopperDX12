@@ -199,7 +199,58 @@ namespace CPR::APP
 
         return true;
     }
+    bool CreateTileMesh(Mesh& mesh, IRendererD11* renderer)
+    {
+        SimpleVertex vertices[] =
+        {
+            {{-0.5f, 0.5f, -0.5f}, {1.0f / 3, 0.5f}, {0.0f, 0.0f, -1.0f}}, // back
+            {{0.5f, 0.5f, -0.5f}, {2.0f / 3, 0.5f}, {0.0f, 0.0f, -1.0f}},
+            {{-0.5f, -0.5f, -0.5f}, {1.0f / 3, 1.0f}, {0.0f, 0.0f, -1.0f}},
+            {{0.5f, -0.5f, -0.5f}, {2.0f / 3, 1.0f}, {0.0f, 0.0f, -1.0f}},
+        };
 
+        ResourceIndex verticesIndex = renderer->SubmitBuffer(
+            vertices,
+            BufferInfo{
+                .elementSize = sizeof(SimpleVertex),
+                .nrOfElements = ARRAYSIZE(vertices),
+                .rwPattern = PerFrameUsage::STATIC,
+                .bindingFlags = BufferBinding::STRUCTURED_BUFFER
+            }
+        );
+
+        const u32 NR_OF_INDICES = 6;
+        u32 indices[NR_OF_INDICES];
+        for (u32 i = 0; i < NR_OF_INDICES / 6; ++i)
+        {
+            u32 baseBufferIndex = i * 6;
+            u32 baseVertexIndex = i * 4;
+            indices[baseBufferIndex + 0] = baseVertexIndex + 0;
+            indices[baseBufferIndex + 1] = baseVertexIndex + 1;
+            indices[baseBufferIndex + 2] = baseVertexIndex + 2;
+            indices[baseBufferIndex + 3] = baseVertexIndex + 2;
+            indices[baseBufferIndex + 4] = baseVertexIndex + 1;
+            indices[baseBufferIndex + 5] = baseVertexIndex + 3;
+        }
+
+        ResourceIndex indicesIndex = renderer->SubmitBuffer(
+            indices,
+            BufferInfo{
+                .elementSize = sizeof(u32),
+                .nrOfElements = NR_OF_INDICES,
+                .rwPattern = PerFrameUsage::STATIC,
+                .bindingFlags = BufferBinding::STRUCTURED_BUFFER,
+            }
+        );
+
+        if (indicesIndex == ResourceIndex(-1) || verticesIndex == ResourceIndex(-1))
+            return false;
+
+        mesh.vertexBuffer = verticesIndex;
+        mesh.indexBuffer = indicesIndex;
+
+        return true;
+    }
     bool CreateCubeMesh(Mesh& mesh, IRendererD11* renderer)
     {
         // Order per face is top left, top right, bottom left, bottom right
@@ -497,6 +548,30 @@ namespace CPR::APP
         return true;
     }
 
+    bool PlaceGrid(const Mesh& tileMesh, const SurfaceProperty& stoneProperties,
+        std::vector<RenderObject>& toStoreIn, IRendererD11* renderer, int dim)
+    {
+        int base = dim;
+        for (i32 x = 0; x < dim; x++)
+        {
+            for (i32 y = 0; y < dim-1; y++)
+            {
+                ResourceIndex transformBuffer;
+                bool result = CreateTransformBuffer(transformBuffer, renderer,
+                    static_cast<float>(x*1.25f),
+                    static_cast<float>(y*1.25f), 0.f);
+
+                RenderObject toStore;
+                toStore.transformBuffer = transformBuffer;
+                toStore.surfaceProperty = stoneProperties;
+                toStore.mesh = tileMesh;
+                toStoreIn.push_back(toStore);
+            }
+        }
+        
+        return true;
+    }
+
     bool PlaceGround(const Mesh& cubeMesh, const SurfaceProperty& grassProperties,
         std::vector<RenderObject>& toStoreIn, IRendererD11* renderer, int height)
     {
@@ -557,6 +632,10 @@ namespace CPR::APP
         if (!CreateCubeMesh(cubeMesh, renderer))
             return false;
 
+        Mesh tileMesh;
+        if (!CreateTileMesh(tileMesh, renderer))
+            return false;
+
         const std::string path = "../../WindowApp/Assets/Textures/";
 
         SurfaceProperty stoneProperties;
@@ -571,9 +650,9 @@ namespace CPR::APP
         if (!LoadSurfacePropertyFiles(crystalProperties, renderer, path + "Crystal"))
             return false;
 
-        return PlacePyramid(cubeMesh, stoneProperties, toStoreIn, renderer, height)
-            && PlaceGround(cubeMesh, grassProperties, toStoreIn, renderer, height)
-            && PlaceCrystal(cubeMesh, crystalProperties, toStoreIn, renderer, height);
+        return PlaceGrid(tileMesh, stoneProperties, toStoreIn, renderer, 10);
+           /* && PlaceGround(cubeMesh, grassProperties, toStoreIn, renderer, height)
+            && PlaceCrystal(cubeMesh, crystalProperties, toStoreIn, renderer, height);*/
     }
 
     void RotateCrystal(RenderObject& crystal, float deltaTime, int height, IRendererD11* renderer)
@@ -668,7 +747,7 @@ namespace CPR::APP
                 HandleKeyboard(keyboard);
                 //InterpretKeyboardInput(window.GetKeyboardInputs());
                 TransformCamera(camera, moveSpeed, turnSpeed, deltaTime);
-                RotateCrystal(renderObjects.back(), deltaTime, DIMENSION, renderer);
+                //RotateCrystal(renderObjects.back(), deltaTime, DIMENSION, renderer);
 
                 ImGui_ImplDX11_NewFrame();
                 ImGui_ImplWin32_NewFrame();
