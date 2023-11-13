@@ -247,10 +247,11 @@ namespace CPR::APP
     {
        XMMATRIX translationMatrix = XMMatrixTranslation(xPos, yPos, zPos);
        XMMATRIX transposedMatrix = XMMatrixTranspose(translationMatrix);
-       XMFLOAT4X4 matrix;
-       XMStoreFloat4x4(&matrix, transposedMatrix);
+       XMFLOAT4X4 matrix, toUpload;
+       XMStoreFloat4x4(&matrix, translationMatrix);
+       XMStoreFloat4x4(&toUpload, transposedMatrix);
 
-        toSet = renderer->SubmitBuffer(&matrix,
+        toSet = renderer->SubmitBuffer(&toUpload,
             BufferInfo{
                 .elementSize = sizeof(XMFLOAT4X4),
                 .nrOfElements = 1,
@@ -420,36 +421,30 @@ namespace CPR::APP
 
     void RotateTile(std::vector<RenderObject>& renderObjects, Tile& tile, f32 deltaTime, i32 height, IRendererD11* renderer)
     {
-        static f32 rotationAmount = 0.0f;
+        static f32 rotationAmount = 0.0001f;
         static f32 heightOffset = 0.0f;
         static f32 offsetSpeed = 0.5f;
 
         auto& tileRenderObj = renderObjects[tile.renderObjectIndex];
 
+        XMMATRIX tileTf = XMLoadFloat4x4(&tile.transformation);
+        XMVECTOR scale, rotationQuat, translation;
+        XMMatrixDecompose(&scale, &rotationQuat, &translation, tileTf);
 
-        DirectX::XMMATRIX rotMatrix = DirectX::XMMatrixRotationY(rotationAmount);
-        DirectX::XMMATRIX translationMatrix = DirectX::XMMatrixTranslation(0.0f,
-            static_cast<float>(height + 2 + heightOffset), 0.0f);
-        DirectX::XMFLOAT4X4 toUpload;
-        DirectX::XMStoreFloat4x4(&toUpload,
-            DirectX::XMMatrixMultiplyTranspose(rotMatrix, translationMatrix));
+        DirectX::XMMATRIX rotMatrix = DirectX::XMMatrixRotationZ(rotationAmount);
+        DirectX::XMMATRIX translationMatrix = DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f);
+
+        XMMATRIX newTransform = XMMatrixScalingFromVector(scale) *
+            rotMatrix * XMMatrixRotationQuaternion(rotationQuat) *
+            translationMatrix * XMMatrixTranslationFromVector(translation);
+
+        DirectX::XMStoreFloat4x4(&tile.transformation, newTransform);
+
+        XMFLOAT4X4 toUpload;
+        auto transposed = XMMatrixTranspose(newTransform);
+        XMStoreFloat4x4(&toUpload, transposed);
+
         renderer->UpdateBuffer(tileRenderObj.transformBuffer, &toUpload);
-
-        rotationAmount += deltaTime * DirectX::XM_PI;
-        if (rotationAmount >= DirectX::XM_2PI)
-            rotationAmount -= DirectX::XM_2PI;
-
-        heightOffset += offsetSpeed * deltaTime;
-        if (heightOffset >= 0.5f)
-        {
-            heightOffset = 0.5f;
-            offsetSpeed *= -1;
-        }
-        else if (heightOffset <= -0.5f)
-        {
-            heightOffset = -0.5f;
-            offsetSpeed *= -1;
-        }
     }
    
     void HandleKeyboard(WIN::Keyboard* keyboard)
@@ -513,7 +508,7 @@ namespace CPR::APP
                 HandleKeyboard(keyboard);
                 //InterpretKeyboardInput(window.GetKeyboardInputs());
                 TransformCamera(camera, moveSpeed, turnSpeed, deltaTime);
-                RotateTile(renderObjects, tiles[0], deltaTime, 0, renderer);
+                RotateTile(renderObjects, tiles[2], deltaTime, 0, renderer);
 
                 ImGui_ImplDX11_NewFrame();
                 ImGui_ImplWin32_NewFrame();
