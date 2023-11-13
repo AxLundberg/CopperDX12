@@ -388,15 +388,13 @@ namespace CPR::APP
                 toStore.mesh = tileMesh;
                 toStoreIn.push_back(toStore);
 
-                tiles.push_back(
-                    Tile{
-                        .renderObjectIndex = tileIndex++,
-                        .transformation = result,
-                        .tileTexture = tileNr,
-                        .x = x,
-                        .y = y
-                    }
-                );
+                Tile t;
+                t.renderObjectIndex = tileIndex++;
+                t.transformation = result;
+                t.tileTexture = tileNr;
+                t.x = x;
+                t.y = y;
+                tiles.push_back(t);
             }
         }
         

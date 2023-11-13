@@ -95,6 +95,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="App\App.cpp" />
+    <ClCompile Include="App\pcg\Tile.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -106,6 +107,7 @@
     <ClInclude Include="3rd\stb_image.h" />
     <ClInclude Include="App\App.h" />
     <ClInclude Include="App\pcg\Tile.h" />
+    <ClInclude Include="App\pcg\TileData.h" />
     <ClInclude Include="App\typedefs.h" />
   </ItemGroup>
   <ItemGroup>
