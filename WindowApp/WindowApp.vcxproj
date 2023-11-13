@@ -96,6 +96,7 @@
   <ItemGroup>
     <ClCompile Include="App\App.cpp" />
     <ClCompile Include="App\pcg\Tile.cpp" />
+    <ClCompile Include="App\pcg\TileManager.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -106,8 +107,12 @@
   <ItemGroup>
     <ClInclude Include="3rd\stb_image.h" />
     <ClInclude Include="App\App.h" />
+    <ClInclude Include="App\pcg\Grid.h" />
+    <ClInclude Include="App\pcg\GridManager.h" />
+    <ClInclude Include="App\pcg\GridTile.h" />
     <ClInclude Include="App\pcg\Tile.h" />
     <ClInclude Include="App\pcg\TileData.h" />
+    <ClInclude Include="App\pcg\TileManager.h" />
     <ClInclude Include="App\typedefs.h" />
   </ItemGroup>
   <ItemGroup>

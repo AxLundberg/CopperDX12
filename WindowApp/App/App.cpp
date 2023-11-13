@@ -11,6 +11,7 @@
 #include <Core/src/ioc/Singletons.h>
 
 #include <Core/thirdParty/ImGUI/ImguiIncludes.h>
+#include <filesystem>
 #include <DirectXMath.h>
 #include <stdexcept>
 #include <format>
@@ -26,7 +27,7 @@
 #pragma warning (pop)
 #include "App.h"
 #include "pcg/Tile.h"
-
+#include "pcg/TileManager.h"
 
 using namespace CPR;
 using namespace CPR::GFX;
@@ -39,7 +40,6 @@ namespace vi = rn::views;
 
 namespace CPR::APP
 {
-    static constexpr u32 GRID_DIM = 10;
     static constexpr u32 NR_OF_TILE_TEXTURES = 6;
     static constexpr u32 INVALID_INDEX = u32(-1);
     struct Inputs
@@ -458,6 +458,16 @@ namespace CPR::APP
         }
     }
 
+    i32 Tmp()
+    {
+        i32 fileCount = 0;
+        
+        TileManager tm = TileManager();
+        auto asd = tm.CreateTiles("../../WindowApp/Assets/Textures/");
+
+        return fileCount;
+    }
+
     int Run(WIN::IWindow* window, WIN::Keyboard* keyboard, GFX::D11::IRendererD11* renderer, HINSTANCE hInstance)
     {
         const unsigned int WINDOW_WIDTH = 1280;
@@ -488,7 +498,7 @@ namespace CPR::APP
         renderer->SetImguiBuffer(imguiBufferIndex);
 
         MSG msg = { };
-
+        Tmp();
         float deltaTime = 0.0f;
         float moveSpeed = 2.0f;
         float turnSpeed = 3.14f / 2;
