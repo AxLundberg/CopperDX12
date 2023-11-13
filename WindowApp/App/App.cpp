@@ -291,10 +291,8 @@ namespace CPR::APP
     }
 
     bool LoadSurfacePropertyFiles(SurfaceProperty& surfaceProperties,
-        IRendererD11* renderer, const std::string& prefix)
+        IRendererD11* renderer, const std::string& prefix, u32 tileNr)
     {
-
-        i32 tileNr = rand() % NR_OF_TILE_TEXTURES;
         auto diffusePath = prefix +"t"+ std::to_string(tileNr) + ".jpg";
         ResourceIndex diffuseTextureIndex;
         if (!LoadTexture(diffuseTextureIndex, renderer, diffusePath, 4))
@@ -370,9 +368,9 @@ namespace CPR::APP
         const std::string path = "../../WindowApp/Assets/Textures/";
 
         std::vector<SurfaceProperty> surfaceProperties(NR_OF_TILE_TEXTURES);
-        for (size_t i = 0; i < NR_OF_TILE_TEXTURES; i++)
+        for (u32 i = 0; i < NR_OF_TILE_TEXTURES; i++)
         {
-            if (!LoadSurfacePropertyFiles(surfaceProperties[i], renderer, path))
+            if (!LoadSurfacePropertyFiles(surfaceProperties[i], renderer, path, i))
                 return false;
         }
 
