@@ -5,6 +5,7 @@
 #include <Core/src/win/CopperWin.h>
 #include <Core/src/win/boot.h>
 #include <Core/src/log/Log.h>
+#include <Core/src/utl/Assert.h>
 #include <Core/src/win/IWindow.h>
 #include <Core/src/ioc/Container.h>
 #include <Core/src/ioc/Singletons.h>
@@ -24,18 +25,23 @@
 #include "../3rd/stb_image.h"
 #pragma warning (pop)
 #include "App.h"
+#include "pcg/Tile.h"
+
 
 using namespace CPR;
 using namespace CPR::GFX;
 using namespace CPR::GFX::D11;
 using namespace std::string_literals;
 using namespace std::chrono_literals;
+using namespace DirectX;
 namespace rn = std::ranges;
 namespace vi = rn::views;
 
 namespace CPR::APP
 {
+    static constexpr u32 GRID_DIM = 10;
     static constexpr u32 NR_OF_TILE_TEXTURES = 6;
+    static constexpr u32 INVALID_INDEX = u32(-1);
     struct Inputs
     {
         bool moveLeftPushed = false;
@@ -236,27 +242,26 @@ namespace CPR::APP
         return toSet != ResourceIndex(-1);
     }
 
-    bool CreateTransformBuffer(ResourceIndex& toSet,
+    XMFLOAT4X4 CreateTransformBuffer(ResourceIndex& toSet,
         IRendererD11* renderer, float xPos, float yPos, float zPos)
     {
-        float matrix[16] =
-        {
-            1.0f, 0.0f, 0.0f, xPos,
-            0.0f, 1.0f, 0.0f, yPos,
-            0.0f, 0.0f, 1.0f, zPos,
-            0.0f, 0.0f, 0.0f, 1.0f
-        };
+       XMMATRIX translationMatrix = XMMatrixTranslation(xPos, yPos, zPos);
+       XMMATRIX transposedMatrix = XMMatrixTranspose(translationMatrix);
+       XMFLOAT4X4 matrix;
+       XMStoreFloat4x4(&matrix, transposedMatrix);
 
-        toSet = renderer->SubmitBuffer(matrix,
+        toSet = renderer->SubmitBuffer(&matrix,
             BufferInfo{
-                .elementSize = sizeof(float),
-                .nrOfElements = ARRAYSIZE(matrix),
+                .elementSize = sizeof(XMFLOAT4X4),
+                .nrOfElements = 1,
                 .rwPattern = PerFrameUsage::DYNAMIC,
                 .bindingFlags = BufferBinding::CONSTANT_BUFFER
             }
         );
 
-        return toSet != ResourceIndex(-1);
+        cpr_assert(toSet != INVALID_INDEX);
+        
+        return matrix;
     }
 
     void TransformCamera(CameraD11* camera, float moveSpeed,
@@ -350,16 +355,17 @@ namespace CPR::APP
         return toSet != ResourceIndex(-1);
     }
 
-    bool PlaceGrid(const Mesh& tileMesh, const std::vector<SurfaceProperty>& surfaceProperties,
+    u32 PlaceGrid(const Mesh& tileMesh, const std::vector<SurfaceProperty>& surfaceProperties,
         std::vector<RenderObject>& toStoreIn, IRendererD11* renderer, int dim)
     {
+        u32 startTileIdx = static_cast<u32>(toStoreIn.size()-1);
         int base = dim;
         for (i32 x = 0; x < dim; x++)
         {
             for (i32 y = 0; y < dim - 1; y++)
             {
                 ResourceIndex transformBuffer;
-                bool result = CreateTransformBuffer(transformBuffer, renderer,
+                auto result = CreateTransformBuffer(transformBuffer, renderer,
                     static_cast<float>(x * 1.25f),
                     static_cast<float>(y * 1.25f), 0.f);
 
@@ -372,18 +378,15 @@ namespace CPR::APP
             }
         }
         
-        return true;
+        return startTileIdx;
     }
 
     bool PlaceCrystal(const Mesh& cubeMesh, const SurfaceProperty& crystalProperties,
         std::vector<RenderObject>& toStoreIn, IRendererD11* renderer, int height)
     {
         ResourceIndex transformBuffer;
-        bool result = CreateTransformBuffer(transformBuffer, renderer,
+        auto result = CreateTransformBuffer(transformBuffer, renderer,
             0.0f, static_cast<float>(height + 2), 0.0f);
-
-        if (result == false)
-            return false;
 
         RenderObject toStore;
         toStore.transformBuffer = transformBuffer;
@@ -409,7 +412,7 @@ namespace CPR::APP
                 return false;
         }
        
-        return PlaceGrid(tileMesh, surfaceProperties, toStoreIn, renderer, 10);
+        return PlaceGrid(tileMesh, surfaceProperties, toStoreIn, renderer, GRID_DIM);
     }
 
     void RotateCrystal(RenderObject& crystal, float deltaTime, int height, IRendererD11* renderer)
