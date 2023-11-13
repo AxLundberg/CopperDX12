@@ -12,6 +12,8 @@ namespace CPR::APP
 		std::string prompt = "";
 	};
 
+	static std::string PATH = "../../WindowApp/Assets/Textures/png/";
+	static std::string FILE_ENDING = ".png";
 	static constexpr u32 COLOR_GRANULARITY = 2;
 	static constexpr u32 GRID_DIM = 4;
 	static constexpr u32 IMAGE_DIM = 512;

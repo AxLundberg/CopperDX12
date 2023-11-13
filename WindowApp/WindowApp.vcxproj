@@ -95,6 +95,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="App\App.cpp" />
+    <ClCompile Include="App\pcg\Grid.cpp" />
+    <ClCompile Include="App\pcg\GridManager.cpp" />
     <ClCompile Include="App\pcg\Tile.cpp" />
     <ClCompile Include="App\pcg\TileManager.cpp" />
     <ClCompile Include="Main.cpp" />

@@ -27,7 +27,7 @@
 #pragma warning (pop)
 #include "App.h"
 #include "pcg/Tile.h"
-#include "pcg/TileManager.h"
+#include "pcg/GridManager.h"
 
 using namespace CPR;
 using namespace CPR::GFX;
@@ -40,7 +40,7 @@ namespace vi = rn::views;
 
 namespace CPR::APP
 {
-    static constexpr u32 NR_OF_TILE_TEXTURES = 6;
+    static constexpr u32 NR_OF_TILE_TEXTURES = 7;
     static constexpr u32 INVALID_INDEX = u32(-1);
     struct Inputs
     {
@@ -171,10 +171,10 @@ namespace CPR::APP
     {
         SimpleVertex vertices[] =
         {
-            {{-0.5f, 0.5f, -0.5f}, {1.0f / 3, 0.5f}, {0.0f, 0.0f, -1.0f}}, // back
-            {{0.5f, 0.5f, -0.5f}, {2.0f / 3, 0.5f}, {0.0f, 0.0f, -1.0f}},
-            {{-0.5f, -0.5f, -0.5f}, {1.0f / 3, 1.0f}, {0.0f, 0.0f, -1.0f}},
-            {{0.5f, -0.5f, -0.5f}, {2.0f / 3, 1.0f}, {0.0f, 0.0f, -1.0f}},
+            {{-0.5f, 0.5f, -0.5f}, {0.f, 0.f}, {0.0f, 0.0f, -1.0f}}, // back
+            {{0.5f, 0.5f, -0.5f}, {1.f, 0.f}, {0.0f, 0.0f, -1.0f}},
+            {{-0.5f, -0.5f, -0.5f}, {0.f, 1.0f}, {0.0f, 0.0f, -1.0f}},
+            {{0.5f, -0.5f, -0.5f}, {1.f, 1.0f}, {0.0f, 0.0f, -1.0f}},
         };
 
         ResourceIndex verticesIndex = renderer->SubmitBuffer(
@@ -243,14 +243,15 @@ namespace CPR::APP
     }
 
     XMFLOAT4X4 CreateTransformBuffer(ResourceIndex& toSet,
-        IRendererD11* renderer, float xPos, float yPos, float zPos)
+        IRendererD11* renderer, f32 xPos, f32 yPos, f32 zPos, f32 rad)
     {
-       XMMATRIX translationMatrix = XMMatrixTranslation(xPos, yPos, zPos);
-       XMMATRIX transposedMatrix = XMMatrixTranspose(translationMatrix);
-       XMFLOAT4X4 matrix, toUpload;
-       XMStoreFloat4x4(&matrix, translationMatrix);
-       XMStoreFloat4x4(&toUpload, transposedMatrix);
-
+        XMMATRIX rotationMatrix = XMMatrixRotationZ(rad);
+        XMMATRIX translationMatrix = XMMatrixTranslation(xPos, yPos, zPos);
+        XMMATRIX transposedMatrix = XMMatrixTranspose(translationMatrix);
+        XMFLOAT4X4 matrix, toUpload;
+        XMStoreFloat4x4(&matrix, translationMatrix);
+        XMStoreFloat4x4(&toUpload, transposedMatrix);
+        
         toSet = renderer->SubmitBuffer(&toUpload,
             BufferInfo{
                 .elementSize = sizeof(XMFLOAT4X4),
@@ -259,7 +260,7 @@ namespace CPR::APP
                 .bindingFlags = BufferBinding::CONSTANT_BUFFER
             }
         );
-
+        
         cpr_assert(toSet != INVALID_INDEX);
         
         return matrix;
@@ -356,8 +357,12 @@ namespace CPR::APP
         return toSet != ResourceIndex(-1);
     }
 
-    u32 PlaceGrid(std::vector<RenderObject>& toStoreIn, std::vector<Tile>& tiles, IRendererD11* renderer )
+    u32 PlaceGrid(std::vector<RenderObject>& toStoreIn, std::vector<Tile>& tiles, GridManager& gm, IRendererD11* renderer )
     {
+        for (u32 i = 0; i < GRID_DIM; i++){
+            gm.PlaceTile();
+        }
+
         Mesh tileMesh;
         if (!CreateTileMesh(tileMesh, renderer))
             return false;
@@ -371,17 +376,19 @@ namespace CPR::APP
                 return false;
         }
 
+        auto ths = gm.GetTileHandles();
         u32 tileIndex = static_cast<u32>(toStoreIn.size());
         for (u32 x = 0; x < GRID_DIM; x++)
         {
             for (u32 y = 0; y < GRID_DIM; y++)
             {
+                auto& th = ths[y * GRID_DIM + x];
                 ResourceIndex transformBuffer;
                 auto result = CreateTransformBuffer(transformBuffer, renderer,
-                    static_cast<float>(x * 1.25f),
-                    static_cast<float>(y * 1.25f), 0.f);
+                    static_cast<f32>(x * 1.25f),
+                    static_cast<f32>(y * 1.25f), 0.f, static_cast<f32>(th.rotation));
 
-                u32 tileNr = rand() % NR_OF_TILE_TEXTURES;
+                u32 tileNr = th.id == u32(-1) ? 0 : th.id;
                 RenderObject toStore;
                 toStore.transformBuffer = transformBuffer;
                 toStore.surfaceProperty = surfaceProperties[tileNr];
@@ -401,35 +408,15 @@ namespace CPR::APP
         return tileIndex;
     }
 
-    bool PlaceCrystal(const Mesh& cubeMesh, const SurfaceProperty& crystalProperties,
-        std::vector<RenderObject>& toStoreIn, IRendererD11* renderer, int height)
+    void RotateTile(std::vector<RenderObject>& renderObjects, Tile& tile, f32 radians, IRendererD11* renderer)
     {
-        ResourceIndex transformBuffer;
-        auto result = CreateTransformBuffer(transformBuffer, renderer,
-            0.0f, static_cast<float>(height + 2), 0.0f);
-
-        RenderObject toStore;
-        toStore.transformBuffer = transformBuffer;
-        toStore.surfaceProperty = crystalProperties;
-        toStore.mesh = cubeMesh;
-        toStoreIn.push_back(toStore);
-
-        return true;
-    }
-
-    void RotateTile(std::vector<RenderObject>& renderObjects, Tile& tile, f32 deltaTime, i32 height, IRendererD11* renderer)
-    {
-        static f32 rotationAmount = 0.0001f;
-        static f32 heightOffset = 0.0f;
-        static f32 offsetSpeed = 0.5f;
-
         auto& tileRenderObj = renderObjects[tile.renderObjectIndex];
 
         XMMATRIX tileTf = XMLoadFloat4x4(&tile.transformation);
         XMVECTOR scale, rotationQuat, translation;
         XMMatrixDecompose(&scale, &rotationQuat, &translation, tileTf);
 
-        DirectX::XMMATRIX rotMatrix = DirectX::XMMatrixRotationZ(rotationAmount);
+        DirectX::XMMATRIX rotMatrix = DirectX::XMMatrixRotationZ(radians);
         DirectX::XMMATRIX translationMatrix = DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f);
 
         XMMATRIX newTransform = XMMatrixScalingFromVector(scale) *
@@ -458,14 +445,8 @@ namespace CPR::APP
         }
     }
 
-    i32 Tmp()
+    void Tmp()
     {
-        i32 fileCount = 0;
-        
-        TileManager tm = TileManager();
-        auto asd = tm.CreateTiles("../../WindowApp/Assets/Textures/");
-
-        return fileCount;
     }
 
     int Run(WIN::IWindow* window, WIN::Keyboard* keyboard, GFX::D11::IRendererD11* renderer, HINSTANCE hInstance)
@@ -477,13 +458,14 @@ namespace CPR::APP
         GfxRenderPassD11* standardPass = CreateStandardRenderPass(renderer);
         //globalInputs = reinterpret_cast<Inputs*>(&window.GetInputs());
 
-        const int DIMENSION = 5;
         std::vector<Tile> tiles;
+        GridManager gm = GridManager();
         std::vector<RenderObject> renderObjects;
-        auto firstTileIndex = PlaceGrid(renderObjects, tiles, renderer);
+        auto firstTileIndex = PlaceGrid(renderObjects, tiles, gm, renderer);
 
         CameraD11* camera = renderer->CreateCamera(0.1f, 20.0f,
             static_cast<float>(WINDOW_WIDTH) / WINDOW_HEIGHT);
+        const int DIMENSION = 5;
         camera->MoveZ(-DIMENSION);
         camera->MoveY(1);
 
@@ -516,7 +498,7 @@ namespace CPR::APP
                 HandleKeyboard(keyboard);
                 //InterpretKeyboardInput(window.GetKeyboardInputs());
                 TransformCamera(camera, moveSpeed, turnSpeed, deltaTime);
-                RotateTile(renderObjects, tiles[2], deltaTime, 0, renderer);
+                RotateTile(renderObjects, tiles[2], 0, renderer);
 
                 ImGui_ImplDX11_NewFrame();
                 ImGui_ImplWin32_NewFrame();

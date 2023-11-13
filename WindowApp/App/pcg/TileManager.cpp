@@ -28,15 +28,16 @@ namespace CPR::APP
 				if (filename.size() >= 6 &&
 					filename.substr(0, 1) == "t" &&
 					std::all_of(filename.begin() + 1, filename.begin() + filename.size() - 4, ::isdigit) &&
-					filename.substr(filename.size() - 4) == ".jpg")
+					filename.substr(filename.size() - 4) == FILE_ENDING)
 				{
 					fileCount++;
 				}
 			}
 		}
+		std::wstring end = FILE_ENDING == ".jpg" ? L".jpg" : L".png";
 		std::vector<Tile> toReturn;
 		for (i32 i = 0; i < fileCount; i++) {
-			std::wstring filename = L"t" + std::to_wstring(i) + L".jpg";
+			std::wstring filename = L"t" + std::to_wstring(i) + end;
 			toReturn.push_back(Tile{ filename });
 		}
 		return toReturn;
@@ -71,7 +72,7 @@ namespace CPR::APP
 						.g = calcColor(g),
 						.b = calcColor(b),
 						.a = 255
-						});
+					});
 				}
 			}
 		}
