@@ -355,30 +355,51 @@ namespace CPR::APP
         return toSet != ResourceIndex(-1);
     }
 
-    u32 PlaceGrid(const Mesh& tileMesh, const std::vector<SurfaceProperty>& surfaceProperties,
-        std::vector<RenderObject>& toStoreIn, IRendererD11* renderer, int dim)
+    u32 PlaceGrid(std::vector<RenderObject>& toStoreIn, std::vector<Tile>& tiles, IRendererD11* renderer )
     {
-        u32 startTileIdx = static_cast<u32>(toStoreIn.size()-1);
-        int base = dim;
-        for (i32 x = 0; x < dim; x++)
+        Mesh tileMesh;
+        if (!CreateTileMesh(tileMesh, renderer))
+            return false;
+
+        const std::string path = "../../WindowApp/Assets/Textures/";
+
+        std::vector<SurfaceProperty> surfaceProperties(NR_OF_TILE_TEXTURES);
+        for (size_t i = 0; i < NR_OF_TILE_TEXTURES; i++)
         {
-            for (i32 y = 0; y < dim - 1; y++)
+            if (!LoadSurfacePropertyFiles(surfaceProperties[i], renderer, path))
+                return false;
+        }
+
+        u32 tileIndex = static_cast<u32>(toStoreIn.size());
+        for (u32 x = 0; x < GRID_DIM; x++)
+        {
+            for (u32 y = 0; y < GRID_DIM; y++)
             {
                 ResourceIndex transformBuffer;
                 auto result = CreateTransformBuffer(transformBuffer, renderer,
                     static_cast<float>(x * 1.25f),
                     static_cast<float>(y * 1.25f), 0.f);
 
-                i32 tileNr = rand() % NR_OF_TILE_TEXTURES;
+                u32 tileNr = rand() % NR_OF_TILE_TEXTURES;
                 RenderObject toStore;
                 toStore.transformBuffer = transformBuffer;
                 toStore.surfaceProperty = surfaceProperties[tileNr];
                 toStore.mesh = tileMesh;
                 toStoreIn.push_back(toStore);
+
+                tiles.push_back(
+                    Tile{
+                        .renderObjectIndex = tileIndex++,
+                        .transformation = result,
+                        .tileTexture = tileNr,
+                        .x = x,
+                        .y = y
+                    }
+                );
             }
         }
         
-        return startTileIdx;
+        return tileIndex;
     }
 
     bool PlaceCrystal(const Mesh& cubeMesh, const SurfaceProperty& crystalProperties,
@@ -397,29 +418,14 @@ namespace CPR::APP
         return true;
     }
 
-    bool PlaceBlocks(std::vector<RenderObject>& toStoreIn, IRendererD11* renderer, int height)
+    void RotateTile(std::vector<RenderObject>& renderObjects, Tile& tile, f32 deltaTime, i32 height, IRendererD11* renderer)
     {
-        Mesh tileMesh;
-        if (!CreateTileMesh(tileMesh, renderer))
-            return false;
+        static f32 rotationAmount = 0.0f;
+        static f32 heightOffset = 0.0f;
+        static f32 offsetSpeed = 0.5f;
 
-        const std::string path = "../../WindowApp/Assets/Textures/";
+        auto& tileRenderObj = renderObjects[tile.renderObjectIndex];
 
-        std::vector<SurfaceProperty> surfaceProperties(NR_OF_TILE_TEXTURES);
-        for (size_t i = 0; i < NR_OF_TILE_TEXTURES; i++)
-        {
-            if (!LoadSurfacePropertyFiles(surfaceProperties[i], renderer, path))
-                return false;
-        }
-       
-        return PlaceGrid(tileMesh, surfaceProperties, toStoreIn, renderer, GRID_DIM);
-    }
-
-    void RotateCrystal(RenderObject& crystal, float deltaTime, int height, IRendererD11* renderer)
-    {
-        static float rotationAmount = 0.0f;
-        static float heightOffset = 0.0f;
-        static float offsetSpeed = 0.5f;
 
         DirectX::XMMATRIX rotMatrix = DirectX::XMMatrixRotationY(rotationAmount);
         DirectX::XMMATRIX translationMatrix = DirectX::XMMatrixTranslation(0.0f,
@@ -427,7 +433,7 @@ namespace CPR::APP
         DirectX::XMFLOAT4X4 toUpload;
         DirectX::XMStoreFloat4x4(&toUpload,
             DirectX::XMMatrixMultiplyTranspose(rotMatrix, translationMatrix));
-        renderer->UpdateBuffer(crystal.transformBuffer, &toUpload);
+        renderer->UpdateBuffer(tileRenderObj.transformBuffer, &toUpload);
 
         rotationAmount += deltaTime * DirectX::XM_PI;
         if (rotationAmount >= DirectX::XM_2PI)
@@ -469,9 +475,9 @@ namespace CPR::APP
         //globalInputs = reinterpret_cast<Inputs*>(&window.GetInputs());
 
         const int DIMENSION = 5;
+        std::vector<Tile> tiles;
         std::vector<RenderObject> renderObjects;
-        if (!PlaceBlocks(renderObjects, renderer, DIMENSION))
-            return -1;
+        auto firstTileIndex = PlaceGrid(renderObjects, tiles, renderer);
 
         CameraD11* camera = renderer->CreateCamera(0.1f, 20.0f,
             static_cast<float>(WINDOW_WIDTH) / WINDOW_HEIGHT);
@@ -507,7 +513,7 @@ namespace CPR::APP
                 HandleKeyboard(keyboard);
                 //InterpretKeyboardInput(window.GetKeyboardInputs());
                 TransformCamera(camera, moveSpeed, turnSpeed, deltaTime);
-                RotateCrystal(renderObjects.back(), deltaTime, 0, renderer);
+                RotateTile(renderObjects, tiles[0], deltaTime, 0, renderer);
 
                 ImGui_ImplDX11_NewFrame();
                 ImGui_ImplWin32_NewFrame();
