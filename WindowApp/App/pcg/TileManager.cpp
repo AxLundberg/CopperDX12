@@ -37,7 +37,7 @@ namespace CPR::APP
 		std::wstring end = FILE_ENDING == ".jpg" ? L".jpg" : L".png";
 		std::vector<Tile> toReturn;
 		for (i32 i = 0; i < fileCount; i++) {
-			std::wstring filename = L"t" + std::to_wstring(i) + end;
+			std::wstring filename = CPR::UTL::ToWide(pathToImages) + L"t" + std::to_wstring(i) + end;
 			toReturn.push_back(Tile{ filename });
 		}
 		return toReturn;
@@ -101,6 +101,7 @@ namespace CPR::APP
 		auto& tileSides = tile.sideIDs;
 		for (i32 tsID : tileSides)
 		{
+			// if same sign (-/+) reflection is required
 			if (tsID == sideID || tsID == -sideID)
 			{
 				return true;

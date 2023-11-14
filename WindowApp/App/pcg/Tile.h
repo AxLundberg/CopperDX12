@@ -8,6 +8,7 @@ namespace CPR::APP
 	class Tile
 	{
 	public:
+		std::wstring name;
 		i32 sideIDs[4] = { -1, -1, -1, -1 };
 		u32 renderObjectIndex;
 		DirectX::XMFLOAT4X4 transformation;

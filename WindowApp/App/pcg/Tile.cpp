@@ -23,7 +23,7 @@ namespace CPR::APP
 			std::cout << "Could not read the image file" << std::endl;
 			return;
 		}
-
+		name = imagePath.substr(imagePath.size() - 5, 3);
 		i32 scale = stbWidth / TILE_TEXEL_COUNT;
 
 		for (i32 i = 0; i < TILE_TEXEL_COUNT; ++i) {

@@ -247,7 +247,7 @@ namespace CPR::APP
     {
         XMMATRIX rotationMatrix = XMMatrixRotationZ(rad);
         XMMATRIX translationMatrix = XMMatrixTranslation(xPos, yPos, zPos);
-        XMMATRIX transposedMatrix = XMMatrixTranspose(translationMatrix);
+        XMMATRIX transposedMatrix = XMMatrixTranspose(rotationMatrix * translationMatrix);
         XMFLOAT4X4 matrix, toUpload;
         XMStoreFloat4x4(&matrix, translationMatrix);
         XMStoreFloat4x4(&toUpload, transposedMatrix);
@@ -357,7 +357,7 @@ namespace CPR::APP
 
     u32 PlaceGrid(std::vector<RenderObject>& toStoreIn, std::vector<Tile>& tiles, GridManager& gm, IRendererD11* renderer )
     {
-        for (u32 i = 0; i < GRID_DIM; i++){
+        for (u32 i = 0; i < GRID_DIM*GRID_DIM; i++){
             gm.PlaceTile();
         }
 
@@ -384,7 +384,7 @@ namespace CPR::APP
                 ResourceIndex transformBuffer;
                 auto result = CreateTransformBuffer(transformBuffer, renderer,
                     static_cast<f32>(x * 1.25f),
-                    static_cast<f32>(y * 1.25f), 0.f, static_cast<f32>(th.rotation));
+                    static_cast<f32>(y * 1.25f), 0.f, static_cast<f32>(-th.rotation * XM_PIDIV2));
 
                 u32 tileNr = th.id == u32(-1) ? 0 : th.id;
                 RenderObject toStore;
@@ -496,7 +496,7 @@ namespace CPR::APP
                 HandleKeyboard(keyboard);
                 //InterpretKeyboardInput(window.GetKeyboardInputs());
                 TransformCamera(camera, moveSpeed, turnSpeed, deltaTime);
-                RotateTile(renderObjects, tiles[2], 0, renderer);
+                //RotateTile(renderObjects, tiles[2], 0, renderer);
 
                 ImGui_ImplDX11_NewFrame();
                 ImGui_ImplWin32_NewFrame();
