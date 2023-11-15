@@ -246,7 +246,7 @@ namespace CPR::APP
         IRendererD11* renderer, f32 xPos, f32 yPos, f32 zPos, f32 rad)
     {
         XMMATRIX rotationMatrix = XMMatrixRotationZ(rad);
-        XMMATRIX translationMatrix = XMMatrixTranslation(xPos, yPos, zPos);
+        XMMATRIX translationMatrix = XMMatrixTranslation(xPos *1.025f, yPos * 1.025f, zPos);
         XMMATRIX transposedMatrix = XMMatrixTranspose(rotationMatrix * translationMatrix);
         XMFLOAT4X4 matrix, toUpload;
         XMStoreFloat4x4(&matrix, translationMatrix);
@@ -383,8 +383,8 @@ namespace CPR::APP
                 auto& th = ths[y * GRID_DIM + x];
                 ResourceIndex transformBuffer;
                 auto result = CreateTransformBuffer(transformBuffer, renderer,
-                    static_cast<f32>(x * 1.25f),
-                    static_cast<f32>(y * 1.25f), 0.f, static_cast<f32>(-th.rotation * XM_PIDIV2));
+                    static_cast<f32>(x),
+                    static_cast<f32>(y), 0.f, static_cast<f32>(-th.rotation * XM_PIDIV2));
 
                 u32 tileNr = th.id == u32(-1) ? 0 : th.id;
                 RenderObject toStore;

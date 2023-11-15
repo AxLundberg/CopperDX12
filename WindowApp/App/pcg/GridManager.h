@@ -17,7 +17,7 @@ namespace CPR::APP
 		~GridManager();
 
 		void PlaceTile();
-		void PlaceTile(u32, u32);
+		void PlaceTiles();
 		std::vector<Tile> GetTiles() { return _Grid.GetTiles(); }
 		std::vector<TileHandle>& GetTileHandles() { return _Grid.GetTileHandles(); }
 		std::vector<Material>& GetMaterials() { return mMaterials; }
