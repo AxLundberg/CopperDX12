@@ -23,6 +23,7 @@ namespace CPR::APP
 		void ToImage(std::wstring imageName);
 		std::vector<u32>& GetTexels() { return mTexelData; };
 		std::vector<std::pair<u32, col>> GetEdge(u32 dir);
+		i32 GetSideID(i32 fromDir, i32 rotation);
 	private:
 		u32 ColorToMaterial(col color);
 		u32 ColorToMaterial(u8 r, u8 g, u8 b);

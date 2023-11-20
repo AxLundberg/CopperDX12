@@ -136,4 +136,10 @@ namespace CPR::APP
 			static_cast<u32>(std::round(b / 255.f * COLOR_GRANULARITY)) * COLOR_GRANULARITY * COLOR_GRANULARITY;
 		return toRet;
 	}
+	i32 Tile::GetSideID(i32 fromDir, i32 rotation)
+	{
+		auto oppositeDir = (fromDir + NR_OF_DIRECTIONS / 2) % NR_OF_DIRECTIONS;
+		auto sideIndex = (NR_OF_DIRECTIONS + oppositeDir - rotation) % NR_OF_DIRECTIONS;
+		return sideIDs[sideIndex];
+	}
 }

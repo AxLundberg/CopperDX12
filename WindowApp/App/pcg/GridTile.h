@@ -17,7 +17,7 @@ namespace CPR::APP
 	static constexpr i32 SOUTH = 2;
 	static constexpr i32 WEST = 3;
 	static constexpr i32 DIRECTION[] = { NORTH, EAST, SOUTH, WEST };
-
+	static constexpr u32 NR_OF_DIRECTIONS = 4;
 	static constexpr u32 REFLECTX = 1;
 	static constexpr i32 FREE = -1;
 
@@ -38,7 +38,23 @@ namespace CPR::APP
 		Rectangle,
 		Line
 	};
+	struct Location
+	{
+		i32 x, y;
 
+		Location NeighborAt(i32 dir) {
+			i32 nx = x + (dir == EAST) - (dir == WEST);
+			i32 ny = y + (dir == NORTH) - (dir == SOUTH);
+			return { nx, ny };
+		};
+		Location NorthNeighbor() { return { x, y + 1 }; };
+		Location WestNeighbor() { return { x-1, y }; };
+		Location SouthNeighbor() { return { x, y - 1 }; };
+		Location EastNeighbor() { return { x+1, y }; };
+		bool operator==(const Location& other) const {
+			return x == other.x && y == other.y;
+		}
+	};
 	struct Geometry
 	{
 		GeometryType type = GeometryType::Free;
