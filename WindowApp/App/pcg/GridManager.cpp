@@ -18,11 +18,10 @@ namespace CPR::APP
 		mMaterials = mTileManager.CreateMaterials();
 		mSideToTiles = mTileManager.CreateAdjacencyMap(mTiles);
 		mTileHandles = _Grid.GetTileHandles();
-		mTiles = _Grid.GetTiles();
-		auto c = GeneratePlacementOrder();
 		for (i32 i = 1; i < mTiles.size(); i++)
 			for (i32 j = 0; j < NR_OF_DIRECTIONS; j++)
 				mAllValidTileHandles.push_back(TileHandle{ i, j, 0 });
+		GeneratePlacementOrder();
 		PlaceTiles(true);
 	}
 
