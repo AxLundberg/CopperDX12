@@ -20,6 +20,9 @@ namespace CPR::APP
 		mTileHandles = _Grid.GetTileHandles();
 		mTiles = _Grid.GetTiles();
 		auto c = GeneratePlacementOrder();
+		for (i32 i = 1; i < mTiles.size(); i++)
+			for (i32 j = 0; j < NR_OF_DIRECTIONS; j++)
+				mAllValidTileHandles.push_back(TileHandle{ i, j, 0 });
 		PlaceTiles(true);
 	}
 
@@ -88,9 +91,9 @@ namespace CPR::APP
 	{
 		return l.x < 0 || l.x >= GRID_DIM || l.y < 0 || l.y >= GRID_DIM;
 	}
-	static constexpr bool to1D(Location l)
+	static constexpr i32 to1D(Location l)
 	{
-		return l.x + l.y * GRID_DIM;
+		return l.x + l.y * static_cast<i32>(GRID_DIM);
 	}
 	static constexpr i32 AdjacentSideIndex(i32 fromDir, i32 adjRot)
 	{
@@ -117,37 +120,56 @@ namespace CPR::APP
 		for (u32 i = 1; i < placementOrder.size(); i++)
 		{
 			auto& loc = placementOrder[i];
+			auto ost = mGrid[0];
+			auto sprPosNorth = GenerateSuperPositions(loc, NORTH);
+			auto sprPosEast = GenerateSuperPositions(loc, EAST);
+			auto sprPosSouth = GenerateSuperPositions(loc, SOUTH);
+			auto sprPosWest = GenerateSuperPositions(loc, WEST);
 
-			auto basd = GenerateSuperPositions(loc);
-			// Update superpositions(placementOrder[i])
+			std::vector<TileHandle> temp1, temp2, result;
 
-			// GetRandomInVec(mSuperPos[placementOrder[i]])
+			// Intersection of first two vectors
+			std::set_intersection(sprPosNorth.begin(), sprPosNorth.end(), sprPosEast.begin(), sprPosEast.end(), std::back_inserter(temp1));
 
+			// Intersection of temp1 and third vector
+			std::set_intersection(temp1.begin(), temp1.end(), sprPosSouth.begin(), sprPosSouth.end(), std::back_inserter(temp2));
 
+			// Intersection of temp2 and fourth vector
+			std::set_intersection(temp2.begin(), temp2.end(), sprPosWest.begin(), sprPosWest.end(), std::back_inserter(result));
+
+			if (result.size())
+			{
+				auto placed = getRandomInVector(result);
+				mGrid[loc.x + loc.y * GRID_DIM] = placed;
+			}
 		}
+		auto stop = 9;
 	}
-	std::vector<TileHandle> GridManager::GenerateSuperPositions(Location loc)
+	std::vector<TileHandle> GridManager::GenerateSuperPositions(Location loc, i32 dir)
 	{
-		std::vector<std::vector<TileHandle>> superPositions;
-		for (auto dir : DIRECTION)
-		{
-			auto adjacentLoc = loc.NeighborAt(dir);
-			auto adjacentHandle = TileHandleAt(adjacentLoc);
-			if (OutOfBounds(adjacentLoc) || adjacentHandle.id == FREE)
-				continue;
-			
-			Tile adjacentTile = mTiles[adjacentHandle.id];
-			auto adjRot = adjacentHandle.rotation;
-			auto sideIdBetween = adjacentTile.GetSideID(dir, adjRot);
+		std::vector<TileHandle> superPositions;
+		
+		auto adjacentLoc = loc.NeighborAt(dir);
+		if (OutOfBounds(adjacentLoc))
+			return mAllValidTileHandles;
 
-			if (sideIdBetween == 0) // Set all as compatible
-				superPositions.push_back(GenerateAllPossible());
-			else
-				superPositions.push_back(GenerateCompatibleTileHandles(dir, sideIdBetween));
-		}
+		auto adjacentHandle = TileHandleAt(adjacentLoc);
+		if(adjacentHandle.id == FREE)
+			return mAllValidTileHandles;
+
+		Tile adjacentTile = mTiles[adjacentHandle.id];
+		auto adjRot = adjacentHandle.rotation;
+		auto sideIdBetween = adjacentTile.GetSideID(dir, adjRot);
+
+		if (sideIdBetween == 0) // Set all as compatible
+			superPositions = mAllValidTileHandles;
+		else
+			superPositions = GenerateCompatibleTileHandles(dir, sideIdBetween);
+		
 		auto bck = superPositions.back();
 		auto stop = 45;
-		return superPositions.back();
+		std::sort(superPositions.begin(), superPositions.end());
+		return superPositions;
 	}
 
 	std::vector<TileHandle> GridManager::GenerateCompatibleTileHandles(i32 fromDir, i32 sideBetween)
@@ -244,6 +266,7 @@ namespace CPR::APP
 					});
 			}
 		}
+		std::sort(allPossibleTileHandles.begin(), allPossibleTileHandles.end());
 		return allPossibleTileHandles;
 	}
 

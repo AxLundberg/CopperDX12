@@ -18,6 +18,7 @@ namespace CPR::APP
 		void PlaceTile();
 		void PlaceTiles();
 		std::vector<Tile> GetTiles() { return _Grid.GetTiles(); }
+		std::vector<TileHandle>& GetTileHandles(bool) { return mGrid; }
 		std::vector<TileHandle>& GetTileHandles() { return _Grid.GetTileHandles(); }
 		std::vector<Material>& GetMaterials() { return mMaterials; }
 		template <typename T>
@@ -33,7 +34,7 @@ namespace CPR::APP
 		std::vector<Location> GeneratePlacementOrder();
 		std::vector<Location> NeighboringLocations(Location);
 		std::vector<TileHandle> GenerateAllPossible();
-		std::vector<TileHandle> GenerateSuperPositions(Location loc);
+		std::vector<TileHandle> GenerateSuperPositions(Location loc, i32 dir);
 		std::vector<TileHandle> GenerateCompatibleTileHandles(i32 fromDir, i32 sideBetween);
 		TileHandle TileHandleAt(Location loc);
 		i32 OppositeDirection(i32 dir)
@@ -48,7 +49,8 @@ namespace CPR::APP
 		}
 	private:
 		Location mStartLocation = { 0, 0 };
-		std::vector<TileHandle> mGrid = std::vector<TileHandle>(GRID_DIM*GRID_DIM, {-1, 0, 0});;
+		std::vector<TileHandle> mGrid = std::vector<TileHandle>(GRID_DIM*GRID_DIM, {-1, 0, 0});
+		std::vector<TileHandle> mAllValidTileHandles;
 		//std::unordered_map<Location, std::vector<TileHandle>> mLocToSuperPos;
 		TileManager mTileManager;
 		Grid _Grid;

@@ -374,7 +374,7 @@ namespace CPR::APP
                 return false;
         }
 
-        auto ths = gm.GetTileHandles();
+        auto ths = gm.GetTileHandles(true);
         u32 tileIndex = static_cast<u32>(toStoreIn.size());
         for (u32 x = 0; x < GRID_DIM; x++)
         {
