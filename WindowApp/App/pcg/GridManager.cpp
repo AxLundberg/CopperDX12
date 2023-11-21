@@ -120,7 +120,8 @@ namespace CPR::APP
 		for (u32 i = 1; i < placementOrder.size(); i++)
 		{
 			auto& loc = placementOrder[i];
-			auto ost = mGrid[0];
+
+			// Generate possible superposition based on neighboring tiles
 			auto sprPosNorth = GenerateSuperPositions(loc, NORTH);
 			auto sprPosEast = GenerateSuperPositions(loc, EAST);
 			auto sprPosSouth = GenerateSuperPositions(loc, SOUTH);
@@ -128,22 +129,20 @@ namespace CPR::APP
 
 			std::vector<TileHandle> temp1, temp2, result;
 
-			// Intersection of first two vectors
+			// Store intersection of the superpositions in temporary vectors
 			std::set_intersection(sprPosNorth.begin(), sprPosNorth.end(), sprPosEast.begin(), sprPosEast.end(), std::back_inserter(temp1));
+			std::set_intersection(sprPosWest.begin(), sprPosWest.end(), sprPosSouth.begin(), sprPosSouth.end(), std::back_inserter(temp2));
 
-			// Intersection of temp1 and third vector
-			std::set_intersection(temp1.begin(), temp1.end(), sprPosSouth.begin(), sprPosSouth.end(), std::back_inserter(temp2));
+			// Intersection of the two temp vectors give the final intersection of super positions
+			std::set_intersection(temp1.begin(), temp1.end(), temp2.begin(), temp2.end(), std::back_inserter(result));
 
-			// Intersection of temp2 and fourth vector
-			std::set_intersection(temp2.begin(), temp2.end(), sprPosWest.begin(), sprPosWest.end(), std::back_inserter(result));
-
+			// If there are valid superpositions, pick a random one and place it in grid
 			if (result.size())
 			{
 				auto placed = getRandomInVector(result);
 				mGrid[loc.x + loc.y * GRID_DIM] = placed;
 			}
 		}
-		auto stop = 9;
 	}
 	std::vector<TileHandle> GridManager::GenerateSuperPositions(Location loc, i32 dir)
 	{
