@@ -40,7 +40,7 @@ namespace vi = rn::views;
 
 namespace CPR::APP
 {
-    static constexpr u32 NR_OF_TILE_TEXTURES = 8;
+    static constexpr u32 NR_OF_TILE_TEXTURES = 9;
     static constexpr u32 INVALID_INDEX = u32(-1);
     struct Inputs
     {
@@ -363,8 +363,9 @@ namespace CPR::APP
 
         const std::string path = "../../WindowApp/Assets/Textures/";
 
-        std::vector<SurfaceProperty> surfaceProperties(NR_OF_TILE_TEXTURES);
-        for (u32 i = 0; i < NR_OF_TILE_TEXTURES; i++)
+        auto nrOfTileTextures = gm.GetTileCount();
+        std::vector<SurfaceProperty> surfaceProperties(nrOfTileTextures);
+        for (u32 i = 0; i < nrOfTileTextures; i++)
         {
             if (!LoadSurfacePropertyFiles(surfaceProperties[i], renderer, path, i))
                 return false;

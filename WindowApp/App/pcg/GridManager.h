@@ -16,7 +16,7 @@ namespace CPR::APP
 		~GridManager();
 		std::vector<TileHandle>& GetTileHandles(bool) { return mGrid; }
 		std::vector<Material>& GetMaterials() { return mMaterials; }
-		
+		u32 GetTileCount() { return static_cast<u32>(mTiles.size()); }
 	private:
 		void PlaceTiles();
 		std::vector<Location> GeneratePlacementOrder();

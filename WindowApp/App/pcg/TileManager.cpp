@@ -116,11 +116,6 @@ namespace CPR::APP
 		i32 count = 0;
 		for (auto& tile : tiles)
 		{
-			count++;
-			if (count == tiles.size())
-			{
-				auto asda = -0;
-			}
 			Side side[4];
 			side[NORTH].edgeSections = tile.GetEdge(NORTH);
 			side[EAST].edgeSections = tile.GetEdge(EAST);
@@ -130,6 +125,11 @@ namespace CPR::APP
 			tile.sideIDs[EAST] = SetTileSideID(toReturn, side[EAST]);
 			tile.sideIDs[SOUTH] = SetTileSideID(toReturn, side[SOUTH]);
 			tile.sideIDs[WEST] = SetTileSideID(toReturn, side[WEST]);
+			count++;
+			if (count >= tiles.size() - 1)
+			{
+				auto asda = -0;
+			}
 		}
 
 		return toReturn;
