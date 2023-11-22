@@ -12,80 +12,17 @@ namespace CPR::APP
 	GridManager::~GridManager() {}
 	
 	GridManager::GridManager()
-		: _Grid(GRID_DIM)
 	{
 		mTiles = mTileManager.CreateTiles(PATH);
 		mMaterials = mTileManager.CreateMaterials();
 		mSideToTiles = mTileManager.CreateAdjacencyMap(mTiles);
-		mTileHandles = _Grid.GetTileHandles();
 		for (i32 i = 1; i < mTiles.size(); i++)
 			for (i32 j = 0; j < NR_OF_DIRECTIONS; j++)
 				mAllValidTileHandles.push_back(TileHandle{ i, j, 0 });
 		GeneratePlacementOrder();
-		PlaceTiles(true);
+		PlaceTiles();
 	}
 
-	void GridManager::PlaceTiles()
-	{
-		static bool first = true;
-		// place start tile
-		if (first)
-		{
-			auto startTile = _Grid.GetStartPos();
-			std::vector<int> startTileIds = { 5 };
-			i32 tileID = getRandomInVector<i32>(startTileIds);
-			_Grid.PlaceTile(startTile, { tileID, 0, false });
-			first = false;
-		}
-		// place remaining tiles
-		for (u32 y = 0; y < GRID_DIM; y++)
-		{
-			for (u32 x = 0; x < GRID_DIM; x++)
-			{
-				if (y == 0 && x == 0)
-					continue;
-				auto& frontier = _Grid.GetFrontier();
-				auto nextLoc = getRandomInVector<location>(frontier);
-				if (x == 1 && y == 0) nextLoc = { 0, 1 };
-				if (x == 2 && y == 0) nextLoc = { 1, 1 };
-				auto& locSuperPos = _Grid.GetSuperPositions(nextLoc);
-				auto tileToPlace = locSuperPos.size() ?
-					getRandomInVector<TileHandle>(locSuperPos) :
-					TileHandle{ .id = 0, .rotation = 0, .reflect = 0 };
-				if (tileToPlace.id == 0)
-					auto stop = 0;
-				_Grid.PlaceTile(nextLoc, tileToPlace);
-			}
-		}
-	}
-
-	void GridManager::PlaceTile()
-	{
-		static bool first = true;
-		// place start tile
-		if (first)
-		{
-			auto startTile = _Grid.GetStartPos();
-			std::vector<int> startTileIds = { 5 };
-			i32 tileID = getRandomInVector<i32>(startTileIds);
-			_Grid.PlaceTile(startTile, { tileID, 0, false });
-			first = false;
-		}
-		// place next tile
-		else
-		{
-			auto& frontier = _Grid.GetFrontier();
-			auto nextLoc = getRandomInVector<location>(frontier);
-			auto& locSuperPos = _Grid.GetSuperPositions(nextLoc);
-			auto tileToPlace = locSuperPos.size() ?
-				getRandomInVector<TileHandle>(locSuperPos) :
-				TileHandle{ .id = 0, .rotation = 0, .reflect = 0 };
-			if (tileToPlace.id == 0)
-				auto stop = 0;
-			_Grid.PlaceTile(nextLoc, tileToPlace);
-		}
-	}
-	
 	static constexpr bool OutOfBounds(Location l)
 	{
 		return l.x < 0 || l.x >= GRID_DIM || l.y < 0 || l.y >= GRID_DIM;
@@ -106,7 +43,7 @@ namespace CPR::APP
 	{
 		return mGrid[to1D(loc)];
 	}
-	void GridManager::PlaceTiles(bool sda)
+	void GridManager::PlaceTiles()
 	{
 		auto placementOrder = GeneratePlacementOrder();
 
@@ -164,8 +101,6 @@ namespace CPR::APP
 		else
 			superPositions = GenerateCompatibleTileHandles(dir, sideIdBetween);
 		
-		auto bck = superPositions.back();
-		auto stop = 45;
 		std::sort(superPositions.begin(), superPositions.end());
 		return superPositions;
 	}

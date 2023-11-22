@@ -40,7 +40,7 @@ namespace vi = rn::views;
 
 namespace CPR::APP
 {
-    static constexpr u32 NR_OF_TILE_TEXTURES = 7;
+    static constexpr u32 NR_OF_TILE_TEXTURES = 8;
     static constexpr u32 INVALID_INDEX = u32(-1);
     struct Inputs
     {
@@ -357,10 +357,6 @@ namespace CPR::APP
 
     u32 PlaceGrid(std::vector<RenderObject>& toStoreIn, std::vector<Tile>& tiles, GridManager& gm, IRendererD11* renderer )
     {
-        for (u32 i = 0; i < GRID_DIM*GRID_DIM; i++){
-            gm.PlaceTile();
-        }
-
         Mesh tileMesh;
         if (!CreateTileMesh(tileMesh, renderer))
             return false;

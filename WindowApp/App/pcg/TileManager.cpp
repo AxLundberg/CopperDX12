@@ -113,8 +113,14 @@ namespace CPR::APP
 	std::unordered_map<id, Side> TileManager::CreateSides(std::vector<Tile>& tiles)
 	{
 		std::unordered_map<id, Side> toReturn;
+		i32 count = 0;
 		for (auto& tile : tiles)
 		{
+			count++;
+			if (count == tiles.size())
+			{
+				auto asda = -0;
+			}
 			Side side[4];
 			side[NORTH].edgeSections = tile.GetEdge(NORTH);
 			side[EAST].edgeSections = tile.GetEdge(EAST);

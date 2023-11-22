@@ -3,6 +3,8 @@
 #include <iostream>
 #include <array>
 #include <cmath>
+#include <Core/src/log/Log.h>
+#include <Core/src/utl/Assert.h>
 #pragma warning (push)
 #pragma warning (disable : 26451 26819 6262)
 #include "../../3rd/stb_image.h"
@@ -17,6 +19,11 @@ namespace CPR::APP
 	Tile::Tile(std::wstring imagePath)
 		: mTexelData(TILE_TEXEL_COUNT* TILE_TEXEL_COUNT, RED)
 	{
+		for (u32 i = 0; i < NR_OF_DIRECTIONS; i++)
+			mEdges.push_back({});
+
+		FillEdges(imagePath);
+
 		i32 stbWidth, stbHeight, channels;
 		unsigned char* stbImage = stbi_load(CPR::UTL::ToNarrow(imagePath).c_str(), &stbWidth, &stbHeight, &channels, 0);
 		if (stbImage == NULL) {
@@ -98,26 +105,63 @@ namespace CPR::APP
 			break;
 		}
 
-		u32 count = 0;
-		col color = mTexelData[start];
+		
 		std::vector<std::pair<u32, col>> result;
-		for (i32 i = 0; i < TILE_TEXEL_COUNT; ++i)
 		{
-			auto idx = start + i * step;
-			if (mTexelData[idx] == color)
+			u32 count = 0;
+			col color = mTexelData[start];
+			for (i32 i = 0; i < TILE_TEXEL_COUNT; ++i)
 			{
-				++count;
+				auto idx = start + i * step;
+				if (mTexelData[idx] == color)
+				{
+					++count;
+				}
+				else
+				{
+					result.push_back({ count, color });
+					count = 1;
+					color = mTexelData[idx];
+				}
 			}
-			else
-			{
-				result.push_back({ count, color });
-				count = 1;
-				color = mTexelData[idx];
-			}
+			result.push_back({ count, color });
 		}
-		result.push_back({ count, color });
 
-		return result;
+		std::vector<std::pair<u32, col>> res2;
+		{
+			u32 count = 0;
+			col color = mEdges[side][0];
+			for (i32 i = 0; i < TILE_TEXEL_COUNT; ++i)
+			{
+				auto idx = i;
+				if (mEdges[side][idx] == color)
+				{
+					++count;
+				}
+				else
+				{
+					res2.push_back({ count, color });
+					count = 1;
+					color = mEdges[side][idx];
+				}
+			}
+			res2.push_back({ count, color });
+		}
+
+		/*if (result.size() != res2.size())
+		{
+			auto asd = 0;
+		}
+		for (i32 i = 0; i < result.size(); i++)
+		{
+			if (result[i] != res2[i])
+			{
+				auto tst = 9;
+			}
+		}*/
+		auto nafs = name;
+		auto asdasd = -0;
+		return res2;
 	}
 	u32 Tile::ColorToMaterial(col color)
 	{
@@ -141,5 +185,67 @@ namespace CPR::APP
 		auto oppositeDir = (fromDir + NR_OF_DIRECTIONS / 2) % NR_OF_DIRECTIONS;
 		auto sideIndex = (NR_OF_DIRECTIONS + oppositeDir - rotation) % NR_OF_DIRECTIONS;
 		return sideIDs[sideIndex];
+	}
+	void Tile::FillEdges(std::wstring imagePath)
+	{
+		i32 stbWidth, stbHeight, channels;
+		unsigned char* stbImage = stbi_load(CPR::UTL::ToNarrow(imagePath).c_str(), &stbWidth, &stbHeight, &channels, 0);
+		if (stbImage == NULL) {
+			std::cout << "Could not read the image file" << std::endl;
+			return;
+		}
+
+		name = imagePath.substr(imagePath.size() - 5, 3);
+		
+		cpr_assert(stbWidth == stbHeight);
+
+		i32 scale = stbWidth / TILE_TEXEL_COUNT;
+		for (auto dir : DIRECTION)
+		{
+			i32 start{}, step{};
+			switch (dir)
+			{
+			case NORTH:
+				start = 0;
+				step = 1;
+				break;
+			case EAST:
+				start = stbWidth - 1;
+				step = stbWidth;
+				break;
+			case SOUTH:
+				start = stbWidth * stbWidth - 1;
+				step = -1;
+				break;
+			case WEST:
+				start = stbWidth * stbWidth - stbWidth;
+				step = -stbWidth;
+				break;
+			}
+
+			for (i32 i = 0; i < TILE_TEXEL_COUNT; i++)
+			{
+				u32 average[3] = { 0, 0, 0 }; // Average color for each channel
+				for (i32 j = 0; j < scale; j++)
+				{
+					i32 stbPixIdx = start + i * scale * step + j * step;
+
+					average[0] += stbImage[stbPixIdx * channels + 0];
+					average[1] += stbImage[stbPixIdx * channels + 1];
+					average[2] += stbImage[stbPixIdx * channels + 2];
+				}
+				u32 r = average[0], g = average[1], b = average[2];
+				// Divide by total number of pixels in area to get average color
+				r /= scale;
+				g /= scale;
+				b /= scale;
+
+				u32 pixelColor = (r << 16) | (g << 8) | b;
+
+				// Assign average color to destination pixel
+				auto apxColor = ApproximateColor(pixelColor);
+				mEdges[dir].push_back(apxColor);
+			}
+		}
 	}
 }
