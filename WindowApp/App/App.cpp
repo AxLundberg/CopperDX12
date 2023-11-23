@@ -72,10 +72,10 @@ namespace CPR::APP
 
     struct ImguiVariables
     {
-        f32 a = 0.f;
-        f32 b = 0.f;
-        f32 c = 0.f;
-        f32 d = 0.f;
+        f32 a[3] = { 0.f, 0.f, 0.f };
+        f32 b[3] = { 0.f, 0.f, 0.f };
+        f32 c[3] = { 0.f, 0.f, 0.f };
+        f32 d[3] = { 0.f, 0.f, 0.f };
     };
 
     GfxRenderPassD11* CreateStandardRenderPass(IRendererD11* renderer)
@@ -333,15 +333,7 @@ namespace CPR::APP
 
     bool CreateTest(ResourceIndex& toSet, IRendererD11* renderer, float offset)
     {
-        float height = offset / 2.0f;
-        ImguiVariables data[1] = {
-            {
-                .a = 0.00f,
-                .b = 0.25f,
-                .c = 0.50f,
-                .d = 0.75f,
-            }
-        };
+        ImguiVariables data[1] = {};
 
         toSet = renderer->SubmitBuffer(data,
             BufferInfo{
@@ -383,7 +375,7 @@ namespace CPR::APP
                     static_cast<f32>(x),
                     static_cast<f32>(y), 0.f, static_cast<f32>(-th.rotation * XM_PIDIV2));
 
-                u32 tileNr = th.id == u32(-1) ? 0 : th.id;
+                u32 tileNr = th.id == u32(-1) ? 1 : th.id;
                 RenderObject toStore;
                 toStore.transformBuffer = transformBuffer;
                 toStore.surfaceProperty = surfaceProperties[tileNr];
@@ -500,13 +492,13 @@ namespace CPR::APP
                 ImGui::NewFrame();
                 ImGui::Begin("Hello, world!");
                 ImGui::Text("This is some useful text.");
-                static f32 data[3] = { 0.f, 0.f, 0.f };
+                static ImguiVariables data;
                 static i32 counter = 0;
                 if (ImGui::Button("Button"))
                     counter++;
-                ImGui::SliderFloat("a", &data[0], 0.f, 1.f);
-                ImGui::SliderFloat("b", &data[1], 0.f, 1.f);
-                ImGui::SliderFloat("c", &data[2], 0.f, 1.f);
+                ImGui::ColorEdit3("Background", data.a);
+                ImGui::ColorEdit3("Blue Ground", data.b);
+                ImGui::ColorEdit3("Green Ground", data.c);
 
                 if (counter > 0)
                     renderer->UpdateBuffer(imguiBufferIndex, &data);
