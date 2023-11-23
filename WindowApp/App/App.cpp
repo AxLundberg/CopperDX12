@@ -72,10 +72,9 @@ namespace CPR::APP
 
     struct ImguiVariables
     {
-        f32 a[3] = { 0.f, 0.f, 0.f };
-        f32 b[3] = { 0.f, 0.f, 0.f };
-        f32 c[3] = { 0.f, 0.f, 0.f };
-        f32 d[3] = { 0.f, 0.f, 0.f };
+        f32 a[4] = { 0.f, 0.f, 0.f, 1.f };
+        f32 b[4] = { 0.f, 0.65882f, 0.95294f, 1.f };
+        f32 c[4] = { 0.0549f, 0.81961f, 0.27059f, 1.f };
     };
 
     GfxRenderPassD11* CreateStandardRenderPass(IRendererD11* renderer)
@@ -496,11 +495,11 @@ namespace CPR::APP
                 static i32 counter = 0;
                 if (ImGui::Button("Button"))
                     counter++;
-                ImGui::ColorEdit3("Background", data.a);
-                ImGui::ColorEdit3("Blue Ground", data.b);
-                ImGui::ColorEdit3("Green Ground", data.c);
+                ImGui::ColorEdit4("Background", data.a);
+                ImGui::ColorEdit4("Blue Ground", data.b);
+                ImGui::ColorEdit4("Green Ground", data.c);
 
-                if (counter > 0)
+                /*if (counter > 0)*/
                     renderer->UpdateBuffer(imguiBufferIndex, &data);
                 ImGui::Text("counter = %d", counter);
                 ImGui::End();

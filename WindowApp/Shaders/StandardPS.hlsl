@@ -30,20 +30,25 @@ cbuffer CameraPos : register(b0)
 
 cbuffer Imgui : register(b1)
 {
-	float3 background;
-	float3 blue;
-	float3 green;
+	float4 background;
+	float4 blueGround;
+	float4 greenGround;
 };
 
 float4 main(PixelShaderInput input) : SV_TARGET
 {
 	float3 diffuseMaterial = diffuseTexture.Sample(clampSampler, input.uv).xyz;
-	float3 colorDifference = diffuseMaterial - blueGroundColor;
-	const float threshold = 0.25f;
-
-	if(length(colorDifference) < threshold){
-		//return float4(blueGroundColor, 1.f);
+	float diffBackground = length(diffuseMaterial - backgroundColor);
+	float diffBlueGround = length(diffuseMaterial - blueGroundColor);
+	float diffGreenGround = length(diffuseMaterial - greenGroundColor);
+	
+	if(diffBackground < diffBlueGround && diffBackground < diffGreenGround)
 		return float4(background.x, background.y, background.z, 1.f);
-	}
+	else if(diffBlueGround < diffBackground && diffBlueGround < diffGreenGround)
+		return float4(blueGround.x, blueGround.y, blueGround.z, 1.f);
+	else
+		return float4(greenGround.x, greenGround.y, greenGround.z, 1.f);
+
+	
 	return float4(diffuseMaterial, 1.0f);
 }
