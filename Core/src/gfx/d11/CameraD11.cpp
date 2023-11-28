@@ -38,7 +38,7 @@ namespace CPR::GFX::D11
 	{
 		CreateProjectionMatrix(width, height);
 
-		position = { width/2.f, height/2.f, 1.0f };
+		position = { width/2.f, height/2.f, 0.0f };
 		forward = { 0.0f, 0.0f, 1.0f };
 		up = { 0.0f, 1.0f, 0.0f };
 		right = { 1.0f, 0.0f, 0.0f };

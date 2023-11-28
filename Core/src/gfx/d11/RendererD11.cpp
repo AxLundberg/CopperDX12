@@ -363,7 +363,7 @@ namespace CPR::GFX::D11
 		auto swapChain = deviceSwapchainAndContext->GetD3D11SwapChain();
 		
 		static int count = 0;
-		if(count++ == 100)
+		if(count == 100)
 		{
 			auto context = deviceSwapchainAndContext->GetD3D11DeviceContext();
 			auto device = deviceSwapchainAndContext->GetD3D11Device();

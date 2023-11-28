@@ -372,8 +372,8 @@ namespace CPR::APP
                 auto& th = ths[y * GRID_DIM + x];
                 ResourceIndex transformBuffer;
                 auto result = CreateTransformBuffer(transformBuffer, renderer,
-                    static_cast<f32>(x),
-                    static_cast<f32>(y), 0.f, static_cast<f32>(-th.rotation * XM_PIDIV2));
+                    static_cast<f32>(x+0.5f),
+                    static_cast<f32>(y+1.5f), 0.f, static_cast<f32>(-th.rotation * XM_PIDIV2));
 
                 u32 tileNr = th.id == u32(-1) ? 1 : th.id;
                 RenderObject toStore;
