@@ -372,8 +372,8 @@ namespace CPR::APP
                 auto& th = ths[y * GRID_DIM + x];
                 ResourceIndex transformBuffer;
                 auto result = CreateTransformBuffer(transformBuffer, renderer,
-                    static_cast<f32>(x+0.5f),
-                    static_cast<f32>(y+1.5f), 0.f, static_cast<f32>(-th.rotation * XM_PIDIV2));
+                    static_cast<f32>(x+.5f),
+                    static_cast<f32>(y+.5f), 0.f, static_cast<f32>(-th.rotation * XM_PIDIV2));
 
                 u32 tileNr = th.id == u32(-1) ? 1 : th.id;
                 RenderObject toStore;
@@ -434,6 +434,7 @@ namespace CPR::APP
 
     void Tmp()
     {
+
     }
 
     int Run(WIN::IWindow* window, WIN::Keyboard* keyboard, GFX::D11::IRendererD11* renderer, HINSTANCE hInstance)
@@ -452,8 +453,6 @@ namespace CPR::APP
         //CameraD11* camera = renderer->CreateCamera(0.1f, 20.0f, static_cast<float>(WINDOW_WIDTH) / WINDOW_HEIGHT);
         const int DIMENSION = 5;
         camera->MoveZ(-DIMENSION);
-        camera->MoveY(1);
-
         ResourceIndex lightBufferIndex;
         if (!CreateLights(lightBufferIndex, renderer, DIMENSION * 2.5f))
             return -1;
@@ -470,7 +469,8 @@ namespace CPR::APP
         float moveSpeed = 2.0f;
         float turnSpeed = 3.14f / 2;
         auto lastFrameEnd = std::chrono::system_clock::now();
-
+        static int screenShot = 0;
+        static constexpr int NR_OF_CAPTURES = (GRID_DIM / SCREEN_NR_OF_TILES_HEIGHT) * (GRID_DIM / SCREEN_NR_OF_TILES_HEIGHT);
         while (!window->IsClosing() && !keyboardInputs.quitKey)
         {
             if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -485,29 +485,48 @@ namespace CPR::APP
                 TransformCamera(camera, moveSpeed, turnSpeed, deltaTime);
                 //RotateTile(renderObjects, tiles[2], 0, renderer);
 
-                ImGui_ImplDX11_NewFrame();
-                ImGui_ImplWin32_NewFrame();
-                ImGui::NewFrame();
-                ImGui::Begin("Hello, world!");
-                ImGui::Text("This is some useful text.");
-                static ImguiVariables data;
-                static i32 counter = 0;
-                if (ImGui::Button("Button"))
-                    counter++;
-                ImGui::ColorEdit4("Background", data.a);
-                ImGui::ColorEdit4("Blue Ground", data.b);
-                ImGui::ColorEdit4("Green Ground", data.c);
+                if(!screenShot) // only render imgui if not capturing screen
+                {
+                    ImGui_ImplDX11_NewFrame();
+                    ImGui_ImplWin32_NewFrame();
+                    ImGui::NewFrame();
+                    ImGui::Begin("Hello, world!");
+                    ImGui::Text("This is some useful text.");
+                    static ImguiVariables data;
+                    static i32 counter = 0;
+                    if (ImGui::Button("Button"))
+                        counter++;
+                    ImGui::ColorEdit4("Background", data.a);
+                    ImGui::ColorEdit4("Blue Ground", data.b);
+                    ImGui::ColorEdit4("Green Ground", data.c);
+                    if (ImGui::Button("Screenshot"))
+                        screenShot = 1;
 
-                renderer->UpdateBuffer(imguiBufferIndex, &data);
-                ImGui::Text("counter = %d", counter);
-                ImGui::End();
+                    renderer->UpdateBuffer(imguiBufferIndex, &data);
+                    ImGui::Text("counter = %d", counter);
+                    ImGui::End();
+                }
+
                 renderer->PreRender();
-
                 renderer->Render(renderObjects);
-                ImGui::Render();
-                ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-                renderer->Present();
+                if (!screenShot) // only render imgui if not capturing screen
+                {
+                    ImGui::Render();
+                    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+                }
+
+                if (screenShot && screenShot <= NR_OF_CAPTURES) {
+                    renderer->Present(screenShot);
+                    if (screenShot & 1)
+                        camera->MoveX(SCREEN_NR_OF_TILES_WIDTH - 1.f);
+                    else
+                        camera->MoveY(SCREEN_NR_OF_TILES_HEIGHT - 1.f);
+                    screenShot++;
+                }
+                else
+                    renderer->Present();
+
                 auto currentFrameEnd = std::chrono::system_clock::now();
                 auto elapsed = std::chrono::duration_cast<
                     std::chrono::microseconds>(currentFrameEnd - lastFrameEnd).count();

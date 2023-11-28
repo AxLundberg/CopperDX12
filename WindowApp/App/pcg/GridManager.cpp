@@ -169,8 +169,6 @@ namespace CPR::APP
 		return placementOrder;
 	}
 
-	
-
 	std::vector<Location> GridManager::NeighboringLocations(Location loc)
 	{
 		std::vector<Location> neighbors;

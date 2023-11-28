@@ -36,7 +36,7 @@ namespace CPR::GFX::D11
 		virtual void SetRenderPass(GfxRenderPassD11* toSet) = 0;
 		virtual void PreRender() = 0;
 		virtual void Render(const std::vector<RenderObject>& objectsToRender) = 0;
-		virtual void Present() = 0;
+		virtual void Present(int screenShot = 0) = 0;
 	};
 
 	class RendererD11 : public IRendererD11
@@ -63,7 +63,7 @@ namespace CPR::GFX::D11
 		void SetRenderPass(GfxRenderPassD11* toSet) override;
 		void PreRender() override;
 		void Render(const std::vector<RenderObject>& objectsToRender) override;
-		void Present() override;
+		void Present(int screenShot = 0) override;
 
 	private:
 		void CreateRenderTargetView();
@@ -86,7 +86,7 @@ namespace CPR::GFX::D11
 			const PipelineBinding& binding);
 
 		void HandleBinding(const PipelineBinding& binding);
-
+		void SaveScreenCapture(int screenShotNr);
 	private:
 		unsigned int backBufferWidth = 0;
 		unsigned int backBufferHeight = 0;
