@@ -470,6 +470,7 @@ namespace CPR::APP
         float turnSpeed = 3.14f / 2;
         auto lastFrameEnd = std::chrono::system_clock::now();
         static int screenShot = 0;
+        static bool captureScreen = false;
         static constexpr int NR_OF_CAPTURES = (GRID_DIM / SCREEN_NR_OF_TILES_HEIGHT) * (GRID_DIM / SCREEN_NR_OF_TILES_HEIGHT);
         while (!window->IsClosing() && !keyboardInputs.quitKey)
         {
@@ -485,7 +486,7 @@ namespace CPR::APP
                 TransformCamera(camera, moveSpeed, turnSpeed, deltaTime);
                 //RotateTile(renderObjects, tiles[2], 0, renderer);
 
-                if(!screenShot) // only render imgui if not capturing screen
+                if(!captureScreen) // only render imgui if not capturing screen
                 {
                     ImGui_ImplDX11_NewFrame();
                     ImGui_ImplWin32_NewFrame();
@@ -500,7 +501,7 @@ namespace CPR::APP
                     ImGui::ColorEdit4("Blue Ground", data.b);
                     ImGui::ColorEdit4("Green Ground", data.c);
                     if (ImGui::Button("Screenshot"))
-                        screenShot = 1;
+                        captureScreen = true;
 
                     renderer->UpdateBuffer(imguiBufferIndex, &data);
                     ImGui::Text("counter = %d", counter);
@@ -510,19 +511,22 @@ namespace CPR::APP
                 renderer->PreRender();
                 renderer->Render(renderObjects);
 
-                if (!screenShot) // only render imgui if not capturing screen
+                if (!captureScreen) // only render imgui if not capturing screen
                 {
                     ImGui::Render();
                     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
                 }
-
-                if (screenShot && screenShot <= NR_OF_CAPTURES) {
-                    renderer->Present(screenShot);
-                    if (screenShot & 1)
+                
+                if (captureScreen && screenShot < NR_OF_CAPTURES) {
+                    camera->ResetPosition();
+                    auto camX = screenShot % (GRID_DIM / SCREEN_NR_OF_TILES_WIDTH);
+                    auto camY = screenShot / (GRID_DIM / SCREEN_NR_OF_TILES_HEIGHT);
+                    for (i32 i = 0; i < camX; i++)
                         camera->MoveX(SCREEN_NR_OF_TILES_WIDTH - 1.f);
-                    else
-                        camera->MoveY(SCREEN_NR_OF_TILES_HEIGHT - 1.f);
-                    screenShot++;
+                    for (i32 i = 0; i < camY; i++)
+                        camera->MoveY(SCREEN_NR_OF_TILES_WIDTH - 1.f);
+
+                    renderer->Present(screenShot++);
                 }
                 else
                     renderer->Present();

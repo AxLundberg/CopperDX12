@@ -9,7 +9,7 @@ namespace CPR::GFX::D11
 	{
 		CreateProjectionMatrix(minDepth,
 			maxDepth, aspectRatio);
-		position = { 0.0f, 0.0f, -4.0f };
+		position = initialPosition = { 0.0f, 0.0f, -4.0f };
 		forward = { 0.0f, 0.0f, 1.0f };
 		up = { 0.0f, 1.0f, 0.0f };
 		right = { 1.0f, 0.0f, 0.0f };
@@ -34,11 +34,16 @@ namespace CPR::GFX::D11
 		);
 	}
 
+	void CameraD11::ResetPosition()
+	{
+		position = initialPosition;
+	}
+
 	CameraD11::CameraD11(std::shared_ptr<IBufferManager> bufferManager, float width, float height)
 	{
 		CreateProjectionMatrix(width, height);
 
-		position = { width/2.f, height/2.f, 0.0f };
+		position = initialPosition = { width/2.f, height/2.f, -1.0f };
 		forward = { 0.0f, 0.0f, 1.0f };
 		up = { 0.0f, 1.0f, 0.0f };
 		right = { 1.0f, 0.0f, 0.0f };

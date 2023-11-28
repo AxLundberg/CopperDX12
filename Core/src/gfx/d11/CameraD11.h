@@ -21,8 +21,9 @@ namespace CPR::GFX::D11
 		ResourceIndex GetVPBufferIndex();
 		DirectX::XMFLOAT3 GetPosition();
 		ResourceIndex GetPositionBufferIndex();
-
+		void ResetPosition();
 	private:
+		DirectX::XMFLOAT3 initialPosition;
 		DirectX::XMFLOAT3 position;
 		DirectX::XMFLOAT3 forward;
 		DirectX::XMFLOAT3 up;
