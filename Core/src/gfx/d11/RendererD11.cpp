@@ -288,6 +288,12 @@ namespace CPR::GFX::D11
 		return textureManager->AddTexture(data, info);
 	}
 
+	CameraD11* RendererD11::CreateCamera(f32 width, f32 height)
+	{
+		currentCamera = new CameraD11(bufferManager, width, height);
+		return currentCamera;
+	}
+
 	CameraD11* RendererD11::CreateCamera(f32 minDepth, f32 maxDepth, f32 aspectRatio)
 	{
 		currentCamera = new CameraD11(bufferManager, minDepth, maxDepth, aspectRatio);
@@ -318,7 +324,6 @@ namespace CPR::GFX::D11
 		auto context = deviceSwapchainAndContext->GetD3D11DeviceContext();
 		context->OMSetRenderTargets(1, backBufferRTV.GetAddressOf(), depthBufferDSV.Get());
 		context->ClearRenderTargetView(backBufferRTV.Get(), clearColour);
-		ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 		context->ClearDepthStencilView(depthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		context->RSSetViewports(1, &viewport);

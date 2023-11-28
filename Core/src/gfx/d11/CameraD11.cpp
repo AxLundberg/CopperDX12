@@ -34,6 +34,42 @@ namespace CPR::GFX::D11
 		);
 	}
 
+	CameraD11::CameraD11(std::shared_ptr<IBufferManager> bufferManager, float width, float height)
+	{
+		CreateProjectionMatrix(width, height);
+
+		position = { 0, 0, -1.0f };
+		forward = { 0.0f, 0.0f, 1.0f };
+		up = { 0.0f, 1.0f, 0.0f };
+		right = { 1.0f, 0.0f, 0.0f };
+
+
+		vpBufferIdx = bufferManager->AddBuffer(nullptr,
+			BufferInfo{
+				.elementSize = sizeof(XMFLOAT4X4),
+				.nrOfElements = 1,
+				.rwPattern = PerFrameUsage::DYNAMIC,
+				.bindingFlags = BufferBinding::CONSTANT_BUFFER,
+			}
+		);
+
+		cameraPosBufferIdx = bufferManager->AddBuffer(nullptr,
+			BufferInfo{
+				.elementSize = sizeof(XMFLOAT3),
+				.nrOfElements = 1,
+				.rwPattern = PerFrameUsage::DYNAMIC,
+				.bindingFlags = BufferBinding::CONSTANT_BUFFER,
+			}
+		);
+	}
+
+	void CameraD11::CreateProjectionMatrix(float width, float height)
+	{
+		XMMATRIX projection = DirectX::XMMatrixOrthographicLH(5.0f, 5.0f, 0.1f, 1000.0f);
+		//XMMATRIX projection = DirectX::XMMatrixOrthographicOffCenterLH(0.0f, width, height, 0.0f, 0.1f, 1000.0f);
+		XMStoreFloat4x4(&projectionMatrix, projection);
+	}
+
 	void CameraD11::CreateProjectionMatrix(float minDepth,
 		float maxDepth, float aspectRatio)
 	{

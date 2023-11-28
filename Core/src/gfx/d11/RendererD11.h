@@ -27,6 +27,7 @@ namespace CPR::GFX::D11
 		virtual GfxRenderPassD11* CreateRenderPass(RenderPassInfo&) = 0;
 		virtual ResourceIndex SubmitBuffer(void* data, const BufferInfo&) = 0;
 		virtual ResourceIndex SubmitTexture(void* data, TextureInfo&) = 0;
+		virtual CameraD11* CreateCamera(f32 width, f32 height) = 0;
 		virtual CameraD11* CreateCamera(f32 minDepth, f32 maxDepth, f32 aspectRatio) = 0;
 		virtual void UpdateBuffer(ResourceIndex bufferIndex, void* data) = 0;
 		virtual void SetLightBuffer(ResourceIndex lightBufferIndexToUse) = 0;
@@ -53,6 +54,7 @@ namespace CPR::GFX::D11
 		GfxRenderPassD11* CreateRenderPass(RenderPassInfo&) override;
 		ResourceIndex SubmitBuffer(void* data, const BufferInfo&) override;
 		ResourceIndex SubmitTexture(void* data, TextureInfo&) override;
+		CameraD11* CreateCamera(f32 width, f32 height) override;
 		CameraD11* CreateCamera(f32 minDepth, f32 maxDepth, f32 aspectRatio) override;
 		void UpdateBuffer(ResourceIndex bufferIndex, void* data) override;
 		void SetLightBuffer(ResourceIndex lightBufferIndexToUse) override;

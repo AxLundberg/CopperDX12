@@ -437,8 +437,8 @@ namespace CPR::APP
 
     int Run(WIN::IWindow* window, WIN::Keyboard* keyboard, GFX::D11::IRendererD11* renderer, HINSTANCE hInstance)
     {
-        const unsigned int WINDOW_WIDTH = 1280;
-        const unsigned int WINDOW_HEIGHT = 642;
+        const unsigned int WINDOW_WIDTH = 512;
+        const unsigned int WINDOW_HEIGHT = 512;
         HWND windowHandle = window->GetHandle();
 
         GfxRenderPassD11* standardPass = CreateStandardRenderPass(renderer);
@@ -449,8 +449,8 @@ namespace CPR::APP
         std::vector<RenderObject> renderObjects;
         auto firstTileIndex = PlaceGrid(renderObjects, tiles, gm, renderer);
 
-        CameraD11* camera = renderer->CreateCamera(0.1f, 20.0f,
-            static_cast<float>(WINDOW_WIDTH) / WINDOW_HEIGHT);
+        CameraD11* camera = renderer->CreateCamera(static_cast<float>(WINDOW_WIDTH), static_cast<float>(WINDOW_HEIGHT));
+        //CameraD11* camera = renderer->CreateCamera(0.1f, 20.0f, static_cast<float>(WINDOW_WIDTH) / WINDOW_HEIGHT);
         const int DIMENSION = 5;
         camera->MoveZ(-DIMENSION);
         camera->MoveY(1);
@@ -499,16 +499,14 @@ namespace CPR::APP
                 ImGui::ColorEdit4("Blue Ground", data.b);
                 ImGui::ColorEdit4("Green Ground", data.c);
 
-                /*if (counter > 0)*/
-                    renderer->UpdateBuffer(imguiBufferIndex, &data);
+                renderer->UpdateBuffer(imguiBufferIndex, &data);
                 ImGui::Text("counter = %d", counter);
                 ImGui::End();
-                ImGui::Render();
                 renderer->PreRender();
 
-                //renderer->SetCamera(camera);
-                //renderer->SetRenderPass(standardPass);
                 renderer->Render(renderObjects);
+                ImGui::Render();
+                ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
                 renderer->Present();
                 auto currentFrameEnd = std::chrono::system_clock::now();

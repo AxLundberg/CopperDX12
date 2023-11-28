@@ -8,6 +8,7 @@ namespace CPR::GFX::D11
 	class CameraD11
 	{
 	public:
+		CameraD11(std::shared_ptr<IBufferManager> bufferManager, float width, float height);
 		CameraD11(std::shared_ptr<IBufferManager> bufferManager, float minDepth, float maxDepth, float aspectRatio);
 		~CameraD11() = default;
 
@@ -33,7 +34,7 @@ namespace CPR::GFX::D11
 		ResourceIndex cameraPosBufferIdx = ResourceIndex(-1);
 
 		void CreateProjectionMatrix(float minDepth, float maxDepth, float aspectRatio);
-
+		void CreateProjectionMatrix(float width, float height);
 	};
 
 }
