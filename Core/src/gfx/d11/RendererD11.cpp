@@ -2,6 +2,8 @@
 #include "../cmn/GraphicsError.h"
 
 #include <Core/thirdParty/ImGUI/imguiIncludes.h>
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <Core/thirdParty/stb_image_write.h>
 #include <stdexcept>
 
 
@@ -331,7 +333,6 @@ namespace CPR::GFX::D11
 
 	void RendererD11::Render(const std::vector<RenderObject>& objectsToRender)
 	{
-		
 		auto context = deviceSwapchainAndContext->GetD3D11DeviceContext();
 		currentRenderPass->SetShaders(context.Get());
 		const std::vector<PipelineBinding>& objectBindings = currentRenderPass->GetObjectBindings();
@@ -360,6 +361,59 @@ namespace CPR::GFX::D11
 	void RendererD11::Present()
 	{
 		auto swapChain = deviceSwapchainAndContext->GetD3D11SwapChain();
+		
+		static int count = 0;
+		if(count++ == 100)
+		{
+			auto context = deviceSwapchainAndContext->GetD3D11DeviceContext();
+			auto device = deviceSwapchainAndContext->GetD3D11Device();
+			ID3D11Texture2D* pBackBuffer;
+			swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&pBackBuffer);
+
+			// Create the staging resource
+			D3D11_TEXTURE2D_DESC desc;
+			pBackBuffer->GetDesc(&desc);
+			desc.Usage = D3D11_USAGE_STAGING;
+			desc.BindFlags = 0;
+			desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+			desc.MiscFlags = 0;
+
+			ID3D11Texture2D* pStagingTexture = {};
+			device->CreateTexture2D(&desc, NULL, &pStagingTexture);
+			context->CopyResource(pStagingTexture, pBackBuffer);
+
+			D3D11_MAPPED_SUBRESOURCE mappedResource;
+			context->Map(pStagingTexture, 0, D3D11_MAP_READ, 0, &mappedResource);
+
+			// Now, mappedResource.pData contains the image data. Save it as an image file.
+			int width = 512;  // Image width
+			int height = 440; // Image height
+			int channels = 4;       // Number of color channels (e.g., 4 for RGBA)
+
+			unsigned char* convertedData = new unsigned char[width * height * channels];
+
+			for (int y = 0; y < height; y++) {
+				for (int x = 0; x < width; x++) {
+					unsigned char* pixel = static_cast<unsigned char*>(mappedResource.pData) + y * mappedResource.RowPitch + x * channels;
+
+					// Assuming the data is BGRA and we need RGBA
+					convertedData[(y * width + x) * channels + 0] = pixel[0]; // Red
+					convertedData[(y * width + x) * channels + 1] = pixel[1]; // Green
+					convertedData[(y * width + x) * channels + 2] = pixel[2]; // Blue
+					convertedData[(y * width + x) * channels + 3] = pixel[3]; // Alpha
+				}
+			}
+
+			// Write the image file
+			stbi_write_png("screenshot.png", width, height, channels, convertedData, width * channels);
+
+			// Clean up
+			delete[] convertedData;
+			context->Unmap(pStagingTexture, 0);
+			pStagingTexture->Release();
+			pBackBuffer->Release();
+		}
+		
 		swapChain->Present(0, 0);
 	}
 }

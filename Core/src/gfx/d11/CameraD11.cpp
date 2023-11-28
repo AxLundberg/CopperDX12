@@ -38,7 +38,7 @@ namespace CPR::GFX::D11
 	{
 		CreateProjectionMatrix(width, height);
 
-		position = { 0, 0, -1.0f };
+		position = { width/2.f, height/2.f, 1.0f };
 		forward = { 0.0f, 0.0f, 1.0f };
 		up = { 0.0f, 1.0f, 0.0f };
 		right = { 1.0f, 0.0f, 0.0f };
@@ -65,7 +65,7 @@ namespace CPR::GFX::D11
 
 	void CameraD11::CreateProjectionMatrix(float width, float height)
 	{
-		XMMATRIX projection = DirectX::XMMatrixOrthographicLH(5.0f, 5.0f, 0.1f, 1000.0f);
+		XMMATRIX projection = DirectX::XMMatrixOrthographicLH(width, height, 0.1f, 1000.0f);
 		//XMMATRIX projection = DirectX::XMMatrixOrthographicOffCenterLH(0.0f, width, height, 0.0f, 0.1f, 1000.0f);
 		XMStoreFloat4x4(&projectionMatrix, projection);
 	}

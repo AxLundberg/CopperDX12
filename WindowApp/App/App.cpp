@@ -26,6 +26,7 @@
 #include "../3rd/stb_image.h"
 #pragma warning (pop)
 #include "App.h"
+#include "AppConfig.h"
 #include "pcg/Tile.h"
 #include "pcg/GridManager.h"
 
@@ -437,8 +438,6 @@ namespace CPR::APP
 
     int Run(WIN::IWindow* window, WIN::Keyboard* keyboard, GFX::D11::IRendererD11* renderer, HINSTANCE hInstance)
     {
-        const unsigned int WINDOW_WIDTH = 512;
-        const unsigned int WINDOW_HEIGHT = 512;
         HWND windowHandle = window->GetHandle();
 
         GfxRenderPassD11* standardPass = CreateStandardRenderPass(renderer);
@@ -449,7 +448,7 @@ namespace CPR::APP
         std::vector<RenderObject> renderObjects;
         auto firstTileIndex = PlaceGrid(renderObjects, tiles, gm, renderer);
 
-        CameraD11* camera = renderer->CreateCamera(static_cast<float>(WINDOW_WIDTH), static_cast<float>(WINDOW_HEIGHT));
+        CameraD11* camera = renderer->CreateCamera(static_cast<float>(SCREEN_NR_OF_TILES_WIDTH), static_cast<float>(SCREEN_NR_OF_TILES_HEIGHT));
         //CameraD11* camera = renderer->CreateCamera(0.1f, 20.0f, static_cast<float>(WINDOW_WIDTH) / WINDOW_HEIGHT);
         const int DIMENSION = 5;
         camera->MoveZ(-DIMENSION);

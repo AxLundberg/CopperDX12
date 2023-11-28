@@ -336,6 +336,9 @@
     <ClInclude Include="src\gfx\ITextureManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="thirdParty\stb_image_write.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ioc\Container.cpp">

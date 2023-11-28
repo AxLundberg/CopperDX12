@@ -108,6 +108,7 @@
   <ItemGroup>
     <ClInclude Include="3rd\stb_image.h" />
     <ClInclude Include="App\App.h" />
+    <ClInclude Include="App\AppConfig.h" />
     <ClInclude Include="App\pcg\GridManager.h" />
     <ClInclude Include="App\pcg\GridTile.h" />
     <ClInclude Include="App\pcg\Tile.h" />

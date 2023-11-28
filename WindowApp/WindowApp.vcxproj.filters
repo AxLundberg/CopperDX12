@@ -56,6 +56,9 @@
     <ClInclude Include="App\pcg\GridManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="App\AppConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\StandardVS.hlsl" />
