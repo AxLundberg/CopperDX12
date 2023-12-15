@@ -246,7 +246,7 @@ namespace CPR::APP
         IRendererD11* renderer, f32 xPos, f32 yPos, f32 zPos, f32 rad)
     {
         XMMATRIX rotationMatrix = XMMatrixRotationZ(rad);
-        XMMATRIX translationMatrix = XMMatrixTranslation(xPos *1.025f, yPos * 1.025f, zPos);
+        XMMATRIX translationMatrix = XMMatrixTranslation(xPos, yPos, zPos);
         XMMATRIX transposedMatrix = XMMatrixTranspose(rotationMatrix * translationMatrix);
         XMFLOAT4X4 matrix, toUpload;
         XMStoreFloat4x4(&matrix, translationMatrix);
@@ -521,9 +521,9 @@ namespace CPR::APP
                     camera->ResetPosition();
                     auto camX = screenShot % (GRID_DIM / SCREEN_NR_OF_TILES_WIDTH);
                     auto camY = screenShot / (GRID_DIM / SCREEN_NR_OF_TILES_HEIGHT);
-                    for (i32 i = 0; i < camX; i++)
+                    for (u32 i = 0; i < camX; i++)
                         camera->MoveX(SCREEN_NR_OF_TILES_WIDTH - 1.f);
-                    for (i32 i = 0; i < camY; i++)
+                    for (u32 i = 0; i < camY; i++)
                         camera->MoveY(SCREEN_NR_OF_TILES_WIDTH - 1.f);
 
                     renderer->Present(screenShot++);
