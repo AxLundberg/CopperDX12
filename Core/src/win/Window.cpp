@@ -82,7 +82,7 @@ namespace CPR::WIN
 
 	LRESULT Window::HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
 	{
-		if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
+		if (msg != WM_NCMOUSELEAVE && ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
 			return true;
 		try
 		{

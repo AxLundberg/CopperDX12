@@ -42,12 +42,12 @@ float4 main(PixelShaderInput input) : SV_TARGET
 	float diffBlueGround = length(diffuseMaterial - blueGroundColor);
 	float diffGreenGround = length(diffuseMaterial - greenGroundColor);
 	
-	if(diffBackground < diffBlueGround && diffBackground < diffGreenGround)
-		return float4(background.x, background.y, background.z, 1.f);
-	else if(diffBlueGround < diffBackground && diffBlueGround < diffGreenGround)
-		return float4(blueGround.x, blueGround.y, blueGround.z, 1.f);
-	else
-		return float4(greenGround.x, greenGround.y, greenGround.z, 1.f);
+	//if(diffBackground < diffBlueGround && diffBackground < diffGreenGround)
+	//	return float4(background.x, background.y, background.z, 1.f);
+	//else if(diffBlueGround < diffBackground && diffBlueGround < diffGreenGround)
+	//	return float4(blueGround.x, blueGround.y, blueGround.z, 1.f);
+	//else
+	//	return float4(greenGround.x, greenGround.y, greenGround.z, 1.f);
 
 	
 	return float4(diffuseMaterial, 1.0f);

@@ -220,6 +220,78 @@ namespace CPR::APP
         return true;
     }
 
+    bool CreateCircleMesh(Mesh& mesh, IRendererD11* renderer, f32 radius, u32 segments)
+    {
+        // Calculate the total number of vertices (1 for the center + one for each segment point)
+        const unsigned int totalVertices = segments + 1;
+
+        // Allocate memory for vertices
+        SimpleVertex* vertices = new SimpleVertex[totalVertices];
+
+        // Center vertex
+        vertices[0] = { {0.0f, 0.0f, 0.0f}, {0.5f, 0.5f}, {0.0f, 0.0f, -1.0f} };
+
+        // Vertex positions around the circle
+        for (unsigned int i = 1; i <= segments; ++i)
+        {
+            f32 angle = 2 * DirectX::XM_PI * i / segments;
+            f32 x = radius * cos(angle);
+            f32 y = radius * sin(angle);
+
+            vertices[i] = { {x, y, 0.0f}, {cos(angle), sin(angle)}, {0.0f, 0.0f, -1.0f} };
+        }
+
+        // Submit vertex buffer
+        ResourceIndex verticesIndex = renderer->SubmitBuffer(
+            vertices,
+            BufferInfo{
+                .elementSize = sizeof(SimpleVertex),
+                .nrOfElements = totalVertices,
+                .rwPattern = PerFrameUsage::STATIC,
+                .bindingFlags = BufferBinding::STRUCTURED_BUFFER
+            }
+        );
+
+        // Calculate the total number of indices
+        const u32 totalIndices = segments * 3;
+
+        // Allocate memory for indices
+        u32* indices = new u32[totalIndices];
+
+        // Create the indices
+        for (u32 i = 0; i < segments; ++i)
+        {
+            indices[i * 3] = 0;  // Center vertex
+            indices[i * 3 + 1] = (i + 1) % segments + 1;
+            indices[i * 3 + 2] = i + 1;
+        }
+
+        // Submit index buffer
+        ResourceIndex indicesIndex = renderer->SubmitBuffer(
+            indices,
+            BufferInfo{
+                .elementSize = sizeof(u32),
+                .nrOfElements = totalIndices,
+                .rwPattern = PerFrameUsage::STATIC,
+                .bindingFlags = BufferBinding::STRUCTURED_BUFFER
+            }
+        );
+
+        // Clean up allocated memory
+        delete[] vertices;
+        delete[] indices;
+
+        // Check for errors
+        if (indicesIndex == ResourceIndex(-1) || verticesIndex == ResourceIndex(-1))
+            return false;
+
+        // Set up the mesh
+        mesh.vertexBuffer = verticesIndex;
+        mesh.indexBuffer = indicesIndex;
+
+        return true;
+    }
+
     bool LoadTexture(ResourceIndex& toSet,
         IRendererD11* renderer, std::string filePath, unsigned int components)
     {
@@ -395,6 +467,38 @@ namespace CPR::APP
         return tileIndex;
     }
 
+    u32 PlacePlayer(std::vector<RenderObject>& toStoreIn, IRendererD11* renderer)
+    {
+        Mesh playerMesh;
+        /*if (!CreateTileMesh(playerMesh, renderer))
+            return false;*/
+        if (!CreateCircleMesh(playerMesh, renderer, 1.f, 10))
+            return false;
+
+        const std::string path = "../../WindowApp/Assets/Textures/";
+
+        std::vector<SurfaceProperty> surfaceProperties(5);
+        for (u32 i = 0; i < 5; i++)
+        {
+            if (!LoadSurfacePropertyFiles(surfaceProperties[i], renderer, path, i))
+                return false;
+        }
+
+        u32 playerIndex = static_cast<u32>(toStoreIn.size());
+        ResourceIndex transformBuffer;
+        auto result = CreateTransformBuffer(transformBuffer, renderer,
+            static_cast<f32>(.5f), static_cast<f32>(.5f), 0.f,
+            0.f);
+
+        RenderObject toStore;
+        toStore.transformBuffer = transformBuffer;
+        toStore.surfaceProperty = surfaceProperties[0];
+        toStore.mesh = playerMesh;
+        toStoreIn.push_back(toStore);
+
+        return playerIndex;
+    }
+
     void RotateTile(std::vector<RenderObject>& renderObjects, Tile& tile, f32 radians, IRendererD11* renderer)
     {
         auto& tileRenderObj = renderObjects[tile.renderObjectIndex];
@@ -447,8 +551,8 @@ namespace CPR::APP
         std::vector<Tile> tiles;
         GridManager gm = GridManager();
         std::vector<RenderObject> renderObjects;
-        auto firstTileIndex = PlaceGrid(renderObjects, tiles, gm, renderer);
-
+       // PlaceGrid(renderObjects, tiles, gm, renderer);
+        PlacePlayer(renderObjects, renderer);
         CameraD11* camera = renderer->CreateCamera(static_cast<float>(SCREEN_NR_OF_TILES_WIDTH), static_cast<float>(SCREEN_NR_OF_TILES_HEIGHT));
         //CameraD11* camera = renderer->CreateCamera(0.1f, 20.0f, static_cast<float>(WINDOW_WIDTH) / WINDOW_HEIGHT);
         const int DIMENSION = 5;
