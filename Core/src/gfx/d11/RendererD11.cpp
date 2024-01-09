@@ -390,9 +390,10 @@ namespace CPR::GFX::D11
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		context->Map(pStagingTexture, 0, D3D11_MAP_READ, 0, &mappedResource);
 
+
 		// Now, mappedResource.pData contains the image data. Save it as an image file.
-		int width = 512;  // Image width
-		int height = 440; // Image height
+		int width = desc.Width;  // Image width
+		int height = desc.Height; // Image height
 		int channels = 4;       // Number of color channels (e.g., 4 for RGBA)
 
 		unsigned char* convertedData = new unsigned char[width * height * channels];

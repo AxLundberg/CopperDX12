@@ -422,12 +422,12 @@ namespace CPR::APP
     void HandleKeyboard(WIN::Keyboard* keyboard)
     {
         while (const auto e = keyboard->GetEvent()) {
-            keyboardInputs.moveForwardPushed = keyboard->KeyIsPressed('W');
-            keyboardInputs.moveBackwardsPushed = keyboard->KeyIsPressed('S');
+            keyboardInputs.moveUpPushed = keyboard->KeyIsPressed('W');
+            keyboardInputs.moveDownPushed = keyboard->KeyIsPressed('S');
             keyboardInputs.moveLeftPushed = keyboard->KeyIsPressed('A');
             keyboardInputs.moveRightPushed = keyboard->KeyIsPressed('D');
-            keyboardInputs.moveUpPushed = keyboard->KeyIsPressed(VK_SHIFT);
-            keyboardInputs.moveDownPushed = keyboard->KeyIsPressed(VK_CONTROL);
+            //keyboardInputs.moveUpPushed = keyboard->KeyIsPressed(VK_SHIFT);
+            //keyboardInputs.moveDownPushed = keyboard->KeyIsPressed(VK_CONTROL);
             keyboardInputs.quitKey = keyboard->KeyIsPressed(VK_ESCAPE);
         }
     }

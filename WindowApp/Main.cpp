@@ -51,7 +51,7 @@ int WINAPI wWinMain(
 			WIN::IWindow::IocParams{
 				.pKeySink = keyboard,
 				.name = L"test",
-				.size = SPA::DimensionsI{ 512, 512 },
+				.size = SPA::DimensionsI{ 1024, 1024 },
 				.position = {} 
 		});
 		GFX::D11::Boot();
