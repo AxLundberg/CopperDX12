@@ -2,6 +2,8 @@
 #include <DirectXMath.h>
 #include <SimpleMath.h>
 
+#include "typedefs.h"
+
 namespace CPR::APP
 {
 	struct TransformComponent
@@ -29,11 +31,27 @@ namespace CPR::APP
 
 		operator const DirectX::SimpleMath::Matrix& () const { return worldMatrix; }
 		operator DirectX::SimpleMath::Matrix& () { return worldMatrix; }
+
 		DirectX::SimpleMath::Matrix worldMatrix = DirectX::SimpleMath::Matrix::Identity;
 	};
 	struct CoordinateComponent
 	{
-		int x;
-		int y;
+		i32 x;
+		i32 y;
+	};
+	struct SurfacePropertyComponent
+	{
+		ResourceIndex diffuse;
+		ResourceIndex specular;
+		ResourceIndex sampler;
+	};
+	struct TransformBufferComponent
+	{
+		ResourceIndex transformBuffer;
+	};
+	struct MeshComponent
+	{
+		ResourceIndex vertexBuffer;
+		ResourceIndex indexBuffer;
 	};
 }

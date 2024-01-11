@@ -445,6 +445,7 @@ namespace CPR::APP
             for (u32 y = 0; y < GRID_DIM; y++)
             {
                 auto& th = ths[y * GRID_DIM + x];
+                u32 tileNr = th.id == u32(-1) ? 1 : th.id;
 
                 auto& ecs = ECS::Get();
                 auto entity = ecs.createEntity();
@@ -452,16 +453,22 @@ namespace CPR::APP
                 DirectX::SimpleMath::Vector3 pos = { static_cast<f32>(x + .5f), static_cast<f32>(y + .5f), 0.0f };
                 DirectX::SimpleMath::Vector3 rot = { 0.0f, 0.0f, static_cast<f32>(-th.rotation * XM_PIDIV2) };
                 DirectX::SimpleMath::Vector3 scale = { 1.0f, 1.0f, 1.0f };
-
                 ecs.addComponent<TransformComponent>(entity, TransformComponent{pos, rot, scale});
-
-
+                
                 ResourceIndex transformBufferIdx;
                 auto result = CreateTransformBuffer(transformBufferIdx, renderer,
                     static_cast<f32>(x+.5f),
                     static_cast<f32>(y+.5f), 0.f, static_cast<f32>(-th.rotation * XM_PIDIV2));
 
-                u32 tileNr = th.id == u32(-1) ? 1 : th.id;
+                ecs.addComponent<TransformBufferComponent>(entity, TransformBufferComponent{ transformBufferIdx });
+                ecs.addComponent<MeshComponent>(entity, MeshComponent{ tileMesh.vertexBuffer, tileMesh.indexBuffer });
+                ecs.addComponent<SurfacePropertyComponent>(entity,
+                    SurfacePropertyComponent{ .diffuse = surfaceProperties[tileNr].diffuseTexture,
+                                              .specular = surfaceProperties[tileNr].specularTexture,
+                                              .sampler = surfaceProperties[tileNr].sampler
+                    }
+                );
+
 
                 RenderObject toStore;
                 toStore.transformBuffer = transformBufferIdx;
