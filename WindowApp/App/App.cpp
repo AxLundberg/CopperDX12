@@ -9,10 +9,12 @@
 #include <Core/src/win/IWindow.h>
 #include <Core/src/ioc/Container.h>
 #include <Core/src/ioc/Singletons.h>
+#include <Core/src/ecs/Ecs.h>
 
 #include <Core/thirdParty/ImGUI/ImguiIncludes.h>
 #include <filesystem>
 #include <DirectXMath.h>
+#include <SimpleMath.h>
 #include <stdexcept>
 #include <format>
 #include <ranges>
@@ -29,6 +31,7 @@
 #include "AppConfig.h"
 #include "pcg/Tile.h"
 #include "pcg/GridManager.h"
+#include "EcsComponents.h"
 
 using namespace CPR;
 using namespace CPR::GFX;
@@ -427,7 +430,7 @@ namespace CPR::APP
 
         const std::string path = "../../WindowApp/Assets/Textures/";
 
-        auto nrOfTileTextures = gm.GetTileCount();
+        const auto nrOfTileTextures = gm.GetTileCount();
         std::vector<SurfaceProperty> surfaceProperties(nrOfTileTextures);
         for (u32 i = 0; i < nrOfTileTextures; i++)
         {
@@ -435,21 +438,33 @@ namespace CPR::APP
                 return false;
         }
 
-        auto ths = gm.GetTileHandles(true);
+        auto& ths = gm.GetTileHandles(true);
         u32 tileIndex = static_cast<u32>(toStoreIn.size());
         for (u32 x = 0; x < GRID_DIM; x++)
         {
             for (u32 y = 0; y < GRID_DIM; y++)
             {
                 auto& th = ths[y * GRID_DIM + x];
-                ResourceIndex transformBuffer;
-                auto result = CreateTransformBuffer(transformBuffer, renderer,
+
+                auto& ecs = ECS::Get();
+                auto entity = ecs.createEntity();
+                ecs.addComponent<CoordinateComponent>(entity, CoordinateComponent{ (int)x, (int)y });
+                DirectX::SimpleMath::Vector3 pos = { static_cast<f32>(x + .5f), static_cast<f32>(y + .5f), 0.0f };
+                DirectX::SimpleMath::Vector3 rot = { 0.0f, 0.0f, static_cast<f32>(-th.rotation * XM_PIDIV2) };
+                DirectX::SimpleMath::Vector3 scale = { 1.0f, 1.0f, 1.0f };
+
+                ecs.addComponent<TransformComponent>(entity, TransformComponent{pos, rot, scale});
+
+
+                ResourceIndex transformBufferIdx;
+                auto result = CreateTransformBuffer(transformBufferIdx, renderer,
                     static_cast<f32>(x+.5f),
                     static_cast<f32>(y+.5f), 0.f, static_cast<f32>(-th.rotation * XM_PIDIV2));
 
                 u32 tileNr = th.id == u32(-1) ? 1 : th.id;
+
                 RenderObject toStore;
-                toStore.transformBuffer = transformBuffer;
+                toStore.transformBuffer = transformBufferIdx;
                 toStore.surfaceProperty = surfaceProperties[tileNr];
                 toStore.mesh = tileMesh;
                 toStoreIn.push_back(toStore);
@@ -538,7 +553,7 @@ namespace CPR::APP
 
     void Tmp()
     {
-
+   
     }
 
     int Run(WIN::IWindow* window, WIN::Keyboard* keyboard, GFX::D11::IRendererD11* renderer, HINSTANCE hInstance)
@@ -551,7 +566,7 @@ namespace CPR::APP
         std::vector<Tile> tiles;
         GridManager gm = GridManager();
         std::vector<RenderObject> renderObjects;
-       // PlaceGrid(renderObjects, tiles, gm, renderer);
+        PlaceGrid(renderObjects, tiles, gm, renderer);
         PlacePlayer(renderObjects, renderer);
         CameraD11* camera = renderer->CreateCamera(static_cast<float>(SCREEN_NR_OF_TILES_WIDTH), static_cast<float>(SCREEN_NR_OF_TILES_HEIGHT));
         //CameraD11* camera = renderer->CreateCamera(0.1f, 20.0f, static_cast<float>(WINDOW_WIDTH) / WINDOW_HEIGHT);

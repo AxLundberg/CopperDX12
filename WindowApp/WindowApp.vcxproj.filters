@@ -30,6 +30,9 @@
     <ClCompile Include="App\pcg\GridManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="App\EcsComponents.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App\App.h">
@@ -59,6 +62,9 @@
     <ClInclude Include="App\AppConfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="App\EcsComponents.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\StandardVS.hlsl" />
@@ -86,5 +92,8 @@
     <Image Include="Assets\Textures\TemplateTexture.png">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
